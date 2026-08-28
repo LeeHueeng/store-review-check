@@ -1,0 +1,45 @@
+{
+  "lang": "en",
+  "app": "Focus Together (sample)", "bundle_id": "com.example.focus", "version": "1.0 (10)",
+  "platforms": ["ios", "android"], "date": "2026-08-28",
+  "project": "~/dev/focus-together", "framework": "Flutter 3.35",
+  "recurrence": [{"case": "2026-08-27-ios-1.2-ugc-jomhae", "ids": ["UGC-01", "UGC-03", "UGC-04"]}],
+  "profile": [
+    {"feature": "Login", "value": "Google, Kakao (no Apple, no email, no guest)", "evidence": "lib/auth/login_screen.dart:41"},
+    {"feature": "UGC", "value": "Friends list, nickname, status message, cheer messages", "evidence": "lib/screens/friends.dart, lib/screens/chat.dart"},
+    {"feature": "Background", "value": "UIBackgroundModes: audio (silent track keeps timer alive)", "evidence": "ios/Runner/Info.plist:31"},
+    {"feature": "Push", "value": "firebase_messaging", "evidence": "pubspec.yaml:18"},
+    {"feature": "Payments / Ads", "value": "none", "evidence": "—"}
+  ],
+  "items": [
+    {"id": "UGC-01", "status": "FAIL", "guideline": "Apple 1.2 / Play UGC", "title": "No terms (EULA) consent before login; no zero-tolerance clause", "state": "Social login goes straight to home. No terms screen anywhere.", "evidence": "lib/auth/login_screen.dart:41 → `context.go('/home')`", "fix": "Insert a consent screen after social login (terms + privacy + age 14+ checkboxes, required). Add the zero-tolerance clause from templates/eula-ugc.md.", "proof": "First scene of the screen recording."},
+    {"id": "UGC-03", "status": "FAIL", "guideline": "Apple 1.2 / Play UGC", "title": "No way to report content or users", "state": "No report UI in friends list, profile or chat.", "evidence": "grep reportUser|신고 → 0 hits", "fix": "Long-press / ⋯ menu → Report → reason → `reports` collection + email/Slack notification.", "proof": "Recording: report a message."},
+    {"id": "UGC-04", "status": "FAIL", "guideline": "Apple 1.2 / Play UGC", "title": "No block mechanism", "state": "—", "evidence": "grep blockUser|차단 → 0 hits", "fix": "Profile ⋯ → Block → `blockedUsers`; filter every friends/session/message query instantly; Settings > Blocked users.", "proof": "Recording: block a user, content disappears instantly."},
+    {"id": "UGC-02", "status": "FAIL", "guideline": "Apple 1.2 / Play UGC", "title": "No objectionable-content filter", "state": "Nicknames and messages are stored as typed.", "evidence": "lib/services/user_service.dart:88", "fix": "Profanity list (ko/en) on client + server rule before save; SafeSearch for images.", "proof": "Optional recording: blocked word → warning."},
+    {"id": "IOS-LOGIN-01", "status": "FAIL", "guideline": "Apple 4.8 Login Services", "title": "Google/Kakao login without Sign in with Apple", "state": "Two social buttons only.", "evidence": "lib/auth/login_screen.dart:52-70", "fix": "Add Sign in with Apple button (same size/position), enable capability + Firebase provider. Also solves reviewer-login problem (ACC-03).", "proof": "Reviewer verifies on login screen."},
+    {"id": "ACC-02", "status": "FAIL", "guideline": "Apple 5.1.1(v) / Play Account deletion", "title": "No in-app account deletion", "state": "Settings has Logout only.", "evidence": "lib/screens/settings.dart:120", "fix": "Settings > Account > Delete account → confirm → Cloud Function deletes user doc, storage, auth; unlink Kakao/Google/Apple. Web deletion page URL for Play Data safety.", "proof": "Play: URL in Data safety."},
+    {"id": "ACC-03", "status": "FAIL", "guideline": "Apple 2.1 / Play App access", "title": "No reviewer demo account that bypasses verification", "state": "Only Google/Kakao accounts exist; both trigger 2-step verification from foreign IPs.", "evidence": "—", "fix": "Create reviewer@ / reviewer2@ email accounts (enable Email/Password provider), make them friends, seed chats. Put in App Review Information + Play App access.", "proof": "Review notes."},
+    {"id": "IOS-BG-01", "status": "WARN", "guideline": "Apple 2.5.4", "title": "Silent audio keeps the timer alive in background", "state": "`silence.mp3` looped with `audio_service`, no audible feature.", "evidence": "lib/timer/background_keeper.dart:14", "fix": "Store end time + schedule local notification + recompute on resume; Live Activity for lock screen. Remove `audio` background mode or ship a real ambient-sound feature.", "proof": "Review note explaining background mode."},
+    {"id": "IOS-IPAD-01", "status": "WARN", "guideline": "Apple 2.4.1 / 4.0", "title": "Universal app; iPad layout not verified", "state": "TARGETED_DEVICE_FAMILY = 1,2; no adaptive layout code.", "evidence": "ios/Runner.xcodeproj/project.pbxproj", "fix": "Run on iPad 13\" simulator; constrain content width (max 600pt) or switch to iPhone-only.", "proof": "—"},
+    {"id": "AND-PERM-05", "status": "FAIL", "guideline": "Play Foreground service / Android 14", "title": "FOREGROUND_SERVICE without foregroundServiceType", "state": "TimerService declared without type → crash on API 34+.", "evidence": "android/app/src/main/AndroidManifest.xml:9", "fix": "Add `android:foregroundServiceType=\"specialUse\"` + `FOREGROUND_SERVICE_SPECIAL_USE` permission + Play Console declaration with video.", "proof": "Play Console: Foreground service permissions form."},
+    {"id": "AND-SDK-01", "status": "WARN", "guideline": "Play Target API level", "title": "targetSdk follows flutter.targetSdkVersion", "state": "Flutter 3.35 → 36, OK after 2026-08-31.", "evidence": "android/app/build.gradle:5", "fix": "Confirm with `flutter --version`; pin `targetSdk = 36`.", "proof": "—"},
+    {"id": "IOS-PRIV-03", "status": "FAIL", "guideline": "Apple Privacy Manifest", "title": "No PrivacyInfo.xcprivacy", "state": "UserDefaults used; no manifest → ITMS-91053 on upload.", "evidence": "find PrivacyInfo.xcprivacy → 0", "fix": "Add manifest with NSPrivacyAccessedAPITypes (CA92.1) and collected data types.", "proof": "—"},
+    {"id": "PRIV-01", "status": "PASS", "guideline": "Apple 5.1.1(i) / Play User Data", "title": "Privacy policy linked in app", "state": "Settings > Privacy policy opens notion page.", "evidence": "lib/screens/settings.dart:96", "fix": "", "proof": "Also set URL in both consoles."},
+    {"id": "META-03", "status": "UNKNOWN", "guideline": "Age rating / IARC", "title": "Questionnaire must say 'users interact'", "state": "Console-side; not verifiable from code.", "evidence": "—", "fix": "Answer 'Yes' to user interaction / UGC in both questionnaires.", "proof": "Console screenshot."},
+    {"id": "PAY-01", "status": "NA", "guideline": "Apple 3.1.1 / Play Payments", "title": "No digital goods sold", "state": "No IAP or external payment signals.", "evidence": "scan: pay.iap=0 pay.external=0", "fix": "", "proof": ""}
+  ],
+  "priorities": [
+    "Consent screen + EULA clause (UGC-01) — also add age 14+ checkbox (KR-01)",
+    "Report + Block + filter (UGC-02/03/04) — one data model (`reports`, `blockedUsers`), three entry points",
+    "Sign in with Apple (IOS-LOGIN-01) — fixes 4.8 and makes reviewer login trivial (ACC-03)",
+    "Account deletion (ACC-02) + web deletion page",
+    "Replace silent-audio timer keeper with local notifications (IOS-BG-01); declare FGS type (AND-PERM-05)",
+    "Privacy manifest (IOS-PRIV-03); iPad layout pass (IOS-IPAD-01)",
+    "Seed two demo accounts, record on a physical iPhone (UGC-06), fill review notes"
+  ],
+  "console": {
+    "ios": ["Privacy policy URL & Support URL respond 200", "App Privacy labels match SDKs (Firebase Auth/Analytics/Messaging)", "Age rating: user interaction = Yes", "App Review Information: demo accounts, notes, recording link", "Screenshots iPhone 6.9\" / iPad 13\"", "Export compliance key set"],
+    "android": ["Privacy policy URL", "Data safety incl. account-deletion URL", "App access: reviewer credentials", "Content rating: user interaction = Yes", "Foreground service permissions declaration + video", "Ads: No / Advertising ID: No", "targetSdk 36 confirmed"]
+  },
+  "review_notes": "DEMO ACCOUNT (pre-populated with friends and chats)\n  Login: tap \"Continue with Email\" → accept Terms → reviewer@example.com / <DEMO_PASSWORD>\n  2-step verification is disabled. Second account: reviewer2@example.com / <DEMO_PASSWORD>\n\nUGC SAFEGUARDS (Guideline 1.2)\n  - Terms (EULA) with zero-tolerance policy shown before login; Settings > Terms of Use\n  - Filter: profanity filter on nicknames/messages (client + server)\n  - Report: Friends / Chat > long-press > Report > reason\n  - Block: Profile > ⋯ > Block (content removed instantly); Settings > Blocked users\n  - Reports reviewed within 24h; contact support@example.com\n\nRECORDING (physical iPhone 15, iOS 26): https://…\nOTHER: Sign in with Apple available. Timer uses local notifications (no background audio). Account deletion: Settings > Account > Delete."
+}

@@ -1,79 +1,82 @@
-# 스토어 심사 사전 점검 리포트
+# Store review pre-check report
 
-- 앱: {{앱 이름}} ({{번들 ID / 패키지명}})
-- 버전: {{버전 (빌드)}}
-- 플랫폼: {{iOS / Android / 둘 다}}
-- 점검일: {{YYYY-MM-DD}}
-- 프로젝트: `{{경로}}` ({{Flutter / React Native / Expo / iOS 네이티브 / Android 네이티브}})
-- 스캐너: scan.sh v{{버전}} — 자동 힌트 {{n}}건
+Write this file in the user's language. The JSON (`report.schema.json`) is the source of truth; this markdown is the chat/markdown rendering.
 
-## 1. 한눈에 보기
+- App: {{name}} ({{bundle id / package}})
+- Version: {{version (build)}}
+- Platforms: {{iOS / Android / both}}
+- Checked on: {{YYYY-MM-DD}}
+- Project: `{{path}}` ({{Flutter / React Native / Expo / iOS native / Android native}})
+- Scanner: scan.sh v{{version}} — {{n}} auto-hints
 
-| 등급 | 개수 |
+## 1. At a glance
+
+| Grade | Count |
 |---|---|
-| 🔴 FAIL (리젝 확정 수준) | {{n}} |
-| 🟠 WARN (자주 걸림·콘솔 확인) | {{n}} |
-| ⚪ UNKNOWN (확인 필요) | {{n}} |
+| 🔴 FAIL (will be rejected) | {{n}} |
+| 🟠 WARN (often rejected / console check) | {{n}} |
+| ⚪ UNKNOWN (needs verification) | {{n}} |
 | 🟢 PASS | {{n}} |
 | N/A | {{n}} |
 
-**재발 위험**: {{rejections/ 케이스와 같은 패턴이면 "[케이스](링크)의 UGC-03과 동일" 식으로. 없으면 "과거 리젝 패턴 없음"}}
+**Recurrence risk**: {{"same as [case](link) UGC-03" or "no past rejection pattern"}}
 
-## 2. 기능 프로필 (판정 근거)
+## 2. Feature profile (basis for judgments)
 
-| 기능 | 있음? | 근거 |
+| Feature | Found | Evidence |
 |---|---|---|
-| 로그인 | {{구글·카카오·애플·이메일·게스트}} | `{{파일:라인}}` |
-| UGC | {{채팅·친구·닉네임·프로필 사진 …}} | |
-| 결제 | | |
-| 광고 | | |
-| 권한 | | |
-| 백그라운드 | | |
-| 푸시 | | |
-| 웹뷰 | | |
+| Login | {{Google · Kakao · Apple · email · guest}} | `{{file:line}}` |
+| UGC | {{chat · friends · nickname · profile photo …}} | |
+| Payments | | |
+| Ads | | |
+| Permissions | | |
+| Background | | |
+| Push | | |
+| WebView | | |
 
-## 3. 항목별 판정
+## 3. Findings
 
-| ID | 등급 | 가이드라인 | 요약 | 근거 |
+| ID | Grade | Guideline | Summary | Evidence |
 |---|---|---|---|---|
-| UGC-01 | 🔴 | Apple 1.2 / Play UGC | 약관 동의 화면 없음 | `lib/auth/login.dart:40` 소셜 로그인 후 바로 홈 |
+| UGC-01 | 🔴 | Apple 1.2 / Play UGC | No consent screen | `lib/auth/login.dart:40` social login → home |
 | … | | | | |
 
-## 4. 상세 (FAIL / WARN / UNKNOWN)
+## 4. Details (FAIL / WARN / UNKNOWN only)
 
-### {{ID}} {{제목}} — {{등급}}
-- 가이드라인: {{번호·이름}}
-- 현재 상태: {{무엇이 있고 없는지}}
-- 근거: `{{파일:라인}}`
-- 수정 방법: {{구체적으로 — 어느 화면에 무엇을 추가, 데이터 모델, 서버}}
-- 증빙/제출 시: {{녹화·심사 노트·콘솔 설정}}
+### {{ID}} {{title}} — {{grade}}
+- Guideline: {{number · name}}
+- Current state: {{what exists / what is missing}}
+- Evidence: `{{file:line}}`
+- Fix: {{concrete — which screen, what to add, data model, server}}
+- Evidence to submit: {{recording · review notes · console setting}}
+- Closest community case: {{link from rejections/community-cases.md, if any}}
 
-## 5. 수정 우선순위
+## 5. Fix priority
 
-1. {{FAIL 먼저, 한 작업으로 여러 항목이 풀리는 것 우선 (예: Sign in with Apple = IOS-LOGIN-01 + ACC-03)}}
+1. {{FAILs first; prefer work that clears several items at once (e.g. Sign in with Apple = IOS-LOGIN-01 + ACC-03)}}
 2. …
 
-## 6. 제출 전 콘솔 체크 (코드 밖)
+## 6. Console checklist (outside the code)
 
 **App Store Connect**
-- [ ] 개인정보처리방침 URL / 지원 URL 동작
-- [ ] App Privacy 라벨 = SDK 수집 항목
-- [ ] 연령 등급 설문 (UGC → 사용자 상호작용 예)
-- [ ] App Review Information: 데모 계정, 노트, 녹화 링크, 연락처
-- [ ] 스크린샷 iPhone 6.9" / iPad 13" (유니버설이면)
-- [ ] 수출 규정 (ITSAppUsesNonExemptEncryption)
-- [ ] IAP 상품 첨부 + Paid Apps Agreement (해당 시)
+- [ ] Privacy policy URL / support URL respond
+- [ ] App Privacy labels = SDK collection
+- [ ] Age rating questionnaire (UGC → users interact = Yes)
+- [ ] App Review Information: demo account, notes, recording link, contact
+- [ ] Screenshots iPhone 6.9" / iPad 13" (universal)
+- [ ] Export compliance (ITSAppUsesNonExemptEncryption)
+- [ ] IAP attached + Paid Apps Agreement (if any)
 
 **Google Play Console**
-- [ ] 개인정보처리방침 URL
-- [ ] Data safety (SDK 포함, 계정 삭제 URL)
-- [ ] 앱 액세스 (로그인 정보)
-- [ ] 콘텐츠 등급 설문
-- [ ] 타깃 연령 / 광고 포함 / 광고 ID
-- [ ] 민감 권한·포그라운드 서비스 선언 양식 + 영상
-- [ ] targetSdk 요구치
-- [ ] (신규 개인 계정) 비공개 테스트 12명·14일
+- [ ] Privacy policy URL
+- [ ] Data safety (SDKs, account-deletion URL)
+- [ ] App access (credentials)
+- [ ] Content rating questionnaire
+- [ ] Target audience / Ads / Advertising ID
+- [ ] Sensitive-permission & foreground-service declarations + video
+- [ ] targetSdk requirement
+- [ ] (new personal account) closed testing 12 testers · 14 days
 
-## 7. 심사 노트 초안
+## 7. Review notes draft
 
-{{templates/review-notes.md 채운 내용}}
+{{filled templates/review-notes.md}}

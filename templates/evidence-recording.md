@@ -1,27 +1,27 @@
-# 증빙 녹화 순서 (UGC — Apple 1.2)
+# Evidence recording script (UGC — Apple 1.2)
 
-Apple 요구: **실기기(physical device)** 에서 촬영, (1) 가입/로그인 전 약관(EULA) 동의 (2) 콘텐츠 신고 (3) 사용자 차단 이 세 가지가 보여야 한다. 시뮬레이터 녹화는 거부된다.
+Apple asks for a recording **captured on a physical device** that shows (1) the terms/EULA consent before sign-up or login, (2) reporting content, (3) blocking a user. Simulator recordings are refused.
 
-## 준비
-- 실기기 iPhone(가능하면 최신 iOS), 설정 > 제어 센터 > "화면 기록" 추가.
-- 데모 계정 A(리뷰어용)와 B(상대방)를 서로 친구로 만들고, B가 A에게 메시지 몇 개를 보내둔다(그중 하나는 "신고할" 메시지).
-- 앱을 완전히 종료하고 로그아웃 상태에서 시작.
-- 2~3분 이내. 자막·편집 불필요, 끊김 없이 한 번에.
+## Prepare
+- A physical iPhone (recent iOS). Settings > Control Center > add "Screen Recording".
+- Demo accounts A (reviewer) and B (the other side) are friends; B has sent A a few messages (one of them is the one you'll report).
+- Kill the app; start logged out.
+- Under 2–3 minutes. No captions or editing needed; one continuous take.
 
-## 촬영 순서
-1. 제어 센터에서 화면 기록 시작 → 홈 화면에서 앱 실행 (앱 아이콘이 보이게).
-2. 로그인 화면: 약관 동의 체크박스/화면이 보이도록 잠시 멈춤 → 약관 링크를 열어 "무관용"·"24시간" 조항이 있는 부분을 3초 보여줌 → 닫기.
-3. 동의 후 로그인 (데모 계정 A. 비밀번호 입력은 화면에 안 보여도 됨).
-4. 친구 목록/채팅 진입 → B의 메시지 길게 누르기(또는 ⋯) → **신고** → 사유 선택 → 제출 → 완료 안내.
-5. B의 프로필 → **차단** → 확인 → 대화/친구 목록에서 B의 콘텐츠가 **즉시** 사라지는 것 보여줌.
-6. 설정 > 차단한 사용자 목록에 B가 있음을 보여줌.
-7. (선택) 설정 > 계정 삭제 메뉴 존재 보여줌, 설정 > 문의하기.
-8. 기록 종료.
+## Sequence
+1. Start recording from Control Center → launch the app from the home screen (icon visible).
+2. Login screen: pause on the consent checkbox/screen → open the terms link and show the "no tolerance" / "24 hours" clause for ~3 s → close.
+3. Accept and log in as A (typing the password may be off-screen).
+4. Open friends / chat → long-press (or ⋯) on B's message → **Report** → pick a reason → submit → confirmation.
+5. B's profile → **Block** → confirm → show B's content disappearing **instantly** from the chat / friends list.
+6. Settings > Blocked users shows B.
+7. (Optional) Settings > Delete account exists; Settings > Contact.
+8. Stop recording.
 
-## Android(Play) 용
-- 같은 순서로 실기기에서 `adb shell screenrecord /sdcard/ugc.mp4` 또는 기기 기본 화면 녹화.
-- 민감 권한/포그라운드 서비스 선언 양식용 영상은 별도로: 권한 요청 → 사용자 부여 → 그 권한으로 하는 핵심 기능 시연.
+## Android (Play)
+- Same sequence on a physical device: `adb shell screenrecord /sdcard/ugc.mp4` or the built-in recorder.
+- Sensitive-permission / foreground-service declaration videos are separate: permission prompt → user grants → the core feature that uses it.
 
-## 제출
-- Apple: 심사 메시지 답장에 파일 첨부(가능) + 링크(Drive/Dropbox/YouTube 비공개, 로그인 없이 열리게)를 App Review Information > Notes에 기재. 다음 제출에도 링크 유지.
-- Play: App access "기타 정보" 및 선언 양식의 영상 URL 필드에 링크.
+## Submitting
+- Apple: attach the file in the App Review message reply (attachments allowed) **and** put a link (Drive/Dropbox/unlisted YouTube, no login required) in App Review Information > Notes. Keep the link for later submissions.
+- Play: link in App access "Other instructions" and in the declaration forms' video URL field.

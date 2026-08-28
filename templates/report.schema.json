@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "store-review-check report",
+  "description": "Input for scripts/render_report.py. Filled example: docs/sample-report.json",
+  "type": "object",
+  "required": ["app", "items"],
+  "properties": {
+    "lang": {"type": "string", "enum": ["en", "ko", "ja", "zh"], "default": "en", "description": "UI language of the HTML report — the user's language"},
+    "app": {"type": "string"},
+    "bundle_id": {"type": "string"},
+    "version": {"type": "string", "description": "e.g. 1.0 (10)"},
+    "platforms": {"type": "array", "items": {"type": "string", "enum": ["ios", "android"]}},
+    "date": {"type": "string", "description": "YYYY-MM-DD"},
+    "project": {"type": "string"},
+    "framework": {"type": "string", "description": "Flutter 3.35 / React Native 0.8x / Expo SDK 5x / iOS native / Android native"},
+    "recurrence": {
+      "type": "array",
+      "description": "Past rejection cases whose checklist_ids overlap with FAIL/WARN items",
+      "items": {"type": "object", "required": ["case", "ids"], "properties": {"case": {"type": "string"}, "ids": {"type": "array", "items": {"type": "string"}}}}
+    },
+    "profile": {
+      "type": "array",
+      "items": {"type": "object", "required": ["feature", "value"], "properties": {"feature": {"type": "string"}, "value": {"type": "string"}, "evidence": {"type": "string"}}}
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "guideline", "title"],
+        "properties": {
+          "id": {"type": "string", "description": "Checklist ID, e.g. UGC-03"},
+          "status": {"type": "string", "enum": ["FAIL", "WARN", "UNKNOWN", "PASS", "NA"]},
+          "guideline": {"type": "string", "description": "e.g. Apple 1.2 / Play UGC"},
+          "title": {"type": "string", "description": "One-line finding"},
+          "state": {"type": "string", "description": "What exists / what is missing"},
+          "evidence": {"type": "string", "description": "file:line or scanner signal"},
+          "fix": {"type": "string"},
+          "proof": {"type": "string", "description": "What to record / configure at submission"}
+        }
+      }
+    },
+    "priorities": {"type": "array", "items": {"type": "string"}},
+    "console": {"type": "object", "properties": {"ios": {"type": "array", "items": {"type": "string"}}, "android": {"type": "array", "items": {"type": "string"}}}},
+    "review_notes": {"type": "string", "description": "Draft for App Review Information / Play App access. Passwords as <DEMO_PASSWORD>."},
+    "repo": {"type": "string"}
+  }
+}

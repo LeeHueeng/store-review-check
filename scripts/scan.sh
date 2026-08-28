@@ -7,7 +7,7 @@
 # 호환:  macOS 기본 bash 3.2 / BSD grep, Linux GNU grep 모두 동작.
 
 set -u
-VERSION="1.0.0"
+VERSION="1.1.0"
 ROOT="${1:-.}"
 ROOT="$(cd "$ROOT" 2>/dev/null && pwd)" || { echo "경로 없음: ${1:-.}" >&2; exit 1; }
 
@@ -232,6 +232,11 @@ if [ ! -s "$DEPTMP" ]; then echo "(의존성 파일 없음)"; else
   dep "maps"               "google_maps|mapbox|naver_map|kakao_map|react-native-maps"
   dep "screentime/usage"   "FamilyControls|DeviceActivity|ManagedSettings|usage_stats|app_usage|UsageStatsManager|flutter_screen_time|screen_time"
   dep "sms/otp"            "sms_autofill|otp_autofill|SmsRetriever|telephony"
+  dep "ai.sdk"             "openai|dart_openai|google_generative_ai|generativeai|anthropic|claude|gemini|langchain|firebase_vertexai|vertexai|ml_kit|mlkit"
+  dep "codepush/ota"       "code-push|codepush|shorebird|expo-updates|hot_update|appcenter"
+  dep "wakelock"           "wakelock|keep_screen_on|keepawake|expo-keep-awake"
+  dep "vpn"                "VpnService|openvpn|wireguard|flutter_vpn|react-native-vpn"
+  dep "perm-injecting libs (check merged manifest)" "image_picker|file_picker|permission_handler|expo-image-picker|expo-video|agora|uploadservice|background_downloader|flutter_foreground_task|background_geolocation|react-native-background-actions|inappbrowser|awesome_notifications|flutter_local_notifications"
 fi
 
 # ───────────────────────────────────────────────────────────────
@@ -292,6 +297,14 @@ sig webview         '(WKWebView|webview_flutter|InAppWebView|react-native-webvie
 sig deeplink        '(applinks:|CFBundleURLSchemes|android:scheme|uni_links|app_links|firebase_dynamic_links|deep_link|deeplink|kakaolink)'
 sig share.invite    '(Share\.share|share_plus|inviteFriend|invite_friend|초대 ?코드|inviteCode|invite_code|referral)'
 sig review.prompt   '(SKStoreReviewController|requestReview|in_app_review|InAppReview|ReviewManager|리뷰 ?요청|평가 ?요청)'
+echo "기타 리스크:"
+sig ai.sdk          '(openai|OpenAI|gpt-4|gpt-3|dart_openai|GenerativeModel|google_generative_ai|anthropic|claude-|gemini|vertexai|chatCompletion|completions)'
+sig ugc.anonymous   '(anonymous ?chat|random ?chat|익명 ?채팅|랜덤 ?채팅|匿名|stranger|모르는 ?사람)'
+sig codepush        '(CodePush|codePush|shorebird|expo-updates|Updates\.checkForUpdate|hotUpdate|hot_update)'
+sig force.update    '(forceUpdate|force_update|forcedUpdate|mustUpdate|minimumVersion|minimum_version|minAppVersion|min_app_version|강제 ?업데이트|업데이트가 ?필요)'
+sig wakelock        '(WakeLock|wakelock|WakelockPlus|keepScreenOn|FLAG_KEEP_SCREEN_ON|isIdleTimerDisabled|keepAwake)'
+sig perm.vpn        '(VpnService|NEVPNManager|NETunnelProvider|BIND_VPN_SERVICE)'
+sig record.activity '(ReplayKit|RPScreenRecorder|MediaProjection|screenRecord|screen_record|화면 ?녹화)'
 
 # ───────────────────────────────────────────────────────────────
 h2 "콘텐츠/메타데이터 신호"
@@ -365,6 +378,21 @@ if [ "$(cnt legal.age)" -eq 0 ] && [ "$(cnt auth.login)" -gt 0 ]; then flag "연
 if [ "$(cnt placeholder)" -gt 0 ]; then flag "플레이스홀더/준비중 문구 신호 → common.md CONTENT-01 (2.1)"; HINTS=1; fi
 if [ "$(cnt test.keys)" -gt 0 ]; then flag "테스트 키/테스트 광고 ID 신호 → 릴리즈 빌드에서 제거 (CONTENT-02)"; HINTS=1; fi
 
+# 포화 카테고리 (Apple 4.3(b): dating, flashlight, sound effects, wallpaper, simple timers, fortune telling)
+NAMES="$( { grep -hE '^(name|description):' "$ROOT/pubspec.yaml" 2>/dev/null; grep -hE '"(name|description|displayName|slug)"' "$ROOT/app.json" "$ROOT/package.json" 2>/dev/null; grep -h -A1 'CFBundleDisplayName' "$PLISTTMP" 2>/dev/null; grep -hoE 'android:label="[^"]+"' "$MANTMP" 2>/dev/null; } | tr 'A-Z' 'a-z' )"
+if printf '%s' "$NAMES" | grep -qE 'timer|타이머|pomodoro|뽀모도로|wallpaper|배경 ?화면|flashlight|손전등|sound ?effect|효과음|fortune|운세|타로|tarot|dating|소개팅|데이팅|white ?noise|백색 ?소음'; then
+  flag "앱 이름/설명이 포화 카테고리(타이머·배경화면·손전등·효과음·운세·데이팅)와 일치 → common.md CONTENT-07 (Apple 4.3(b) 2026-06: 'simple timers'는 의미 있게 다른 경험 없으면 거절)"; HINTS=1
+fi
+if [ "$(cnt ai.sdk)" -gt 0 ]; then flag "AI SDK/API 신호 → common.md AI-01 (Apple 5.1.2(i) 제3자 AI 공유 고지·동의 / Play AI 콘텐츠 앱 내 신고)"; HINTS=1; fi
+if [ "$(cnt ugc.anonymous)" -gt 0 ]; then flag "익명/랜덤 채팅 신호 → UGC-07, AND-CONSOLE-10 (Apple 1.2 2026-02 명시 적용 / Play Child Safety Standards·미성년자 차단 도구)"; HINTS=1; fi
+if [ "$(cnt codepush)" -gt 0 ]; then flag "OTA 코드 푸시 신호 → common.md CONTENT-10 (Apple 2.3.1 hidden features — 심사 노트에 명시, 버그 수정 범위만)"; HINTS=1; fi
+if [ "$(cnt force.update)" -gt 0 ]; then flag "강제 업데이트 게이트 신호 → common.md CONTENT-11 (심사 빌드가 스토어보다 새 버전이라 업데이트 화면에 갇히는 리젝)"; HINTS=1; fi
+if [ "$(cnt wakelock)" -gt 0 ]; then flag "WakeLock/화면 켜짐 유지 신호 → android.md AND-QUALITY-02 (기기 설정 변경으로 오탐된 사례; FLAG_KEEP_SCREEN_ON 권장)"; HINTS=1; fi
+if [ "$(cnt perm.vpn)" -gt 0 ]; then flag "VpnService 신호 → android.md AND-PERM-14 / ios.md IOS-UI-02 (허용 용도·선언 필요)"; HINTS=1; fi
+if [ "$(cnt record.activity)" -gt 0 ]; then flag "화면/활동 녹화 신호 → common.md CONTENT-08 (Apple 2.5.14 동의 + 표시)"; HINTS=1; fi
+if grep -qiE 'image_picker|file_picker|permission_handler|expo-image-picker|expo-video|agora|uploadservice|flutter_foreground_task|background_geolocation|background-actions|inappbrowser' "$DEPTMP" 2>/dev/null; then
+  flag "권한을 병합 매니페스트에 주입하는 라이브러리 사용 → android.md AND-PERM-13 (build/intermediates/merged_manifests 확인, tools:node=\"remove\")"; HINTS=1
+fi
 if [ -s "$PLISTTMP" ]; then
   [ "$(cnt perm.camera)" -gt 0 ] && ! has_plist_key NSCameraUsageDescription && ! has_plist_key NSPhotoLibraryUsageDescription && { flag "카메라/사진 신호 있으나 NSCamera/NSPhotoLibraryUsageDescription 없음 → ios.md IOS-PLIST-01"; HINTS=1; }
   [ "$(cnt perm.location)" -gt 0 ] && ! has_plist_key NSLocationWhenInUseUsageDescription && { flag "위치 신호 있으나 NSLocationWhenInUseUsageDescription 없음 → IOS-PLIST-01"; HINTS=1; }

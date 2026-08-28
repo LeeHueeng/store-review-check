@@ -1,56 +1,69 @@
-# iOS 체크리스트 — Apple App Review Guidelines
+# iOS checklist — Apple App Store Review Guidelines
 
-Apple 전용 항목. 기능 조건부 항목(UGC·계정·결제 등)은 `common.md`에 있고 여기서는 참조만 한다.
-작성 기준일 2026-08. 가이드라인 번호는 https://developer.apple.com/app-store/review/guidelines/ 기준.
+Apple-only items. Feature-conditional items (UGC, account, payments…) live in `common.md` and are only referenced here.
+Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https://developer.apple.com/app-store/review/guidelines/). Korean: `ko/ios.md`. Sources: `../references/apple.md`.
 
 ---
 
-## 로그인
+## Login
 
 ### IOS-LOGIN-01 Sign in with Apple (4.8 Login Services)
-- 근거: 4.8 — 제3자/소셜 로그인(Google, Kakao, Naver, Facebook 등)으로 **주 계정**을 만들거나 인증하면, 다음을 만족하는 다른 로그인을 **동등한 옵션**으로 제공해야 한다: (a) 이름·이메일만 수집 (b) 이메일 비공개 허용 (c) 동의 없이 광고용 상호작용 수집 안 함. Sign in with Apple이 이를 만족한다.
-- 예외: 자사 계정 시스템만 사용 / 교육·기업 계정 / 정부·산업 ID / 특정 제3자 서비스 전용 클라이언트.
-- 적용: `auth.google/kakao/naver/facebook` > 0
-- 확인: 로그인 화면에 Apple 버튼이 소셜 버튼과 **같은 화면·같은 크기**로 있는가(숨기거나 작게 두면 4.8 리젝). `sign_in_with_apple`/`AuthenticationServices` 사용. Xcode Capabilities "Sign in with Apple" + entitlements `com.apple.developer.applesignin`. Firebase면 Apple 제공자 활성화 + Services ID(Android용).
-- 신호: `auth.apple`, entitlements
-- 수정: 버튼 추가(HIG 규격: 검정/흰색 Apple 로고 버튼) → Firebase/Supabase Apple 제공자 연동 → 계정 병합 정책 결정(같은 이메일 다른 제공자). Android에서도 Apple 로그인 노출하려면 웹 플로우 필요(선택).
-- 증빙: 없음(심사관이 직접 확인). 심사 노트에 "Sign in with Apple available" 한 줄.
-- 사례: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — 메일엔 없지만 Google/Kakao만 있어 동반 리젝 위험
+- Basis: 4.8 "Apps that use a third-party or social login service (such as Facebook Login, Google Sign-In, Log in with X, Sign In with LinkedIn, Login with Amazon, or WeChat Login) to set up or authenticate the user's primary account with the app must also offer as an equivalent option another login service with the following features: the login service limits data collection to the user's name and email address; the login service allows users to keep their email address private as part of setting up their account; and the login service does not collect interactions with your app for advertising purposes without consent." Kakao/Naver/LINE logins count. Sign in with Apple satisfies this.
+- Exemptions (verbatim categories): the app exclusively uses your company's own account setup and sign-in systems; login via an alternative app marketplace account; education/enterprise apps requiring an existing education or enterprise account; government or industry-backed citizen identification / eID; a client for a specific third-party service where users must sign in to that service directly.
+- Applies: `auth.google/kakao/naver/facebook` > 0
+- Verify: the Apple button is on the **same screen, same size** as the social buttons (hidden or smaller → 4.8 rejection). `sign_in_with_apple` / `AuthenticationServices` used. Xcode capability "Sign in with Apple" + entitlement `com.apple.developer.applesignin`. Firebase: Apple provider enabled + Services ID (for Android/web).
+- Signals: `auth.apple`, entitlements
+- Fix: add the button (HIG: black/white Apple-logo button; "Delay sign-in as long as possible") → Firebase/Supabase Apple provider → decide the account-merge policy (same email, different provider). Accept the new relay domain `private.icloud.com` as well as `privaterelay.appleid.com` (2026-08).
+- Evidence: none (reviewers check). One line in the review notes: "Sign in with Apple available".
+- Cases: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — not in the email, but Google/Kakao-only login makes this a co-rejection risk; community cases tagged IOS-LOGIN-01
 
-### IOS-LOGIN-02 Apple 계정 삭제 시 토큰 폐기
-- 근거: 5.1.1(v) + Apple 공지(2022) — Sign in with Apple 사용자 계정 삭제 시 `revoke tokens` REST API 호출 필요
-- 확인: 계정 삭제 서버 함수에서 Apple token revoke 호출.
+### IOS-LOGIN-02 Revoke Apple tokens on account deletion
+- Basis: 5.1.1(v) + Apple notice (2022) — when a Sign in with Apple user deletes their account, call the `revoke tokens` REST API
+- Verify: the account-deletion server function revokes the Apple token.
+
+### IOS-LOGIN-03 Korea: Sign in with Apple server-to-server notifications
+- Basis: Apple news 2025-10-09 — developers based in Korea must provide a server-to-server notification endpoint on the Services ID used for Sign in with Apple from 2026-01-01 (account changes/deletions are pushed to your server)
+- Applies: Korea-based developer account + Sign in with Apple
+- Verify: Certificates, Identifiers & Profiles > Services ID > Sign in with Apple > server-to-server notification endpoint is set and the endpoint handles `consent-revoked` / `account-delete` events.
+
+### IOS-LOGIN-04 After Sign in with Apple: don't ask for name/email again; accept relay addresses
+- Basis: 4.0 Design rejection text — "Your app requires users to provide their name and/or email address after using Sign in with Apple. This information is already provided by the Authentication Services framework."
+- Applies: any Sign in with Apple flow that shows a profile form afterwards
+- Verify: name/email are taken from `ASAuthorizationAppleIDCredential` on the **first** authorization (Apple only sends them once — persist immediately); `@privaterelay.appleid.com` / `@private.icloud.com` addresses are accepted by validation and by the backend; Firebase `displayName == null` is handled without re-prompting; the button uses the official wording ("Sign in with Apple" / "Apple로 로그인").
+- Signals: `auth.apple`
+- Fix: pre-fill from the credential, make the form optional, allow relay emails.
+- Cases: [community — 4.0 / SIWA](../rejections/community-cases.md#40-design--sign-in-with-apple-ux)
 
 ---
 
-## 기기·UI
+## Devices & UI
 
-### IOS-IPAD-01 iPad에서 정상 동작 (2.4.1 / 4.0 / 2.1)
-- 근거: 심사관은 **iPad로도 테스트한다**(사례: iPad Air 11-inch). `TARGETED_DEVICE_FAMILY = 1,2`(유니버설)이면 iPad 레이아웃이 깨지면 4.0 Design/2.1 리젝. `1`(iPhone 전용)이어도 iPad 호환 모드로 실행되며 크래시하면 리젝.
-- 확인: pbxproj `TARGETED_DEVICE_FAMILY`. 유니버설이면 iPad 시뮬레이터(13"·11")에서 모든 화면 확인 — 늘어난 레이아웃, 모달 사이즈, 가로 모드(`UISupportedInterfaceOrientations~ipad` 4방향이면 가로도 확인, 세로만 지원하려면 `UIRequiresFullScreen = YES` + 세로만).
-- 신호: pbxproj, plist orientations
-- 수정: 폭 제한 컨테이너(max 600pt 중앙 정렬) 같은 최소 대응. 또는 iPhone 전용으로 전환(`TARGETED_DEVICE_FAMILY = 1`) — 단 여전히 iPad에서 실행되므로 크래시 없어야 함.
-- 사례: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — Review Device에 iPad 포함
+### IOS-IPAD-01 Works on iPad (2.4.1 / 4.0 / 2.1)
+- Basis: reviewers **test on iPad too** (cases: iPad Air 11-inch M3, iPad Air 5). With `TARGETED_DEVICE_FAMILY = 1,2` (universal) a broken iPad layout is a 4.0 Design / 2.1 rejection. With `1` (iPhone-only) the app still runs in compatibility mode and must not crash — "'Create PIN' button was not responsive" and splash hangs were rejected on iPad Air.
+- Verify: pbxproj `TARGETED_DEVICE_FAMILY`. Universal → run every screen on the 13" and 11" iPad simulators: stretched layouts, modal sizes, tap targets, landscape (`UISupportedInterfaceOrientations~ipad` with all four orientations → check landscape; portrait-only requires `UIRequiresFullScreen = YES` + portrait only). iPhone-only → still launch and tap through on an iPad simulator. iPad 13" screenshots must be real iPad captures, not stretched iPhone images.
+- Signals: pbxproj, plist orientations
+- Fix: a width-constrained container (max 600 pt, centered) as minimum effort. Or go iPhone-only (`TARGETED_DEVICE_FAMILY = 1`) — still must not crash on iPad.
+- Cases: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — review devices included an iPad; [community](../rejections/community-cases.md#40-design--sign-in-with-apple-ux)
 
-### IOS-UI-01 기본 완성도 (4.0 Design)
-- 확인: 다크 모드 깨짐(강제 라이트면 `UIUserInterfaceStyle = Light`로 명시), safe area·노치·Dynamic Island 침범, 키보드가 입력창 가림, 빈 상태 화면, 시스템 폰트 크기 확대 시 잘림.
+### IOS-UI-01 Basic polish (4.0 Design)
+- Verify: dark-mode breakage (force light with `UIUserInterfaceStyle = Light` if needed), safe area / notch / Dynamic Island overlap, keyboard covering inputs, empty states, clipping with large Dynamic Type.
 
-### IOS-UI-02 비공개 API·동적 코드 금지 (2.5.1 / 2.5.2)
-- 확인: 플러그인이 private API 사용(업로드 시 ITMS 경고로 드러남). 코드 푸시(CodePush/Shorebird 등)는 "앱의 주 목적을 바꾸지 않는 범위" 조건부 허용.
+### IOS-UI-02 No private APIs or downloaded code (2.5.1 / 2.5.2)
+- Verify: plugins using private APIs (shows up as ITMS warnings on upload). Code push (CodePush/Shorebird…) allowed only when it doesn't change the app's primary purpose.
 
-### IOS-UI-03 외부 링크·앱 유도 (3.1.1 / 2.3.10)
-- 확인: "웹에서 더 싸게 구독" 류 링크·문구 없음. 다른 앱 설치 유도 최소화.
+### IOS-UI-03 External links & app steering (3.1.1(a) / 2.3.10)
+- Verify: outside the US storefront, no "subscribe cheaper on the web" links, buttons or copy (3.1.1(a): only the United States storefront may include them without an entitlement; EU/Japan/Korea via their programs — IOS-IAP-02). Minimal prompting to install other apps; never force downloads/reviews (3.2.2(x)).
 
 ---
 
 ## Info.plist
 
-### IOS-PLIST-01 권한 목적 문구 누락·부실 (5.1.1(ii))
-- 근거: 권한 API를 호출하는데 해당 `NS*UsageDescription`이 없으면 **크래시** → 2.1. 있어도 모호하면 5.1.1 리젝.
-- 확인: scan 결과 `perm.*` 신호별 필요 키:
-  | 신호 | 키 |
+### IOS-PLIST-01 Missing or vague purpose strings (5.1.1(ii))
+- Basis: calling a permission API without its `NS*UsageDescription` **crashes** → 2.1. Present but vague → 5.1.1 rejection.
+- Verify: keys required per `perm.*` signal:
+  | Signal | Key |
   |---|---|
-  | perm.camera | NSCameraUsageDescription, NSPhotoLibraryUsageDescription (+ NSPhotoLibraryAddUsageDescription 저장 시) |
+  | perm.camera | NSCameraUsageDescription, NSPhotoLibraryUsageDescription (+ NSPhotoLibraryAddUsageDescription when saving) |
   | perm.location | NSLocationWhenInUseUsageDescription (+ NSLocationAlwaysAndWhenInUseUsageDescription) |
   | perm.mic | NSMicrophoneUsageDescription (+ NSSpeechRecognitionUsageDescription) |
   | perm.contacts | NSContactsUsageDescription |
@@ -59,94 +72,111 @@ Apple 전용 항목. 기능 조건부 항목(UGC·계정·결제 등)은 `common
   | perm.health | NSHealthShareUsageDescription, NSHealthUpdateUsageDescription |
   | track.att | NSUserTrackingUsageDescription |
   | Face ID | NSFaceIDUsageDescription |
-  | 로컬 네트워크 | NSLocalNetworkUsageDescription |
-  플러그인이 내부적으로 쓰는 것(image_picker → 카메라+사진 둘 다)도 포함. 문구는 "무엇을 위해 무엇을" 형식.
-- 신호: `iOS Info.plist` 섹션 vs `perm.*`
-- 수정: 키 추가 + `InfoPlist.strings` 현지화(ko/en).
+  | local network | NSLocalNetworkUsageDescription |
+  Include what plugins use internally (image_picker → camera + photos). Wording: "to do X, we use Y".
+- Signals: `iOS Info.plist` section vs `perm.*`
+- Fix: add keys + localize via `InfoPlist.strings` (ko/en).
 
-### IOS-PLIST-02 UIBackgroundModes 정당성 (2.5.4)
-- `common.md` BG-01 참고. `audio`·`location`·`voip`·`fetch`·`processing` 각각 실제 기능 필요.
+### IOS-PLIST-02 UIBackgroundModes justification (2.5.4)
+- See `common.md` BG-01. `audio`, `location`, `voip`, `fetch`, `processing` each need a real feature.
 
-### IOS-PLIST-03 URL Scheme·LSApplicationQueriesSchemes
-- 확인: 카카오 로그인 → `kakao{APP_KEY}` URL scheme + `LSApplicationQueriesSchemes`에 `kakaokompassauth`, `kakaolink`, `kakaoplus`. 네이버 → `naversearchapp`, `naversearchthirdlogin`. 없으면 카카오톡 앱 로그인이 안 돼 심사 중 로그인 실패.
-- 신호: `LSApplicationQueriesSchemes`, `auth.kakao`
+### IOS-PLIST-03 URL schemes & LSApplicationQueriesSchemes
+- Verify: Kakao login → `kakao{APP_KEY}` URL scheme + `LSApplicationQueriesSchemes` with `kakaokompassauth`, `kakaolink`, `kakaoplus`. Naver → `naversearchapp`, `naversearchthirdlogin`. Missing → KakaoTalk app login fails during review.
+- Signals: `LSApplicationQueriesSchemes`, `auth.kakao`
 
-### IOS-PLIST-04 ATS(App Transport Security)
-- 확인: `NSAllowsArbitraryLoads = true`면 심사 노트에 사유 필요. 가능하면 도메인 예외만.
+### IOS-PLIST-04 ATS (App Transport Security)
+- Verify: `NSAllowsArbitraryLoads = true` needs a justification in the review notes. Prefer per-domain exceptions.
 
 ---
 
-## 개인정보·매니페스트
+## Privacy & manifests
 
-### IOS-PRIV-01 App Privacy 라벨 (ASC)
-- `common.md` PRIV-02 참고. 제출 전 "App Privacy" 섹션이 SDK 기준으로 채워졌는지.
+### IOS-PRIV-01 App Privacy labels (ASC)
+- See `common.md` PRIV-02. Fill "App Privacy" from the SDK list before submitting.
 
 ### IOS-PRIV-02 ATT (5.1.2(i))
-- `common.md` PRIV-03 참고. 광고·어트리뷰션 SDK 있으면 ATT 요청 코드 + `NSUserTrackingUsageDescription`. ATT를 거부해도 앱 기능 제한 금지.
+- See `common.md` PRIV-03. Ad/attribution SDKs → ATT request + `NSUserTrackingUsageDescription`. Denying ATT must not limit functionality.
 
-### IOS-PRIV-03 Privacy Manifest — Required Reason API
-- 근거: 2024-05-01부터 필수. `PrivacyInfo.xcprivacy`에 `NSPrivacyAccessedAPITypes`(UserDefaults, 파일 타임스탬프, 시스템 부팅 시간, 디스크 공간, 활성 키보드)와 사유 코드, `NSPrivacyTracking`, `NSPrivacyCollectedDataTypes`. 누락 시 업로드 후 **ITMS-91053/91061** 메일 또는 리젝. Apple이 지정한 제3자 SDK(Firebase, AppsFlyer, Kingfisher 등)는 SDK 자체 매니페스트·서명 필요(최신 버전 사용으로 해결).
-- 확인: 앱 타깃에 `PrivacyInfo.xcprivacy` 존재 + Copy Bundle Resources 포함. UserDefaults 쓰면 `CA92.1`, 파일 타임스탬프 `C617.1`/`DDA9.1` 등.
-- 신호: `PrivacyInfo.xcprivacy 파일 수`
-- 수정: Xcode > New File > App Privacy 생성. Flutter/RN은 `ios/Runner/PrivacyInfo.xcprivacy` + Xcode 프로젝트에 추가. SDK 최신화.
+### IOS-PRIV-03 Privacy manifest — Required Reason APIs & SDK manifests
+- Basis: "Starting May 1, 2024, apps that don't describe their use of required reason API in their privacy manifest file aren't accepted by App Store Connect." `PrivacyInfo.xcprivacy` keys: `NSPrivacyTracking`, `NSPrivacyTrackingDomains` (requests to these domains fail without ATT consent), `NSPrivacyCollectedDataTypes`, `NSPrivacyAccessedAPITypes` with reason codes. Apple-listed third-party SDKs (Firebase*, GoogleSignIn, FBSDK*, Alamofire, Flutter, Kingfisher, SDWebImage, RxSwift, OneSignal, Lottie, Realm…) must ship their own manifest and signature — https://developer.apple.com/support/third-party-SDK-requirements/
+- Error codes: **ITMS-91053 "Missing API declaration"** = your binary (or an SDK in it) calls a required-reason API without a matching `NSPrivacyAccessedAPITypes` entry. **ITMS-91061 "Missing privacy manifest"** = a listed SDK has no privacy manifest (blocking for new apps / updates adding such an SDK since ~2025-02).
+- Verify: `PrivacyInfo.xcprivacy` in the app target + in Copy Bundle Resources. Categories: FileTimestamp (DDA9.1, C617.1…), SystemBootTime (35F9.1…), DiskSpace (E174.1, 7D6E.1…), ActiveKeyboards (54BD.1), UserDefaults (CA92.1 for app-container use).
+- Signals: `PrivacyInfo.xcprivacy file count`
+- Fix: Xcode > New File > App Privacy. Flutter/RN: `ios/Runner/PrivacyInfo.xcprivacy` + add to the Xcode project. Update SDKs to versions that ship manifests.
 
 ---
 
-## 메타데이터·제출
+## Metadata & submission
 
-### IOS-META-01 스크린샷 규격
-- 확인: iPhone 6.9"(1320×2868 또는 1290×2796) 필수, iPad 13"(2064×2752) — 유니버설 앱이면 필수. 스크린샷 안에 실제 앱 화면(2.3.3).
+### IOS-META-01 Screenshot specs
+- Basis: ASC screenshot specifications — 1–10 per device class, JPG/PNG without alpha. iPhone 6.9" **1320×2868** (or 2868×1320) required if the app runs on iPhone (6.5" 1284×2778 is accepted and scaled when 6.9" is missing). iPad 13" **2064×2752 or 2048×2732** (or landscape) required if the app runs on iPad. Screenshots show the real app in use (2.3.3), no other-platform imagery (2.3.10), suitable for 4+ (2.3.8). New fall-2026 creative assets (product page header, search result asset) are optional.
 
 ### IOS-META-02 App Review Information
-- 확인: Sign-in required 체크 + 데모 계정, Notes(`templates/review-notes.md`), Contact 정보(전화번호 국가코드), 첨부(녹화 링크). UGC 앱은 녹화 링크 **필수**(사례).
+- Basis: 2.3.1(a) new features must be described "with specificity in the Notes for Review… (generic descriptions will be rejected)"; 2.1(a)/(b) demo account and IAP visibility; App Review page lists "Incomplete information" among the top rejection reasons ("over 40% of unresolved issues are related to guideline 2.1: App Completeness")
+- Verify: "Sign-in required" + demo account that "must not expire" (extra accounts in Notes), Notes ≤ 4000 bytes in any language (`templates/review-notes.md`), contact name/email/phone (international format with "+"), attachments/links (recording). UGC apps: recording link **required** (case). Explain anything behind conditions (region, role, time, hardware).
 
-### IOS-META-03 수출 규정 준수 (Export Compliance)
-- 확인: `ITSAppUsesNonExemptEncryption` 키. HTTPS만 쓰면 `false` → 업로드마다 질문 생략. 자체 암호화(E2EE 등)면 `true` + 연 1회 자가 분류 보고(미국).
-- 신호: plist
+### IOS-META-03 Export compliance
+- Verify: `ITSAppUsesNonExemptEncryption` key. HTTPS only → `false` skips the question on every upload. Custom crypto (E2EE…) → `true` + annual self-classification report (US).
+- Signals: plist
 
-### IOS-META-04 최소 Xcode/SDK
-- 근거: Apple은 매년 4월경 "이 날짜 이후 제출은 Xcode N / iOS N SDK로 빌드" 공지(2025-04-24부터 Xcode 16/iOS 18 SDK). 2026년엔 Xcode 26/iOS 26 SDK 요구 가능성이 높으니 제출 시점에 [Apple 뉴스](https://developer.apple.com/news/)에서 확인.
-- 확인: `xcodebuild -version`, Flutter/RN이 요구 SDK 지원하는 버전인지.
+### IOS-META-04 Minimum Xcode / SDK
+- Basis: https://developer.apple.com/news/upcoming-requirements/ — "Apps uploaded to App Store Connect must be built with Xcode 26 or later using an SDK for iOS 26, iPadOS 26, tvOS 26, visionOS 26, or watchOS 26", effective **2026-04-28** (watchOS apps also 64-bit). Apple moves this every April.
+- Verify: `xcodebuild -version` ≥ 26; Flutter/RN/Expo version supports the iOS 26 SDK. CI images updated.
 
-### IOS-META-05 버전·빌드 번호
-- 확인: 재제출 시 `CFBundleVersion`(빌드) 증가. `MARKETING_VERSION`은 스토어 버전과 일치.
+### IOS-META-05 Version & build numbers
+- Verify: bump `CFBundleVersion` (build) on resubmission. `MARKETING_VERSION` matches the store version.
+
+### IOS-META-06 Age rating questionnaire (2025–2026 system)
+- Basis: tiers 4+/9+/13+/16+/18+ with new questions (in-app controls incl. parental controls & age assurance; capabilities: unrestricted web access, UGC, social media, messaging & chat, advertising; medical/wellness; violence; chance-based: gambling, simulated gambling, contests, loot boxes). Responses were required by 2026-01-31; **social-media questions required for submissions from 2026-09**; the "Social Media" capability implies minimum 13+ (iOS 27 Time Allowances); loot boxes → 18+ in Brazil; Korea profanity/mature themes → 12+ from 2026-10. 2.3.6: answer honestly.
+- Verify: the questionnaire in ASC reflects UGC/messaging/social features and any web browsing; the resulting tier matches marketing (no "for kids" wording outside the Kids category — 5.1.4(b)).
+- Signals: `ugc.*`, `webview`, `pay.iap` (loot boxes)
 
 ---
 
-## Entitlements·특수 기능
+## Entitlements & special features
 
-### IOS-ENT-01 Capabilities ↔ 코드 일치
-- 확인: 푸시 쓰면 `aps-environment` entitlement + ASC 앱 ID에 Push 켜짐(없으면 토큰 발급 실패 → 심사 중 기능 미동작). Associated Domains(Universal Links), App Groups(위젯) 등 코드에서 쓰는 것과 entitlements 일치.
-- 신호: entitlements 목록 vs `perm.push`, `deeplink`
+### IOS-ENT-01 Capabilities ↔ code
+- Verify: push → `aps-environment` entitlement + Push enabled on the App ID in ASC (otherwise no token → feature dead during review). Associated Domains (universal links), App Groups (widgets), etc. match what the code uses.
+- Signals: entitlements list vs `perm.push`, `deeplink`
 
-### IOS-ENT-02 Screen Time API (FamilyControls) — 별도 승인
-- 근거: `com.apple.developer.family-controls` entitlement는 **Apple에 신청·승인 필요**(수 주). 승인 없이 제출하면 빌드 실패 또는 리젝. 집중·앱 차단 앱이 흔히 씀.
-- 적용: `perm.screentime` > 0
-- 확인: 승인된 entitlement가 프로비저닝 프로파일에 있는가. 배포용은 별도 신청(개발용과 다름).
-- 수정: https://developer.apple.com/contact/request/family-controls-distribution 신청 후 대기. 승인 전엔 기능 숨김.
+### IOS-ENT-02 Screen Time API (FamilyControls) — separate approval
+- Basis: `com.apple.developer.family-controls` must be **requested from and approved by Apple** (weeks). Submitting without it fails the build or gets rejected. Common in focus / app-blocker apps.
+- Applies: `perm.screentime` > 0
+- Verify: the approved entitlement is in the distribution provisioning profile (distribution approval is separate from development).
+- Fix: request at https://developer.apple.com/contact/request/family-controls-distribution and wait. Hide the feature until approved.
 
 ### IOS-ENT-03 Sign in with Apple entitlement
-- IOS-LOGIN-01 참고. `com.apple.developer.applesignin` 배열 `Default`.
+- See IOS-LOGIN-01. `com.apple.developer.applesignin` array `Default`.
+
+### IOS-ENT-04 No leftover capabilities or framework references
+- Basis: 2.5.1 rejections quote "binary includes references to HealthKit components, but the app does not appear to include any primary features that require health or fitness data", "still includes ScreenTime API without ScreenTime features", "binary contains references to App Tracking Transparency, but you have indicated you do not intend to ask users for permission to track"; Kids apps: ATT references are a 1.3 rejection
+- Applies: any capability toggled once in Xcode or on the App ID; SDKs that link HealthKit/ATT/FamilyControls; removed features
+- Verify: Signing & Capabilities has only capabilities with visible features; the **App ID in the developer portal** matches (a capability left enabled there alone caused a rejection); `otool -L` / `strings` on the binary for `HealthKit`, `ATTrackingManager`, `FamilyControls`, `DeviceActivity` when the feature is gone; no `NSUserTrackingUsageDescription` if you don't track.
+- Signals: entitlements list, `perm.health`, `track.att`, `perm.screentime`
+- Fix: remove the capability in Xcode **and** on the App ID; drop the SDK/module; strip the plist keys.
+- Cases: [community — 2.5.1](../rejections/community-cases.md#251--231-software-requirements-leftover-capabilities-hidden-features)
 
 ---
 
-## 백그라운드·타이머 (집중/타이머 앱 특화)
+## Background & timers (focus/timer apps)
 
-### IOS-BG-01 타이머 유지 방식 (2.5.4)
-- 근거: 무음 오디오·가짜 위치 업데이트로 앱을 살려두는 것은 리젝. 타이머 앱은 백그라운드 실행 없이 **종료 시각 저장 + 로컬 알림 + Live Activity/위젯**으로 구현하는 것이 심사 안전.
-- 확인: `bg.audio` 신호(silent.mp3, AVAudioSession playback + 소리 없음), `audio_service`/`just_audio_background`가 실제 사운드 재생용인지.
-- 수정: `common.md` BG-01. 진짜 백색소음·앰비언트 재생 기능이 있으면 그 기능을 심사 노트에 명시("Background audio is used for the ambient sound feature; the timer itself uses local notifications").
+### IOS-BG-01 How the timer survives in background (2.5.4)
+- Basis: silent audio or fake location updates to keep the app alive get rejected. Timer apps are safest with **end time + local notification + Live Activity/widget**, no background execution.
+- Verify: `bg.audio` signal (silence.mp3, AVAudioSession playback with no audible feature); is `audio_service` / `just_audio_background` used for real sound?
+- Fix: `common.md` BG-01. If there is a real ambient-sound feature, state it in the review notes ("Background audio is used for the ambient sound feature; the timer itself uses local notifications").
 
-### IOS-BG-02 Live Activity / 위젯
-- 확인: 쓰면 `NSSupportsLiveActivities = true`, 위젯 익스텐션 App Group. 심사와 직접 관련은 적지만 크래시 요인.
+### IOS-BG-02 Live Activity / widgets
+- Verify: `NSSupportsLiveActivities = true`, App Group for the widget extension. Not a review item per se, but a crash source.
 
 ---
 
-## 결제
+## Payments
 
-### IOS-IAP-01 IAP 제출 상태
-- `common.md` PAY-01~04. 첫 제출 시 IAP를 버전에 첨부, Paid Apps Agreement 완료, 페이월에 약관/방침 링크·복원 버튼.
+### IOS-IAP-01 IAP submission state
+- `common.md` PAY-01~04. First submission: attach IAPs to the version, Paid Apps Agreement done, paywall has terms/privacy links and restore.
 
-### IOS-IAP-02 한국 외부 결제 엔타이틀먼트
-- 근거: 한국은 StoreKit External Purchase entitlement로 제3자 결제 허용(수수료 26%). 신청·승인 없이 외부 결제 넣으면 3.1.1 리젝.
-- 적용: `pay.external` > 0 & 디지털 재화
+### IOS-IAP-02 Regional external-purchase programs
+- Basis: **Korea** — StoreKit External Purchase entitlement (Korea-only binary; approved PSPs KCP, Inicis, Toss, NICE; "Apple will charge a 26% commission on the price paid by the user"; mandatory modal disclosure before each payment flow; monthly sales reports). **US** — 3.1.1(a): links/buttons allowed without entitlement, IAP must still be offered; commission litigation ongoing (2026-08). **EU** — unified terms from 2026-10-01 (Core Technology Commission 5%, alternative payments alongside IAP). **Japan** — MSCA: iOS 26.2+ alternative payments/marketplaces, IAP must be presented alongside.
+- Applies: `pay.external` > 0 and digital goods
+- Verify: the entitlement is approved and the binary is region-scoped; disclosures shown; otherwise 3.1.1 rejection.
+

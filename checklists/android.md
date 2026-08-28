@@ -1,149 +1,204 @@
-# Android 체크리스트 — Google Play 정책
+# Android checklist — Google Play policies
 
-Google Play 전용 항목. 기능 조건부 항목(UGC·계정·결제 등)은 `common.md` 참고.
-작성 기준일 2026-08. 정책 원문: https://support.google.com/googleplay/android-developer/topic/9858052
-
----
-
-## SDK·빌드
-
-### AND-SDK-01 targetSdk 요구치
-- 근거: **타겟 API 수준 요구사항** — 신규 앱·업데이트는 최근 1년 내 출시 Android 버전 이상을 타겟. 매년 8월 31일 기준 상향: 2025-08-31 → API 35(Android 15), **2026-08-31 → API 36(Android 16)**. 미충족 시 새 버전 업로드 자체가 거부된다(연장 신청 가능, 최대 11월 1일).
-- 확인: `targetSdk` 숫자. Flutter의 `flutter.targetSdkVersion`은 Flutter SDK 버전에 따라 다름(3.27+ → 35, 3.35+ → 36 확인 필요) → `flutter --version` + `flutter/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt` 확인. Expo SDK 52+ → 35.
-- 신호: `Android Gradle` 섹션, 자동 힌트
-- 수정: `targetSdk` 상향 + 해당 버전의 동작 변경(FGS 타입, 사진 권한, 알림 권한, edge-to-edge(35+), 16KB 페이지(35+ 네이티브 라이브러리)) 대응.
-
-### AND-SDK-02 16KB 페이지 크기 (Android 15+)
-- 근거: 2025-11-01부터 Android 15+ 기기 타겟 신규 앱·업데이트는 16KB 페이지 지원 필수(네이티브 라이브러리 포함 시).
-- 확인: `.so` 포함 앱(Flutter, RN, SQLite 등)은 AGP 8.5.1+·NDK r28+로 빌드. Play Console 앱 번들 탐색기에 경고 표시.
-
-### AND-BUILD-01 서명·번들
-- 확인: AAB 업로드(APK 불가), 업로드 키로 서명(`signingConfigs.debug` 릴리즈 사용 금지), Play 앱 서명 등록, `debuggable false`, `minifyEnabled`(권장), arm64-v8a 포함(64비트 필수).
-- 신호: Gradle 섹션
-
-### AND-BUILD-02 매니페스트 필수 속성
-- 확인: `android:exported` 명시(API 31+, 인텐트 필터 있는 컴포넌트), `usesCleartextTraffic="true"` 제거 또는 network_security_config로 도메인 한정, `allowBackup` 의도 확인.
-- 신호: Manifest 섹션
+Google Play-only items. Feature-conditional items (UGC, account, payments…) live in `common.md`.
+Written as of 2026-08-28 against the Policy Center (https://support.google.com/googleplay/android-developer/topic/9858052) and Play Console Help. Korean: `ko/android.md`. Sources: `../references/google-play.md`.
 
 ---
 
-## 권한 (Play 권한 정책 + 선언 양식)
+## SDK & build
 
-### AND-PERM-01 SMS·통화 기록
-- 근거: 기본 SMS/전화/어시스턴트 앱 외 `READ_SMS`, `RECEIVE_SMS`, `SEND_SMS`, `READ_CALL_LOG`, `PROCESS_OUTGOING_CALLS` 등 사용 금지. OTP는 SMS Retriever API/User Consent API로.
-- 신호: 자동 힌트
-- 수정: 권한 제거, SMS Retriever로 전환.
+### AND-SDK-01 Target API level
+- Basis: **Target API level requirement** (verbatim, 2026): "New apps and app updates must target Android 16 (API level 36) or higher to be submitted to Google Play; except for Wear OS, and Android Automotive OS apps, which must target Android 15" — deadline **2026-08-31**; "Existing apps must target Android 15 (API level 35) or higher to remain available to new users"; "You will be able to request an extension to November 1, 2026". The bar moves every August 31.
+- Verify: the `targetSdk` number. Flutter's `flutter.targetSdkVersion` depends on the Flutter SDK (3.27+ → 35, 3.35+ → 36; confirm) → `flutter --version` + `flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt`. Expo SDK 52+ → 35, SDK 54+ → 36 (confirm).
+- Signals: `Android Gradle` section, auto-hints
+- Fix: raise `targetSdk` and handle that version's behavior changes (FGS types and start restrictions, photo permissions, notification permission, edge-to-edge (35+), 16 KB pages).
+
+### AND-SDK-02 16 KB page size
+- Basis: "Starting November 1st, 2025, all new apps and updates to existing apps submitted to Google Play and targeting Android 15+ devices must support 16 KB page sizes"; "Starting February 1, 2027, if your app updates don't support 16 KB memory page sizes, you won't be able to release these updates"; technical quality: "Apps that contain native code must support devices with 16 KB memory page sizes. Java/Kotlin only apps are compatible by default." (TV 2026-08-01, Wear 2026-09-15)
+- Verify: apps with `.so` files (Flutter, RN, SQLite…) build with AGP 8.5.1+ / NDK r28+; Play Console App bundle explorer shows a warning otherwise.
+
+### AND-BUILD-01 Signing & bundle
+- Verify: AAB upload (required for new apps since 2021-08), signed with the upload key (no `signingConfigs.debug` in release; upload key "Must be an RSA key of 2048 bits or more"), Play App Signing enrolled, `debuggable false`, `minifyEnabled` (25% code optimization becomes a quality requirement 2027-02), arm64-v8a included ("Apps that contain native code must support 64-bit only architectures").
+- Signals: Gradle section
+
+### AND-BUILD-02 Manifest essentials
+- Verify: explicit `android:exported` (API 31+, components with intent filters), remove `usesCleartextTraffic="true"` or restrict via network_security_config, intentional `allowBackup`.
+- Signals: Manifest section
+
+---
+
+## Permissions (Play permissions policy + declaration forms)
+
+### AND-PERM-01 SMS & Call Log
+- Basis: "Apps must be actively registered as the default SMS, Phone, or Assistant handler before prompting users to accept any of SMS or Call Log permissions." OTP → SMS Retriever API / User Consent API. From **2027-01-27** READ_CALL_LOG is no longer permitted for "account verification via phone call" (use Digital Credentials API / SMS Retriever).
+- Signals: auto-hints
+- Fix: remove; switch to SMS Retriever.
 
 ### AND-PERM-02 QUERY_ALL_PACKAGES
-- 근거: 핵심 기능이 설치 앱 목록을 필요로 할 때만(런처, 보안, 앱 관리 등). 그 외는 `<queries>`로 특정 패키지만. 사용 시 Play Console 선언 양식 필수.
-- 적용: 집중 앱이 "차단할 앱 목록"을 보여주려 할 때 흔히 걸림 → 카테고리 인텐트 `<queries>`로 대체하거나 선언 양식에 핵심 기능임을 설명.
+- Basis: only when the core feature needs the installed-app list (launchers, security, app managers). Otherwise `<queries>` for specific packages. Requires the Play Console declaration form.
+- Applies: focus apps that want to show "apps to block" — replace with category-intent `<queries>` or explain core use in the form.
 
-### AND-PERM-03 MANAGE_EXTERNAL_STORAGE (모든 파일 접근)
-- 근거: 파일 관리자·백업 등 핵심 기능만. 선언 양식 + 영상. 대부분 앱은 Scoped Storage/SAF/Photo Picker로 대체.
+### AND-PERM-03 MANAGE_EXTERNAL_STORAGE (All files access)
+- Basis: file managers / backup only. Declaration form + video. Most apps use Scoped Storage / SAF / Photo Picker instead.
 
-### AND-PERM-04 백그라운드 위치
-- 근거: `ACCESS_BACKGROUND_LOCATION`은 핵심 기능일 때만, Console 선언 양식 + 데모 영상 + 앱 내 사전 고지(PRIV-04).
+### AND-PERM-04 Background & precise location
+- Basis: "Background location may only be used when it provides a significant benefit to users and is relevant to the core functionality of the app"; "never request location permissions… for the sole purpose of advertising or analytics". Declaration: one feature needing background, why foreground is insufficient, **video ≤ 30 s** showing the disclosure + runtime prompt. Prominent disclosure format: "[This app] collects location data to enable [feature]… even when the app is closed or not in use." 2026-04-15: the **location button** is "the recommended minimum scope for precise location"; Location policy update effective **2027-01-27** (`onlyForLocationButton` on Android 17+).
+- Verify: `ACCESS_BACKGROUND_LOCATION` only with a core feature; disclosure before the prompt (PRIV-04); precise location only if needed.
 
-### AND-PERM-05 포그라운드 서비스 타입
-- 근거: targetSdk 34+는 `<service android:foregroundServiceType="…">` 필수 + 타입별 `FOREGROUND_SERVICE_<TYPE>` 권한. 선언 없으면 런타임 예외. Play Console **Foreground service permissions** 선언(타입별 용도 설명 + 영상 링크).
-- 타입 가이드: 타이머 알림 유지 → `specialUse`(양식에 `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` 설명) 또는 `shortService`(3분). 백색소음 재생 → `mediaPlayback`. 위치 추적 → `location`. 파일 업로드 → `dataSync`(제한 있음).
-- 신호: 자동 힌트 (`FOREGROUND_SERVICE` 있으나 타입 없음)
-- 수정: 매니페스트 타입 + 권한 + `startForeground(id, notification, type)` 호출 + 콘솔 양식.
+### AND-PERM-05 Foreground service types
+- Basis: targetSdk 34+ requires `<service android:foregroundServiceType="…">` plus the matching `FOREGROUND_SERVICE_<TYPE>` permission; missing → runtime exception. Play Console **Foreground service permissions** declaration per type: "Provide a description of the app functionality that is using each foreground service type", "Describe the user impact if the task is deferred… and/or interrupted", "Include a link to a video demonstrating each foreground service feature". Types: camera, connectedDevice, dataSync, health, location, mediaPlayback, mediaProcessing, mediaProjection, microphone, phoneCall, remoteMessaging, shortService, specialUse, systemExempted. Android 15+: dataSync/mediaPlayback etc. cannot start from BOOT_COMPLETED; mediaProcessing limited to 6 h per 24 h; `specialUse` requires `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` which is "reviewed when you submit your app". Geofencing removed as an FGS use case from 2027-01-27.
+- Type guide: keeping a timer notification alive → `specialUse` (subtype property + form) or `shortService` (3 min). White-noise playback → `mediaPlayback`. Tracking → `location`. Uploads → `dataSync` (restricted).
+- Signals: auto-hint (`FOREGROUND_SERVICE` without a type)
+- Fix: manifest type + permission + `startForeground(id, notification, type)` + console form + demo video.
 
-### AND-PERM-06 접근성 서비스
-- 근거: `BIND_ACCESSIBILITY_SERVICE`는 장애 보조 목적일 때만. 그 외 용도(앱 차단, 자동화)는 선언 양식에서 "접근성 이외 용도"로 신고 + 눈에 띄는 공개 + 사용자 동의. 거부율 높음.
-- 적용: 집중 앱의 "다른 앱 차단" 구현에 흔함 → UsageStats(AND-PERM-07) + 오버레이 조합이 더 통과 잘 됨.
+### AND-PERM-06 Accessibility services
+- Basis: `BIND_ACCESSIBILITY_SERVICE` only for assisting users with disabilities. Other uses (app blocking, automation) must be declared as "non-accessibility" in the form + prominent disclosure + consent. High rejection rate.
+- Applies: focus apps blocking other apps — UsageStats (AND-PERM-07) + overlay passes more often.
+- From cases: after removing the accessibility service you must also delete the Accessibility declaration in Play Console (App content), or the app keeps getting rejected. Disclosure in the store description does not count — it must be in-app before enabling.
 
-### AND-PERM-07 사용 통계 (PACKAGE_USAGE_STATS)
-- 근거: 서명 권한이지만 설정 화면으로 사용자가 부여. Play 정책상 "핵심 기능"이어야 하며 사전 고지 필요. Data safety에 "앱 활동 > 설치된 앱" 등 선언.
-- 적용: 집중 앱 앱 사용시간 측정
-- 확인: 설정 이동 전 고지 화면.
+### AND-PERM-07 Usage stats (PACKAGE_USAGE_STATS)
+- Basis: a signature permission granted by the user in Settings. Must be a core feature, with prior disclosure. Declare "App activity > Installed apps" etc. in Data safety.
+- Applies: focus apps measuring app usage time
+- Verify: a disclosure screen before sending the user to Settings.
 
-### AND-PERM-08 사진·동영상 권한
-- 근거: **사진 및 동영상 권한 정책** — `READ_MEDIA_IMAGES`/`READ_MEDIA_VIDEO`/`READ_EXTERNAL_STORAGE`는 핵심 기능이 광범위·빈번한 접근을 요구할 때만(갤러리, 사진 편집기). 프로필 사진 한 장 고르기는 **Photo Picker** 사용. 위반 시 선언 양식 요구 + 거부.
-- 확인: `image_picker`(Flutter 0.8.9+는 Photo Picker 사용, 권한 불필요) 등이 매니페스트에 권한을 남겼는지 → `tools:node="remove"`로 제거. Console에 "사진 및 동영상 권한" 선언 답변.
-- 신호: 자동 힌트
+### AND-PERM-08 Photo & video permissions
+- Basis: **Photo and Video Permissions policy** — apps targeting API 33+ may request `READ_MEDIA_IMAGES` / `READ_MEDIA_VIDEO` only if "system pickers (like the Android Photo Picker), are not sufficient for your app to provide core functionality" (gallery-type apps); custom pickers "must still submit a declaration". Phase 1 2025-01-22; "May 28, 2025: Full policy compliance is mandatory for all developers". Picking one profile photo → **Photo Picker**.
+- Verify: `image_picker` (Flutter 0.8.9+ uses the Photo Picker, no permission needed) etc. leaving the permission in the manifest → remove with `tools:node="remove"`. Answer the "Photo and video permissions" declaration in the console.
+- Signals: auto-hint
+- Cases: community cases tagged AND-PERM-08
 
-### AND-PERM-09 오버레이 (SYSTEM_ALERT_WINDOW)
-- 근거: 명시 정책은 완화됐으나 악성 앱 지표. 사용 이유 설명 + 사용자 부여 흐름 필요. 집중 앱의 차단 화면 용도는 통과 사례 많음.
+### AND-PERM-09 Overlay (SYSTEM_ALERT_WINDOW)
+- Basis: policy relaxed, but a malware indicator. Needs a reason and a user-grant flow. Focus apps' blocking screens have passed.
 
-### AND-PERM-10 정확한 알람·전체화면 인텐트
-- 근거: `USE_EXACT_ALARM`은 **알람시계·타이머·캘린더가 핵심 기능**인 앱만(Play 정책, 선언 필요). 그 외는 `SCHEDULE_EXACT_ALARM`(사용자 부여) 또는 비정확 알람. `USE_FULL_SCREEN_INTENT`(Android 14)는 알람·통화 앱만 자동 부여, 그 외는 콘솔 선언 + 사용자 설정 유도.
-- 적용: 타이머 종료 알림
-- 확인: 타이머 앱이면 `USE_EXACT_ALARM` 정당. 알림 채널 중요도·전체화면 인텐트 사용 여부.
+### AND-PERM-10 Exact alarms & full-screen intents
+- Basis: `USE_EXACT_ALARM` only when "core, user-facing functionality requires precisely-timed actions, such as: The app is an alarm or timer app. The app is a calendar app that shows event notifications." Others use `SCHEDULE_EXACT_ALARM` (user-granted) or inexact alarms. `USE_FULL_SCREEN_INTENT`: "Only apps whose core functionality is a high-priority use case of setting an alarm or receiving phone or video calls will be automatically granted"; others must request the user permission and "gracefully degrade" (declaration since 2024-05-31; default-off for others since 2025-01-22). Device & Network Abuse bans "Apps that use the full-screen intent permission to force user interaction with disruptive ads or notifications."
+- Applies: timer-end alerts
+- Verify: a timer app justifies `USE_EXACT_ALARM` (declare it). Notification channel importance; full-screen intent usage.
+- From cases: `USE_FULL_SCREEN_INTENT` often arrives from notification libraries — remove with `tools:node="remove"` if not an alarm/call app; check `canScheduleExactAlarms()` before scheduling on Android 14+ (Play flags apps that don't).
 
 ### AND-PERM-11 POST_NOTIFICATIONS (13+)
-- 확인: targetSdk 33+는 런타임 알림 권한. 거부 시 타이머 종료 알림이 안 오므로 맥락 있는 요청 + 거부 시 안내.
+- Verify: targetSdk 33+ requires the runtime notification permission. Denied → timer-end notifications won't show, so request in context + explain on denial.
+
+### AND-PERM-12 Contacts (Android 17 / API 37)
+- Basis: apps targeting Android 17 (API 37)+ may request `READ_CONTACTS` only if "the Android Contact Picker is not sufficient for your app to provide core functionality"; declaration form ~2026-09, mandatory **2027-01-27**
+- Applies: friend-finding from contacts, invitations
+- Verify: use the contact picker for "invite a friend"; broad access only for contact-manager-type apps + declaration + prominent disclosure (PRIV-04).
+
+### AND-PERM-13 Merged-manifest audit — permissions injected by libraries
+- Basis: the single most common Play rejection root cause in community cases: `READ_MEDIA_IMAGES/VIDEO`, `READ_EXTERNAL_STORAGE`, `FOREGROUND_SERVICE_*` types, `QUERY_ALL_PACKAGES`, `USE_FULL_SCREEN_INTENT`, `ACCESS_BACKGROUND_LOCATION`, `AD_ID` arrive through manifest merging from image_picker, file_picker, permission_handler, expo-image-picker, expo-video, Agora, upload/download libraries, notification plugins…
+- Applies: every app (check on each dependency upgrade)
+- Verify: inspect the **merged** manifest (`build/intermediates/merged_manifests/release/AndroidManifest.xml`, Android Studio "Merged Manifest" tab, or `bundletool dump manifest`). Compare with what the app actually uses.
+- Signals: dependency list (`camera/media`, `background`, `push`), auto-hint
+- Fix: `<uses-permission android:name="…" tools:node="remove"/>` in the app manifest (Expo: `android.blockedPermissions` in app.json); then re-check the merged manifest. Note that Play may still cite an older build — see AND-CONSOLE-11.
+- Cases: [community — Photo & Video](../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video), [foreground services](../rejections/community-cases.md#foreground-service-declarations)
+
+### AND-PERM-14 VpnService
+- Basis: VpnService only for core VPN plus parental control/enterprise, app-usage tracking, device security, network tools, browsers, carrier apps; never "Collect personal and sensitive user data without prominent disclosure and consent" or "Redirect or manipulate user traffic… for monetization". Rejection text: "We are unable to confirm your app's declared use of VpnService as a permitted use case… should be removed from the app manifest across all release tracks."
+- Applies: `perm.vpn` > 0
+- Verify: use case matches the list; declaration form submitted; VpnService removed if not core.
 
 ---
 
-## Play Console 선언 (코드 밖)
+## Play Console declarations (outside the code)
 
-### AND-CONSOLE-01 개인정보처리방침 URL
-- 근거: 모든 앱 필수(2024~). 스토어 등록정보 + 앱 내 링크. `common.md` PRIV-01.
+### AND-CONSOLE-01 Privacy policy URL
+- Basis: required for all apps (2024~). Store listing + in-app link. `common.md` PRIV-01.
 
-### AND-CONSOLE-02 데이터 보안(Data safety)
-- 근거: 수집·공유·보안 관행 정확히 선언. SDK 수집분 포함. 계정 삭제 URL 포함(AND-CONSOLE-08). 불일치 시 정책 위반 통지·업데이트 거부.
-- 확인: `common.md` PRIV-02 SDK 표와 비교. "암호화 전송", "삭제 요청 방법" 답변.
+### AND-CONSOLE-02 Data safety
+- Basis: declare collection, sharing and security practices accurately, including SDKs. Includes the account-deletion URL (AND-CONSOLE-08). Mismatch → policy notice / update rejection.
+- Verify: compare with the `common.md` PRIV-02 SDK table. "Encrypted in transit", "deletion request method".
 
-### AND-CONSOLE-03 앱 액세스 (App access)
-- 근거: 로그인·지역·결제 뒤 기능이 있으면 "전체 또는 일부 기능 제한됨" 선택 + 자격 증명·안내. 없으면 심사관이 못 들어가 정책 위반("기능 확인 불가")으로 거부.
-- 확인: `templates/review-notes.md` Android 부분. 소셜 로그인만 있으면 이메일 리뷰어 계정(ACC-03).
+### AND-CONSOLE-03 Sign-in details (formerly "App access")
+- Basis: Play Console > Policy and programs > App content > **Sign-in details** ("up to five sets of instructions"; "Any other instructions" for OTP/MFA). Requirements: "Your sign-in details must be accessible at all times, reusable, and valid regardless of user location… If your app typically requires a 2-Step verification code or One-time password, make sure to provide reusable login credentials that can bypass these requirements… must be provided in English… If the provided password expires, we may not be able to review your app and, therefore, the app may be rejected." Paywalled content needs access instructions too. Rejections show up as "Broken Functionality" / could not verify.
+- Verify: `templates/review-notes.md` Android part; social-login-only → email reviewer account (ACC-03); credentials tested from a foreign IP.
 
-### AND-CONSOLE-04 광고 ID·광고 포함
-- 근거: `AD_ID` 권한 선언(targetSdk 33+, 광고 SDK가 병합) + Data safety 광고 ID + "광고 포함" 선언. 광고 ID 안 쓰면 `tools:node="remove"`로 제거하고 "아니오".
-- 신호: 자동 힌트
+### AND-CONSOLE-04 Advertising ID & "contains ads"
+- Basis: `AD_ID` permission declaration (targetSdk 33+, merged by ad SDKs) + Data safety advertising ID + "Contains ads" declaration. Not using the ad ID → `tools:node="remove"` and answer "No".
+- Signals: auto-hint
 
-### AND-CONSOLE-05 콘텐츠 등급 (IARC)
-- 근거: 설문 미완료 시 게시 불가. **UGC·채팅·친구 기능 → "사용자 간 상호작용/정보 공유" 예**로 답해야 함. 거짓 답변은 정지 사유.
-- 확인: `common.md` META-03.
+### AND-CONSOLE-05 Content rating (IARC)
+- Basis: unfinished questionnaire blocks publishing. **UGC / chat / friends → answer "users interact / share information" = Yes.** False answers are a suspension reason.
+- Verify: `common.md` META-03.
 
-### AND-CONSOLE-06 민감 권한 선언 양식
-- 근거: 포그라운드 서비스, 정확한 알람, 전체화면 인텐트, 사진/동영상, 백그라운드 위치, 모든 파일 접근, QUERY_ALL_PACKAGES, 접근성, SMS 등은 App content > 민감한 앱 권한/포그라운드 서비스 양식 필수. 각 항목: 핵심 기능 설명 + 데모 영상(YouTube 비공개 링크 OK).
-- 확인: 매니페스트 권한 목록 ↔ 양식 제출 여부.
+### AND-CONSOLE-06 Sensitive-permission declaration forms
+- Basis: foreground services, exact alarms, full-screen intents, photo/video, background location, All files access, QUERY_ALL_PACKAGES, accessibility, SMS… require the App content > Sensitive app permissions / Foreground service forms. Each: core-feature explanation + demo video (unlisted YouTube link OK).
+- Verify: manifest permissions ↔ submitted forms.
+- From cases: CI/CD uploads (Fastlane / Play API) skip the Console prompt that surfaces new declaration forms — upload the AAB **once through the Console UI** when a new sensitive permission appears; the demo video must show the permission/FGS feature itself, not generic gameplay; declared types must match what the code actually starts.
 
-### AND-CONSOLE-07 타깃 연령·아동
-- 근거: 타깃층 설문에서 13세 미만 포함 시 **Families 정책**(광고 SDK 인증, 데이터 제한, UGC 제한) 적용. 학생 대상 집중 앱은 "13~15세" 포함 여부 신중히.
-- 확인: 스토어 문구("학생", "초등") ↔ 타깃 연령 일치.
+### AND-CONSOLE-07 Target audience & children
+- Basis: Target audience and content questionnaire (age groups 5 and under / 6–8 / 9–12 / 13–15 / 16–17 / 18+). Including children triggers the **Families policy**: "Only use Google Play Families Self-Certified Ads SDKs" (the program is "currently not accepting new applicants"; AdMob ≥19, Unity Ads, ironSource… listed; AppLovin exited), no interest-based ads, child-only apps must not transmit AAID/IMEI etc., AR safety warning, social apps "an in-app reminder to be safe online"; mixed audience → "a neutral age screen must be implemented"; "Google Play may reject your app" if assets appeal to children unintentionally; review "up to 7 days or longer". Since 2026-07-15 social apps focused on chatting with strangers or anonymously must not target children.
+- Verify: store copy ("students", "kids") ↔ target audience; ad SDK is on the self-certified list if children are included.
 
-### AND-CONSOLE-08 계정 삭제 URL
-- 근거: 계정 생성 앱은 Data safety > "계정 삭제 요청 URL" 필수 + 앱 내 삭제. `common.md` ACC-02.
+### AND-CONSOLE-08 Account-deletion URL
+- Basis: apps with account creation must provide Data safety > "Account deletion request URL" + in-app deletion. `common.md` ACC-02.
 
-### AND-CONSOLE-09 특수 카테고리 선언
-- 근거: 건강(Health Connect·건강 기능), 금융(대출·투자), 뉴스, 정부, VPN, 코로나 등은 별도 선언·증빙. 집중 타이머가 "정신 건강" 문구를 쓰면 건강 앱 선언 대상 가능.
+### AND-CONSOLE-09 Mandatory declarations — even when the answer is "none"
+- Basis: **Health apps declaration**: "All developers that have an app published on Google Play must complete the Health apps declaration, including apps on closed testing, open testing, or production tracks" (required after 2024-08-31). **Financial features declaration**: mandatory for every app ("My app doesn't provide any financial features" option); since 2025-10-30 "you will not be able to make any updates to your app(s) until you complete this declaration". **News & Magazines** self-declaration (removal for non-compliance, 2026-05-27 reminder). **Government apps** declaration (since 2023-01-31). Also: COVID-19, Blockchain (via Financial features), VPN.
+- Verify: App content page shows every declaration completed. A focus timer using "mental health" wording may be a Health app (Health Content and Services policy).
+- From cases: Health Connect and Financial declarations are judged from the **full store description** — list each data type and why it is needed; loan/SIP calculators declared "no financial features" got rejected; keep policy URLs public.
 
----
+### AND-CONSOLE-10 Child Safety Standards self-certification
+- Basis: Social & Dating apps (since 2025-01-22) and anonymous/random chat apps (since 2026-07-15) must "Have published standards against child sexual abuse and exploitation (CSAE)" at a globally accessible URL, "Provide an in-app mechanism for user feedback", address CSAM, comply with child-safety laws, "Provide a child safety point of contact", and self-certify in Play Console before publishing. Dating / random / anonymous-chat / gambling apps must use Play Console tools to block minors (Age-Restricted Content policy).
+- Applies: Social/Dating category, chat with strangers, anonymous chat (see common UGC-07)
+- Verify: the CSAE standards page URL; contact; Play Console App content > Child safety standards completed.
 
-## 스토어 등록정보
-
-### AND-META-01 메타데이터 정책
-- 근거: 앱 이름 30자, 이모지·특수기호·"최고/1위/무료/신규/다운로드" 같은 홍보 문구 금지(제목·아이콘·개발자명), 가격·순위·평점 언급 금지, 대문자 남용 금지, 타 플랫폼 언급 지양.
-- 확인: 제목·짧은 설명(80자)·긴 설명.
-
-### AND-META-02 스크린샷·그래픽
-- 근거: 앱 기능을 정확히 표현, 최소 2장(권장 4~8, 16:9 또는 9:16, 320~3840px), 피처 그래픽 1024×500 필수.
-
-### AND-META-03 개발자 정보 공개
-- 근거: 이메일 필수, 조직은 D-U-N-S + 주소·전화 공개(2024~), 개인 개발자는 이름·이메일 공개, 주소는 유료/IAP 시 공개.
-
----
-
-## 테스트·계정
-
-### AND-TEST-01 신규 개인 개발자 계정 비공개 테스트
-- 근거: 2023-11-13 이후 생성된 **개인** 계정은 프로덕션 접근 전 **비공개 테스트에서 12명 이상 테스터가 14일 연속 옵트인** 필요 + 프로덕션 접근 신청 설문.
-- 확인: 계정 생성일·유형. 해당되면 일정에 최소 2주 반영.
-
-### AND-ACCOUNT-01 계정 인증
-- 근거: 개발자 신원 확인(신분증·전화·이메일), 조직은 D-U-N-S. 미완료 시 게시 불가.
+### AND-CONSOLE-11 Deactivate old builds in every track before resubmitting
+- Basis: rejections repeatedly cite an **older version code** (e.g. "Remove the use of … permission from all version codes within the submission") because internal/closed/open tracks still carry a build with the offending permission, target API or crash.
+- Applies: every resubmission after a permission/targetSdk/crash fix
+- Verify: Play Console > Releases: every active track's latest release is the fixed build (or the track is paused/deactivated); App bundle explorer shows no older bundles with the permission.
+- Fix: promote the fixed build to all tracks or deactivate them; then resubmit; still submit any required declaration form even if the permission is now gone.
+- Cases: [community](../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video)
 
 ---
 
-## UGC·결제 (Play 고유 추가 조건)
+## Store listing
 
-### AND-UGC-01 Play UGC 정책 추가 항목
-- `common.md` UGC-01~06 전부 + Play 고유: (a) 앱 내 수익화(선물·팁)가 부적절 행동을 조장하지 않을 것 (b) 성적 콘텐츠는 기본 차단·연령 확인 (c) UGC 주 목적이 부적절 콘텐츠면 앱 자체 거부.
-- 콘텐츠 등급 설문 "사용자 상호작용" 예(AND-CONSOLE-05).
+### AND-META-01 Metadata policy
+- Basis: app title "30 characters or less"; no "emojis, emoticons, or repeated special characters"; no text or image "that indicate store performance or ranking, price or promotional information" in title, icon or developer name ("App of the year", "#1", "Best of Play", "10% off", "free for limited time only", "Editor's choice", "New"); no all caps unless brand; no misleading symbols in icons; no "unattributed or anonymous user testimonials"; **Deceptive Behavior**: no "false or misleading information or claims, including in the description, title, icon, and screenshots"; **Impersonation**: no titles like "<celebrity> Official" without rights.
+- Verify: title, short description (80), full description, icon.
 
-### AND-PAY-01 Play 결제
-- `common.md` PAY-01. 한국: 제3자 결제 병행 시 Play Console에서 "대체 결제" 등록, 사용자 선택 결제 UI 요건 준수. 외부 링크 결제는 여전히 금지.
+### AND-META-02 Screenshots & graphics
+- Basis: store listing assets — icon 512×512 32-bit PNG with alpha ≤ 1024 KB; feature graphic 1024×500 JPEG/24-bit PNG (no alpha) required; screenshots min 2 (for featuring: ≥4 at ≥1080 px, 16:9 or 9:16), 320–3840 px; tablet screenshots ≥4 at 1080–7680 px; promo video = public/unlisted YouTube URL, ads disabled, embeddable. Must accurately represent the app.
+
+### AND-META-03 Developer information
+- Basis: email required; organizations need D-U-N-S + public address/phone (2024~); individuals show name + email; address public for paid/IAP apps.
+
+---
+
+## Testing & account
+
+### AND-TEST-01 Closed testing for new personal accounts
+- Basis: **personal** accounts created after 2023-11-13 must run a closed test with **12+ testers opted in for 14 consecutive days** before applying for production access (questionnaire).
+- Verify: account creation date and type. If it applies, plan at least two weeks.
+- From cases: Google rejects production access when "testers did not engage" — 12 opted-in accounts that never open the app fail; give testers free rein, then answer the production-access questions with ≥ 3 substantive lines each (crash-free statement, concrete feedback, planned changes).
+
+### AND-ACCOUNT-01 Account verification
+- Basis: identity verification (ID, phone, email); organizations need D-U-N-S. Publishing is blocked until complete.
+
+### AND-ACCOUNT-02 App registration (2026) & organization requirement
+- Basis: Play Console requires **app registration by 2026-09-30** — unregistered apps face "global removal from Google Play"; financial, health, VPN and government apps "must register as an Organization" (D-U-N-S). Developer details (legal name/address/email/phone) are shown publicly; monetizing accounts must show their full address.
+- Verify: every published app registered; account type matches the app category.
+
+### AND-QUALITY-01 Technical quality thresholds
+- Basis: Play technical quality requirements — user-perceived crash rate ≤ 1.09% and ANR rate ≤ 0.47% (bad-behavior thresholds affect visibility/warnings); native code 64-bit + 16 KB; from 2027-02 apps must apply ≥25% code optimization (R8) and memory limits; Zero-Tap Sign-In from 2027-04 (announced). Suspensions count as strikes (enforcement policy).
+- Verify: Android vitals before submission; `minifyEnabled true`, R8 enabled.
+
+### AND-QUALITY-02 Malware / "Deceptive Behavior" false-positive hygiene
+- Basis: account terminations under "MALWARE, BEHAVIOR TRANSPARENCY AND MOBILE UNWANTED SOFTWARE" and "changing device settings without user consent" have hit apps for: a Firebase endpoint IP on a threat feed, an ads-lite SDK, a Unity plugin, a `PowerManager.WakeLock` that keeps the screen on. Re-uploading the same build after a ban led to permanent termination.
+- Verify: no wake locks / brightness / settings changes without a visible user action; no dynamic code loading; scan the release AAB with VirusTotal before upload; keep the dependency list minimal and current.
+- Signals: `wakelock`
+- Fix: replace `WakeLock` with `FLAG_KEEP_SCREEN_ON` on the activity; if flagged, do **not** re-upload — appeal with VirusTotal report, source excerpts and a gameplay/feature video, and get the AV vendor to clear the detection first.
+- Cases: [community](../rejections/community-cases.md#closed-testing-malware-false-positives-verification-target-api-16-kb)
+
+---
+
+## UGC & payments (Play-specific additions)
+
+### AND-UGC-01 Play UGC policy — verbatim requirements
+- "Apps that contain or feature UGC must:" "Requires users accept the app's terms of use and/or user policy before users can create or upload UGC" (UGC-01) · "Defines objectionable content and behaviors… and prohibits them" (UGC-01) · "Conducts UGC moderation, as is reasonable and consistent with the type of UGC hosted by the app" (UGC-02/05) · "Provides an in-app system for reporting and blocking objectionable UGC and users, and taking action against UGC or users where appropriate" (UGC-03/04) · "Provides safeguards to prevent in-app monetization from encouraging objectionable user behavior".
+- Incidental sexual UGC must be "hidden by default behind filters that require at least two user actions in order to completely disable"; minors excluded via a neutral age screen; "Apps whose primary purpose is featuring objectionable UGC will be removed"; "continually failing to address user complaints" is a violation.
+- Also: Child Safety Standards (AND-CONSOLE-10), Age-Restricted Content tools for dating/random/anonymous chat, AI-generated content must have in-app reporting (common AI-01), content rating "Users Interact" = Yes (AND-CONSOLE-05).
+
+### AND-PAY-01 Play Billing & regional programs
+- `common.md` PAY-01. **Korea**: Play billing must be offered alongside; "If a user pays through an alternative billing system, the Google Play service fee will be reduced by 4%"; alternative billing APIs mandatory since 2023-08-02; report transactions within 24 h. **EEA**: alternative billing with/without user choice, External offers program (business account, EEA-only). **US**: external content links + alternative billing programs since 2025-12-09 (comply by 2026-01-28; fee reporting from 2026-10-01). **Japan**: external payments program; "Play store listings must not mention out-of-app purchases". **Global fee model**: from 2026-06-30 (EEA/UK/US) 5% billing fee for Play Billing, 20% IAP, 10% subscriptions; AU 2026-09-30, KR/JP 2026-12-31, rest 2027-09-30. External-link payments outside these programs remain prohibited.
+

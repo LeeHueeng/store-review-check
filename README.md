@@ -1,73 +1,153 @@
-# store-review-check
+<p align="center">
+  <img src="docs/report-sample.png" width="860" alt="store-review-check HTML report">
+</p>
 
-앱스토어(iOS)·플레이스토어(Android) **심사 리젝을 제출 전에 잡아내고**, 리젝이 오면 케이스로 축적해 다음 심사에 반영하는 Claude Code 스킬.
+<h1 align="center">store-review-check</h1>
 
-"좀 해!" 1.0 심사에서 받은 **Guideline 1.2 (UGC)** 리젝 — 약관 동의·신고·차단·필터·24시간 조치·데모 계정 — 같은 것을 코드 스캔 단계에서 미리 경고하는 것이 목적이다.
+<p align="center"><b>Catch App Store &amp; Google Play rejections <i>before</i> you submit.</b><br>
+An <a href="https://agentskills.io">Agent Skill</a> for Claude Code, Codex CLI and any SKILL.md-compatible agent.</p>
 
-## 하는 일
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
 
-| 모드 | 입력 | 산출물 |
+<p align="center">
+  <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+  <img alt="Agent Skills" src="https://img.shields.io/badge/Agent%20Skills-SKILL.md-8A2BE2">
+  <img alt="Claude Code" src="https://img.shields.io/badge/Claude%20Code-supported-D97757">
+  <img alt="Codex CLI" src="https://img.shields.io/badge/Codex%20CLI-supported-000000">
+  <img alt="iOS Android" src="https://img.shields.io/badge/iOS-App%20Store-lightgrey"> <img alt="Android" src="https://img.shields.io/badge/Android-Google%20Play-3DDC84">
+</p>
+
+---
+
+## Why
+
+This is a real rejection we got for a "focus timer with friends" app:
+
+> **Guideline 1.2 – Safety – User-Generated Content**
+> We found in our review that the app includes user-generated content but does not have all the required precautions… *Require that users agree to terms (EULA)… A method for filtering objectionable content… A mechanism for users to flag objectionable content… A mechanism for users to block abusive users…* Please provide a pre-populated demo account (Google or Kakao)… reply with a screen recording captured on a physical device…
+
+A friends list with nicknames was enough to make it a "UGC app". Every one of those requirements is knowable from the code **before** the 24-hour review round-trip. That is what this skill does — and when a rejection still lands, it turns it into a case the next check will remember.
+
+Bonus we only learned from the official text: since June 2026 Apple lists **"simple timers"** among saturated categories (4.3(b)) — a timer app now needs a "meaningfully different or improved experience" spelled out in its listing and review notes. The checklist flags that too.
+
+## What it does
+
+| Mode | You say | You get |
 |---|---|---|
-| **A. 사전 점검** | 프로젝트 경로 | `store-review/report-YYYY-MM-DD.md` — 항목별 FAIL/WARN/UNKNOWN/PASS + 근거 파일:라인 + 수정 방법 + 콘솔 체크리스트 + 심사 노트 초안 |
-| **B. 리젝 처리** | 리젝 메일 붙여넣기 | `rejections/` 케이스 저장, 원인 분석, 수정 계획, 증빙 녹화 순서, 답신 초안, **동반 리젝 예측**(예: Google/Kakao 로그인만 → Sign in with Apple 4.8) |
-| **C. 심사 제출 정보** | "심사 노트 써줘" | App Store Connect Notes / Play App access 문구 |
+| **Pre-check** | `check my app for review` / `/store-review-check ~/dev/app` | Scan → feature profile → every checklist item graded 🔴 FAIL / 🟠 WARN / ⚪ UNKNOWN / 🟢 PASS with `file:line` evidence, fix and required proof → **HTML report (opens in browser) or chat** → console checklist → review-notes draft |
+| **Rejection intake** | paste the rejection email | Parsed, saved as a case, mapped to checklist IDs, **co-rejection prediction** (e.g. Google/Kakao-only login → Sign in with Apple 4.8), fix plan, evidence-recording script, reviewer reply (English), review notes |
+| **Submission info** | `write the review notes` | App Store Connect *App Review Information* notes and Play Console *App access* text: demo accounts, verification bypass, where report/block/terms live |
 
-## 설치
+Everything the skill needs from you is asked as **multiple-choice questions** (multi-select where it makes sense): platforms, scope, HTML vs chat, what to do next. No open-ended back-and-forth.
 
+## Quick start
+
+**Claude Code**
 ```bash
 git clone https://github.com/LeeHueeng/store-review-check.git ~/.claude/skills/store-review-check
 ```
-
-Claude Code를 재시작하면 `/store-review-check`로 호출되거나 "심사 체크해줘", "리젝 왔어" 같은 말에 자동으로 뜬다.
-
-업데이트: `git -C ~/.claude/skills/store-review-check pull`
-
-## 사용 예
-
-```
-/store-review-check ~/dev/my-app          # 사전 점검
-심사 체크해줘                               # 현재 디렉토리
-리젝 왔어: (메일 전문 붙여넣기)              # 리젝 처리
-심사 노트 써줘                               # 데모 계정·기능 위치 안내문
-```
-
-스캐너만 따로 돌리기:
-
+**Codex CLI**
 ```bash
-bash ~/.claude/skills/store-review-check/scripts/scan.sh ~/dev/my-app
+git clone https://github.com/LeeHueeng/store-review-check.git ~/.codex/skills/store-review-check
+```
+**Other Agent-Skills runtimes** — clone into that runtime's skills directory (the folder name must stay `store-review-check`).
+
+Restart the agent, then:
+
+```
+> check my app for review          # pre-check (current directory)
+> /store-review-check ~/dev/app    # Claude Code, explicit path
+> $store-review-check               # Codex CLI
+> we got rejected: <paste email>   # rejection intake
+> write the App Review notes        # submission info
 ```
 
-Flutter / React Native / Expo / iOS·Android 네이티브를 인식한다. 출력은 "신호"이고 최종 판정은 Claude가 소스를 열어 확인한다.
+Standalone scanner (no agent needed):
+```bash
+bash ~/.claude/skills/store-review-check/scripts/scan.sh ~/dev/app
+```
+Understands Flutter, React Native, Expo, iOS and Android native. Output is *signals*; the agent opens the files before grading.
 
-## 구성
+## Example
 
 ```
-SKILL.md                 스킬 본문 (규칙·워크플로·신호→항목 매핑)
-scripts/scan.sh          프로젝트 신호 스캐너 (bash 3.2 / BSD grep 호환)
-checklists/common.md     기능 조건부: UGC, 계정, 개인정보, 권한, 결제, 광고, 푸시, 백그라운드, 콘텐츠, 메타데이터, 한국 법규
-checklists/ios.md        Apple 전용: Sign in with Apple, iPad, Info.plist, Privacy Manifest, ATT, 심사 노트, FamilyControls …
-checklists/android.md    Play 전용: targetSdk, 권한 선언 양식, 콘솔 항목, 비공개 테스트 …
-templates/report.md      점검 리포트
-templates/rejection-case.md  리젝 케이스
-templates/review-notes.md    심사 노트 (ASC Notes / Play App access)
-templates/reply.md           답신 (Apple 영어 / Play)
-templates/eula-ugc.md        UGC 무관용 약관 조항 (한/영)
-templates/evidence-recording.md  실기기 녹화 순서
-rejections/              리젝 케이스 KB (README.md에 인덱스)
+## Review pre-check — Focus Together (iOS, Android) 2026-08-28
+🔴 FAIL 9 · 🟠 WARN 3 · ⚪ UNKNOWN 1 · 🟢 PASS 1   (recurrence: 2026-08-27-ios-1.2-ugc)
+
+### 🔴 Must fix before submitting
+1. UGC-01 No EULA consent before login — Apple 1.2 / Play UGC (lib/auth/login_screen.dart:41)
+2. UGC-03 No report mechanism — Apple 1.2 / Play UGC
+3. UGC-04 No block mechanism — Apple 1.2 / Play UGC
+4. IOS-LOGIN-01 Google/Kakao login without Sign in with Apple — Apple 4.8
+5. ACC-02 No in-app account deletion — Apple 5.1.1(v) / Play
+6. ACC-03 No reviewer demo account that bypasses 2-step verification — Apple 2.1 / Play App access
+7. AND-PERM-05 FOREGROUND_SERVICE without foregroundServiceType — Android 14
+8. IOS-PRIV-03 No PrivacyInfo.xcprivacy — ITMS-91053
+…
+Report: store-review/report-2026-08-28.html
 ```
 
-## 스킬이 학습하는 방식
+## What it checks
 
-1. 리젝 메일 → `rejections/YYYY-MM-DD-<platform>-<guideline>-<app>.md` 저장, frontmatter `checklist_ids`에 관련 항목 기록.
-2. 체크리스트에 없던 사유면 `checklists/`에 항목 추가, 스캐너로 잡을 수 있으면 `scan.sh`에 신호 추가.
-3. 다음 사전 점검 때 케이스의 `checklist_ids`와 대조해 "재발 위험"으로 최상단에 표시.
+| Area | Examples | Guidelines |
+|---|---|---|
+| **UGC & moderation** | EULA with zero-tolerance clause, content filter, report, block (instant removal + developer notice), 24-hour action, physical-device recording, pre-populated demo account | Apple 1.2 · Play UGC |
+| **Account & login** | Login wall, in-app account deletion (+ web link for Play), demo account that works from a foreign IP, Sign in with Apple when social login exists, Kakao/Google console setup | Apple 5.1.1(iv)(v), 4.8, 2.1 · Play Account deletion, App access |
+| **Privacy** | Privacy policy in app + store, App Privacy / Data safety labels vs SDKs, ATT / AD_ID, prominent disclosure, privacy manifest (Required Reason API) | Apple 5.1.1, 5.1.2 · Play User Data |
+| **Permissions** | Purpose strings per used API, graceful denial, unused permissions, Android restricted permissions & declaration forms (photo/video, FGS types, exact alarm, accessibility, QUERY_ALL_PACKAGES…) | Apple 5.1.1(ii) · Play Permissions |
+| **Payments & ads** | Digital goods via IAP / Play Billing, subscription disclosure + terms links, restore purchases, IAP attached to the submission, test ad IDs, intrusive ads | Apple 3.1.1, 3.1.2 · Play Payments, Ads |
+| **Background & timers** | Silent-audio timer keepers (2.5.4), FGS types + Play declaration, local notifications instead | Apple 2.5.4 · Android 14 FGS |
+| **Completeness & metadata** | Placeholders, crashes on iPad, other-platform mentions, screenshots, age rating "users interact", title rules, support URL | Apple 2.1, 2.3.x, 2.4.1, 4.0 · Play Metadata |
+| **Platform requirements** | targetSdk deadline, 16 KB pages, AAB/64-bit, export compliance, minimum Xcode, closed testing for new Play accounts, FamilyControls entitlement | — |
+| **Korea** | Under-14 parental consent, mandatory policy contents, IARC/GRAC | 개인정보보호법 |
 
-## 주의
+**118 items**, each with *Basis / Applies when / Verify / Scanner signals / Fix / Evidence / Cases*. Every item was checked against the official guideline text on 2026-08-28 (App Store Review Guidelines of 2026-06-08, Play Policy Center) — see [`references/`](references/) for the verbatim quotes, URLs and the 2025–2026 change log.
 
-- 체크리스트의 날짜 의존 수치(targetSdk 요구치, 최소 Xcode 등)는 작성 시점(2026-08) 기준. 제출 전 공식 페이지에서 확인.
-- 데모 계정 비밀번호·API 키는 리포트·케이스에 저장하지 않는다(플레이스홀더).
-- 스캐너는 정규식 기반이라 오탐·미탐이 있다. PASS 판정은 항상 소스 근거가 있어야 한다.
+## Real-world rejection cases
 
-## 라이선스
+[`rejections/community-cases.md`](rejections/community-cases.md) collects **100+ real rejection stories** (2022–2026) from developer forums, Reddit, Apple Developer Forums, Play developer communities and blogs (English, Korean, Japanese, Chinese sources) with the guideline quoted, root cause, the fix that got approved and the source link. Each case is mapped to checklist IDs, so a pre-check can say *"this exact thing got someone rejected — here's what fixed it"*.
+
+## Teach it your rejections
+
+1. Paste the email → the skill saves `rejections/YYYY-MM-DD-<platform>-<guideline>-<app>.md` with `checklist_ids`.
+2. A reason the checklist doesn't know → it adds an item and, if detectable, a scanner signal.
+3. Next pre-check → any overlap is flagged at the top as **Recurrence risk**.
+
+## Repository layout
+
+```
+SKILL.md                     the skill (rules, question flows, mode workflows, signal→item map)
+scripts/scan.sh              project signal scanner (bash 3.2 / BSD grep compatible)
+scripts/render_report.py     JSON → standalone HTML report (filters, dark mode, checklist state, copy notes)
+checklists/common.md         feature-conditional items
+checklists/ios.md            App Store items
+checklists/android.md        Google Play items
+checklists/ko/               translations (English is canonical)
+references/                  official sources the checklists were verified against
+templates/                   report schema, case, review notes, reviewer reply, UGC EULA clause, recording script
+rejections/                  case KB — your cases + community-cases.md
+docs/                        sample report JSON + screenshot
+```
+
+## Compatibility
+
+- **Claude Code** — asks with `AskUserQuestion` (multi-select), renders and opens the HTML report.
+- **Codex CLI** — same SKILL.md; questions become numbered options in chat.
+- Any runtime following the [Agent Skills spec](https://agentskills.io/specification) (`name` + `description` frontmatter).
+
+## Contributing
+
+PRs welcome — especially **real rejection cases** (with the reviewer's wording and the fix) and **guideline updates**. Add a row to `rejections/community-cases.md` and link it from the checklist item's `Cases:` line.
+
+## Disclaimer
+
+Guidelines change. Date-sensitive values (targetSdk deadlines, minimum Xcode, closed-testing numbers) carry an "as of" date; verify on the official page before submitting. This tool reduces rejections; it does not guarantee approval.
+
+## License
 
 MIT
