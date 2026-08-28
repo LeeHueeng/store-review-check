@@ -7,7 +7,7 @@
 # 호환:  macOS 기본 bash 3.2 / BSD grep, Linux GNU grep 모두 동작.
 
 set -u
-VERSION="1.7.0"
+VERSION="1.8.0"
 ROOT="${1:-.}"
 ROOT="$(cd "$ROOT" 2>/dev/null && pwd)" || { echo "경로 없음: ${1:-.}" >&2; exit 1; }
 
@@ -316,6 +316,7 @@ sig emulator        '(emulator|エミュレータ|에뮬레이터|romPath|\.rom\
 sig form.factor     '(CarAppService|androidx\.car\.app|android\.hardware\.type\.automotive|WearableListenerService|android\.hardware\.type\.watch|LEANBACK_LAUNCHER|android\.software\.leanback|WatchKit|WKExtension|xr\.|visionos)'
 sig plist.default.purpose '(Allow \$\(PRODUCT_NAME\) to access|\$\(PRODUCT_NAME\) needs access|This app needs access to|이 앱은 .* 권한이 필요합니다\.?$|needs to access your (camera|microphone|photos|location)$)'
 sig toss.miniapp    '(apps-in-toss|@apps-in-toss|appsInToss|토스 ?미니앱|앱인토스)'
+sig region.markers  '(yandex|vk\.com|Сбер|ЮMoney|mir_pay|MirPay|CPF|CNPJ|pix_key|PIX ?QR|MoMo|ZaloPay|VNPay|Midtrans|GoPay|OVO ?Pay|DANA|iyzico|Impressum|Datenschutzerklärung|PSE ?Kominfo|Komdigi)'
 sig media.thirdparty '(youtube_player|react-native-youtube|youtube-iframe|YTPlayerView|themoviedb|TMDB|jellyfin|peertube|radio ?stream|icecast|shoutcast|plex|emby|torrent)'
 sig mac.entitlements '(ENABLE_INCOMING_NETWORK_CONNECTIONS|ENABLE_OUTGOING_NETWORK_CONNECTIONS|ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER|ENABLE_RESOURCE_ACCESS_CAMERA|ENABLE_RESOURCE_ACCESS_MICROPHONE|ENABLE_USER_SELECTED_FILES|SUPPORTS_MACCATALYST = YES)'
 sig sec.webview     '(Intent\.parseUri|parseUri\(|shouldOverrideUrlLoading|addJavascriptInterface|setJavaScriptEnabled\(true\)|setAllowFileAccess\(true\))'
@@ -412,6 +413,7 @@ if [ "$(cnt price.hardcoded)" -gt 0 ]; then flag "하드코딩된 가격/무료�
 if [ "$(cnt donation)" -gt 0 ]; then flag "후원/도네이션 링크 신호 → common.md PAY-01 (Apple: 'donations… must use In-App Purchase' — 연결된 웹사이트의 링크도 검사)"; HINTS=1; fi
 if [ "$(cnt applepay)" -gt 0 ]; then flag "Apple Pay 신호 → ios.md IOS-IAP-03 (4.9: 다른 결제 버튼과 동등하게 노출; PassKit만 링크하고 미사용이면 IOS-ENT-04)"; HINTS=1; fi
 if [ "$(cnt icloud.sync)" -gt 0 ] && [ "$(cnt pay.iap)" -gt 0 ]; then flag "iCloud 동기화 + IAP 신호 → ios.md IOS-IAP-04 (4.10: iCloud 동기화 등 내장 기능을 유료화 금지)"; HINTS=1; fi
+if [ "$(cnt region.markers)" -gt 0 ]; then flag "지역 결제/법규 마커(러·브라질·베트남·인니·터키·독일) 신호 → common.md LAW-04 + references/regions.md (라이선스·등록·연령 확인·Impressum)"; HINTS=1; fi
 if [ "$(cnt media.thirdparty)" -gt 0 ]; then flag "제3자 미디어/카탈로그 신호 → common.md LAW-03 (5.2.3: 권리 증빙을 심사 노트에 첨부; 제3자 미디어 오프라인 다운로드는 제거)"; HINTS=1; fi
 if [ "$(cnt mac.entitlements)" -gt 0 ]; then flag "macOS/Catalyst 샌드박스 엔타이틀먼트 신호 → ios.md IOS-ENT-05 (2.4.5(i): 서명된 바이너리별 codesign -d --entitlements 확인, 기능 없는 키 제거)"; HINTS=1; fi
 if printf '%s' "$NAMES" | grep -qE '(^|[^a-z])(mac|macos|ios|ipados|apple ?watch|watchos|sidecar|inkwell|airpods|iphone|ipad)([^a-z]|$)'; then flag "앱 이름/표시명에 Apple 상표 신호 → ios.md IOS-META-09 (5.2.5: 이름·부제·키워드·CFBundleName에서 제거; 설명의 'for macOS'는 허용)"; HINTS=1; fi

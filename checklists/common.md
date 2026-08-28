@@ -71,6 +71,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: neutral age screen at sign-up; publish a child-safety standards page (can be a section of the terms); Play Console App content > Child safety standards; Apple: Age Suitability URL, Declared Age Range API where regional laws apply (see LAW-01).
 - Evidence: URL of the standards page; console screenshot.
 - Apple 3rd-pass Kids rule: Kids Category builds must not *reference* `ASIdentifierManager` or ATT — Branch, Firebase Analytics (GoogleAppMeasurement) and React Native core are flagged; Apple wants the code removed, not toggled off; the parental gate must be non-disableable before every outbound link and purchase (share sheet included). [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+- International 3rd-pass rule: **prohibited app classes are not fixable by moderation** — appearance-rating / "hot-or-not", random/anonymous chat and Chatroulette-style mechanics are rejected under 1.2 regardless of safeguards (removable without notice since 2026-02); Play tolerates them with rating + moderation. Decide before building; EU alternative marketplaces / PWA are the fallback, not re-skins. [cases](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ---
 
@@ -137,6 +138,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: the reviewer path is described step-by-step in App Review Information / Play Sign-in details (entry gesture, credentials, fixed OTP); the reviewer account sees the same features as a normal user; seeded data has no "test/테스트/준비중" strings (CONTENT-02); the path stays valid after launch (Google re-tests).
 - Fix: implement as a normal, documented login option; never key behaviour on reviewer IP/device.
 - Cases: [Korean/Japanese 3rd pass](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- International 3rd-pass detail: the review environment **cannot receive SMS, calls or push and denies push permission on purpose**; e-mail OTP with test@test.com-style addresses is treated as a placeholder — ship a reviewer bypass code or a pre-verified demo account, never depend on push. [cases](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ---
 
@@ -149,6 +151,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: publish the policy (Notion/static page) → link in Settings + sign-up → register the URL in both consoles.
 - Evidence: console screenshots.
 - Hosting defects that got apps rejected on Play: GitHub Markdown, Blogspot, PDF, JavaScript-only pages, editable blog posts, private/geofenced URLs. Host a plain, public, fixed HTML page on your own domain. [cases](../rejections/community-cases.md#user-data-privacy-policy-data-safety-prominent-disclosure)
+- International 3rd-pass cases: the policy must name each **framework by name** ("Health Connect" not only "Apple Health"; Firebase/AdMob identifiers) with data types, purpose, sharing, retention — omissions were the rejection cause. [cases](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### PRIV-02 Privacy labels match reality (App Privacy / Data safety)
 - Basis: Apple App Privacy Details / Play Data safety — mismatch with actual collection is a rejection / policy violation
@@ -238,6 +241,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `pay.external`, `pay.iap`
 - Fix: switch to StoreKit / Play Billing or RevenueCat. Remove web-payment prompts/links, or gate them by storefront/region under an approved program.
 - Apple 2nd-pass cases: donation buttons/links (Ko-fi, GitHub Sponsors, Buy Me a Coffee) count as digital purchases — "Although these donations may be optional, they must use In-App Purchase" — even when they only live on the linked website; 3.1.3(a) link-outs must use the External Link Account API modal "before every instance of linking out"; 3.1.3(c) enterprise pricing "could be interpreted as being sold to individual consumers". [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- International 3rd-pass cases: Apple judged 3.1.1 from the **marketing website and store description** (plan names/features that existed only there) — audit pricing page, FAQ, terms and listing for sentences tying mobile features to a paid plan or external purchase. [cases](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### PAY-02 Subscription disclosure + terms links
 - Basis: Apple 3.1.2(a) "the subscription period must last at least seven days and be available across all of the user's devices"; 3.1.2(c) "Before asking a customer to subscribe, you should clearly describe what the user will get for the price"; Schedule 2 requires Terms of Use (EULA) and privacy-policy links in the app and in metadata / Play **Subscriptions**: disclose "the cost of your subscription, the frequency of your billing cycle, the automatic renewal terms"; trials must "clearly and accurately describe the terms of your offer, including the duration, pricing… how it converts, how to cancel"; and the app must "clearly disclose how a user can manage or cancel their subscription" with an easy online method in "your app's account settings (or equivalent page)" (clarified 2025-10-30)
@@ -351,6 +355,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Applies: WebView is the main UI
 - Verify: meaningful native functionality (push, camera, offline, widgets…).
 - Signals: `webview`
+- International 3rd-pass cases: **live aggregator apps are re-reviewed as new** on routine updates — price-comparison/travel/cashback apps got 4.1 (third-party logos) then 4.2.2 "not different from a web browser"; keep a ready dossier (number of sources, native aggregation/ranking/dedup, iOS features, comparison with approved category peers) and attach it to every update's notes. [cases](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### CONTENT-04 No other-platform mentions
 - Basis: Apple 2.3.10 — no names, icons or imagery of other mobile platforms in the app or metadata ("also on Android" ✗) / Play — same spirit (iPhone frames in screenshots…)
@@ -446,6 +451,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: promises of unreleased features, other-platform mentions (CONTENT-04), other apps' names, promo words, emojis in the title.
 - From cases: "Tutorial & Rules" (implied external content), Spanish "libre" (read as "free"), "ChatGPT" in a name, "Anonymous/匿名" keywords, brand names of hardware — all rejected. [cases](../rejections/community-cases.md#metadata--misleading-claims)
 - Apple 2nd-pass cases (2.3.2): features that need a purchase must be labelled in the description/screenshots ("(Pro)", "subscription required") — "metadata refers to paid content or features, but they are not clearly identified as requiring additional purchase"; placeholder icons and the word "Kids" in a non-Kids app name are 2.3.8; "resembles Pokemon" / sports-league likeness is 4.1(a). [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- International 3rd-pass case: **machine-translated localized titles** are policy-checked per locale ("vrij" read as "free"); keep every locale's title ≤ 30 chars and free of price/superlative words. [case](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### META-03 Age-rating questionnaire
 - Basis: Apple 2.3.6 "Answer the age rating questions in App Store Connect honestly"; new tiers 4+/9+/13+/16+/18+ with new questions (in-app controls, capabilities, medical/wellness, violence) — responses were required by 2026-01-31; **social-media questions required for submissions from 2026-09**; declaring the "Social Media" capability sets a minimum 13+ rating (iOS 27 Time Allowances) / Play **Content Ratings** (IARC): "All apps must have a content rating… Apps without a content rating will be removed"; "Misrepresentation of your app's content may result in removal or suspension"; interactive element "Users Interact" covers user-to-user communication and media sharing
@@ -458,6 +464,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 ### META-04 URLs work
 - Verify: support, marketing and privacy URLs return 200 with content. Notion pages: "publish to web" on.
 - Apple 2nd-pass cases: linked pages **are** metadata — the support URL, README and marketing site linked from notes are reviewed for trademarks, other-platform mentions, donation links and false claims. [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- International 3rd-pass cases: legal/support/deletion URLs on repo branches, unmerged pages or `rsync --delete` deploys produced 404s at review time on both stores — host on a stable domain, per locale, and gate submission on a live HTTP 200 check of the URLs stored in the consoles. [cases](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### META-05 Review notes
 - Basis: Apple 2.3.1(a) "All new features, functionality, and product changes must be described with specificity in the Notes for Review section of App Store Connect (generic descriptions will be rejected) and accessible for review"; App Review page: "Incomplete information" (demo account, special configurations, demo video/hardware) is a top rejection reason / Play Sign-in details (AND-CONSOLE-03)
@@ -528,6 +535,12 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: evidence attached; no third-party download feature; metadata free of "download".
 - Signals: `media.thirdparty`
 - Cases: [Apple 3rd pass](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+
+### LAW-04 Regional distribution gotchas — Russia/Belarus, Brazil, Vietnam, Indonesia, Turkey, Germany, France
+- Basis (details and sources in [`references/regions.md`](../references/regions.md)): **Russia/Belarus** — sanction blocks on developer accounts, Apple Pay/card payments off since 2022-03, no RF Play Console registration, VPN removals on Roskomnadzor demand, bank "clone" apps = 2.3.1 by design; **Brazil** — ECA Digital (2026-03-17: age assurance, parental linkage <16, **loot boxes banned** for minors, no profiling/ads on minors), ANPD makes the stores the first enforcement line, CADE settlement (alternative stores/payments incl. PIX), CPF/CNPJ identity; **Vietnam** — Decree 147: games need a Vietnamese G1 licence via a local publisher, fintech/pawn apps need the business licence + Vietnam-only availability; **Indonesia** — Komdigi PSE registration (unregistered platforms blocked), top-up shops rejected under Payments; **Turkey** — KVKK mobile-app guide (in-app notice/consent, child notices), Play age verification since 2025-10, association terminations; **Germany** — Impressum reachable in-app and in the listing, DSGVO consent taken literally (no Firebase token before notification consent), "(inoffiziell)" for official-sounding names; **France** — under-15 social ban with age verification (2026-07), Declared Age Range API, 180-day Play appeal window
+- Applies: any storefront/country in the list; games; fintech; social
+- Verify: storefront list vs licences/registrations; region-specific legal pages (Impressum, PSE, game licence numbers); age-assurance APIs where required; payment method availability.
+- Cases: [international sources](../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ---
 

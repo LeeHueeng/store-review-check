@@ -66,6 +66,7 @@
 - 수정: 가입 시 중립 연령 화면; 아동 안전 기준 페이지 게시(약관의 한 절이어도 됨); Play Console App content > 아동 안전 기준; Apple: Age Suitability URL, 지역 법규 해당 시 Declared Age Range API(LAW-01).
 - 증빙: 기준 페이지 URL; 콘솔 스크린샷.
 - Apple 3차 Kids 규칙: Kids 카테고리 빌드는 `ASIdentifierManager`나 ATT를 *참조*조차 하면 안 됨 — Branch, Firebase Analytics(GoogleAppMeasurement), React Native 코어가 지적됨; Apple은 토글 끄기가 아니라 코드 제거를 요구; 보호자 게이트는 모든 외부 링크·구매(공유 시트 포함) 앞에서 비활성화 불가여야. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+- 비영어권 3차 규칙: **금지된 앱 유형은 모더레이션으로 못 고침** — 외모 평가/"hot-or-not", 랜덤/익명 채팅, Chatroulette식 메커니즘은 안전장치와 무관하게 1.2로 거절(2026-02부터 통지 없이 삭제 가능); Play는 등급+모더레이션으로 허용. 만들기 전에 결정; EU 대체 마켓/PWA가 대안이지 리스킨 재제출이 아님. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ---
 
@@ -131,6 +132,7 @@
 - 확인: App Review Information / Play Sign-in details에 심사관 경로를 단계별 기술(진입 제스처, 자격 증명, 고정 OTP); 심사관 계정이 일반 사용자와 같은 기능을 봄; 시드 데이터에 "test/테스트/준비중" 문자열 없음(CONTENT-02); 출시 후에도 경로 유효(Google 재테스트).
 - 수정: 정상적이고 문서화된 로그인 옵션으로 구현; 심사관 IP/기기로 동작 분기 금지.
 - 사례: [한/일 3차](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- 비영어권 3차 세부: 심사 환경은 **SMS·전화·푸시를 받을 수 없고 푸시 권한을 일부러 거부**; test@test.com식 이메일 OTP는 플레이스홀더로 간주 — 리뷰어 우회 코드나 사전 인증된 데모 계정을 제공하고 푸시에 의존하지 말 것. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ---
 
@@ -143,6 +145,7 @@
 - 수정: 방침 게시(노션/정적) → 설정 + 가입 링크 → 두 콘솔 URL 등록.
 - 증빙: 콘솔 스크린샷.
 - 사례 교훈(Play 리젝된 호스팅): GitHub 마크다운, Blogspot, PDF, JS 전용 페이지, 수정 가능한 블로그 글, 비공개/지역 제한 URL. 자체 도메인의 고정 공개 HTML 페이지 권장. [사례](../../rejections/community-cases.md#user-data-privacy-policy-data-safety-prominent-disclosure)
+- 비영어권 3차 사례: 방침은 각 **프레임워크를 이름으로** 명시해야("Apple Health"만 말고 "Health Connect"; Firebase/AdMob 식별자) — 데이터 유형·목적·공유·보유 포함; 누락 자체가 거절 사유. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### PRIV-02 개인정보 라벨 일치 (App Privacy / Data safety)
 - 근거: Apple App Privacy Details / Play Data safety — 실제 수집과 다르면 리젝·정책 위반
@@ -232,6 +235,7 @@
 - 신호: `pay.external`, `pay.iap`
 - 수정: StoreKit/Play Billing 또는 RevenueCat. 웹 결제 안내·링크 제거 또는 승인 프로그램 하에 지역별 분기.
 - Apple 2차 사례: 후원 버튼/링크(Ko-fi, GitHub Sponsors, Buy Me a Coffee)는 디지털 구매로 간주 — "Although these donations may be optional, they must use In-App Purchase" — 연결된 웹사이트에만 있어도 마찬가지; 3.1.3(a) 링크아웃은 External Link Account API 모달을 "매번" 표시; 3.1.3(c) 기업용 가격이 "개인 소비자 판매로 해석될 수 있음". [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- 비영어권 3차 사례: Apple이 3.1.1을 **마케팅 웹사이트와 스토어 설명**으로 판단(거기에만 있던 플랜명/기능) — 가격 페이지·FAQ·약관·등록정보에서 모바일 기능을 유료 플랜/외부 구매와 묶는 문장을 감사. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### PAY-02 구독 고지 + 약관 링크
 - 근거: Apple 3.1.2(a) "구독 기간 최소 7일, 모든 기기에서 사용 가능"; 3.1.2(c) "구독 전에 가격 대비 제공 내용을 명확히"; Schedule 2: 이용약관(EULA)·개인정보 링크를 앱 안과 메타데이터에 / Play **구독**: "구독 비용, 청구 주기, 자동 갱신 조건" 공개; 무료 체험은 "기간, 가격… 전환 방식, 해지 방법"; "계정 설정(또는 동등 페이지)에 쉬운 온라인 해지 방법"(2025-10-30 명확화)
@@ -345,6 +349,7 @@
 - 적용: 웹뷰가 주 UI
 - 확인: 의미 있는 네이티브 기능(푸시·카메라·오프라인·위젯…).
 - 신호: `webview`
+- 비영어권 3차 사례: **운영 중인 통합(aggregator) 앱도 정기 업데이트에서 신규처럼 재심사** — 가격 비교/여행/캐시백 앱이 4.1(제3자 로고) 후 4.2.2 "웹 브라우저와 다르지 않음"; 소스 수, 네이티브 통합/랭킹/중복 제거, iOS 기능, 승인된 동종 앱과의 비교표를 준비해 모든 업데이트 노트에 첨부. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### CONTENT-04 타 플랫폼 언급 금지
 - 근거: Apple 2.3.10 — 앱·메타데이터에 다른 모바일 플랫폼 이름·아이콘·이미지 금지("Android에서도" ✗) / Play — 같은 취지(스크린샷의 iPhone 프레임 등)
@@ -440,6 +445,7 @@
 - 확인: 미출시 기능 약속, 타 플랫폼 언급(CONTENT-04), 다른 앱 이름, 홍보 문구, 제목의 이모지.
 - 사례 교훈: "Tutorial & Rules"(외부 콘텐츠 암시), 스페인어 "libre"("free"로 판독), 이름의 "ChatGPT", "Anonymous/匿名" 키워드, 하드웨어 브랜드명 — 모두 거절. [사례](../../rejections/community-cases.md#metadata--misleading-claims)
 - Apple 2차 사례(2.3.2): 구매가 필요한 기능은 설명/스크린샷에 표시("(Pro)", "구독 필요") — "metadata refers to paid content or features, but they are not clearly identified as requiring additional purchase"; 플레이스홀더 아이콘과 Kids 카테고리 아닌 앱 이름의 "Kids"는 2.3.8; "resembles Pokemon"/스포츠 리그 유사는 4.1(a). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- 비영어권 3차 사례: **기계 번역된 현지화 제목**도 로케일별로 정책 검사("vrij"가 "free"로 판독); 모든 로케일 제목 ≤30자, 가격/최상급 단어 금지. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### META-03 연령 등급 설문
 - 근거: Apple 2.3.6 "정직하게 답변"; 새 등급 4+/9+/13+/16+/18+와 새 문항(앱 내 제어, 기능, 의료/웰니스, 폭력) — 2026-01-31까지 응답 필수; **2026-09부터 제출 시 소셜미디어 문항 필수**; "Social Media" 기능 선언 시 최소 13+(iOS 27 Time Allowances) / Play **콘텐츠 등급**(IARC): "모든 앱은 등급 필수… 등급 없는 앱은 삭제"; "허위 표기 시 삭제·정지"; "Users Interact"는 사용자 간 통신·미디어 공유
@@ -452,6 +458,7 @@
 ### META-04 URL 동작
 - 확인: 지원·마케팅·개인정보 URL 200 + 내용. 노션은 "웹에 게시" 켜짐.
 - Apple 2차 사례: 링크된 페이지도 **메타데이터** — 지원 URL, README, 노트에 링크한 마케팅 사이트의 상표·타 플랫폼 언급·후원 링크·허위 주장이 심사됨. [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- 비영어권 3차 사례: 레포 브랜치, 머지 안 된 페이지, `rsync --delete` 배포에 올린 법적/지원/삭제 URL이 심사 시점에 404 — 안정된 도메인에 로케일별로 호스팅하고 콘솔에 등록한 URL의 HTTP 200 확인을 제출 게이트로. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### META-05 심사 노트
 - 근거: Apple 2.3.1(a) "모든 신규 기능·변경은 App Store Connect의 Notes for Review에 **구체적으로** 기술(일반적 서술은 거절)"; App Review 페이지: "Incomplete information"(데모 계정, 특수 설정, 데모 영상/하드웨어)이 상위 리젝 사유 / Play Sign-in details(AND-CONSOLE-03)
@@ -522,6 +529,12 @@
 - 확인: 증빙 첨부; 제3자 다운로드 기능 없음; 메타데이터에 "다운로드" 없음.
 - 신호: `media.thirdparty`
 - 사례: [Apple 3차](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+
+### LAW-04 지역별 배포 함정 — 러시아/벨라루스, 브라질, 베트남, 인도네시아, 터키, 독일, 프랑스
+- 근거(상세·출처는 [`references/regions.md`](../../references/regions.md)): **러시아/벨라루스** — 개발자 계정 제재 차단, 2022-03부터 Apple Pay/카드 결제 중단, 러시아 정보로 Play Console 등록 불가, Roskomnadzor 요구로 VPN 삭제, 은행 "클론" 앱 = 설계상 2.3.1; **브라질** — ECA Digital(2026-03-17: 연령 확인, 16세 미만 보호자 연동, 미성년자 접근 게임의 **루트박스 금지**, 미성년자 프로파일링/광고 금지), ANPD가 스토어를 1차 집행 주체로, CADE 합의(대체 스토어/결제, PIX 포함), CPF/CNPJ 신원; **베트남** — Decree 147: 게임은 현지 퍼블리셔를 통한 베트남 G1 라이선스 필요, 핀테크/전당포 앱은 사업 라이선스 + 베트남 한정 배포; **인도네시아** — Komdigi PSE 등록(미등록 플랫폼 차단), 게임 충전 상점은 결제 정책으로 거절; **터키** — KVKK 모바일 앱 가이드(앱 내 고지/동의, 아동용 고지), 2025-10부터 Play 연령 확인, 연관 계정 종료; **독일** — 앱 내·등록정보에서 도달 가능한 Impressum, DSGVO 동의를 문자 그대로(알림 동의 전 Firebase 토큰 금지), 공식처럼 들리는 이름엔 "(inoffiziell)"; **프랑스** — 15세 미만 소셜 금지 + 연령 확인(2026-07), Declared Age Range API, Play 이의 제기 180일
+- 적용: 목록의 스토어프론트/국가; 게임; 핀테크; 소셜
+- 확인: 스토어프론트 목록 vs 라이선스/등록; 지역별 법적 페이지(Impressum, PSE, 게임 라이선스 번호); 필요 시 연령 확인 API; 결제 수단 가용성.
+- 사례: [비영어권 사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ---
 

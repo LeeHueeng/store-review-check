@@ -103,11 +103,11 @@ bash ~/.claude/skills/store-review-check/scripts/scan.sh ~/dev/app
 | **平台要求** | targetSdk 截止日期、16KB 页面、AAB/64 位、出口合规、最低 Xcode、新 Play 账号封闭测试、FamilyControls 授权 | — |
 | **韩国** | 14 岁以下法定代理人同意、政策必备内容、IARC/GRAC | 个人信息保护法 |
 
-**144 个检查项**，每项包含 *依据 / 适用条件 / 核实方法 / 扫描信号 / 修复 / 证明 / 案例*。全部对照 2026-08-28 的官方原文(2026-06-08 版 App Store Review Guidelines、Play 政策中心)核实 — 原文引用、URL 及 2025–2026 变更记录见 [`references/`](references/)。
+**154 个检查项**，每项包含 *依据 / 适用条件 / 核实方法 / 扫描信号 / 修复 / 证明 / 案例*。全部对照 2026-08-28 的官方原文(2026-06-08 版 App Store Review Guidelines、Play 政策中心)核实 — 原文引用、URL 及 2025–2026 变更记录见 [`references/`](references/)。
 
 ## 真实被拒案例
 
-[`rejections/community-cases.md`](rejections/community-cases.md) 收集了 **759 条真实被拒案例**(2022–2026)，来自 Apple Developer Forums、Play 开发者社区、Stack Overflow、GitHub issues、Hacker News、Kakao DevTalk 及开发者博客(英、韩、日、中文来源)的真实被拒案例，含审核员原话、根本原因、通过审核的修复以及来源链接。每个案例映射到清单 ID，预检时可以指出 *"有人正是因此被拒，这样修复后通过了"*。
+[`rejections/community-cases.md`](rejections/community-cases.md) 收集了 **1270 条真实被拒案例**(2022–2026)，来自 Apple Developer Forums、Play 开发者社区、Stack Overflow、GitHub issues/PR、Hacker News、Kakao DevTalk、Habr、Fabapp、OKKY、Qiita/Zenn、掘金及开发者博客(英、韩、日、中、俄、西、葡、越、印尼、土、德、法文来源)的真实被拒案例，含审核员原话、根本原因、通过审核的修复以及来源链接。每个案例映射到清单 ID，预检时可以指出 *"有人正是因此被拒，这样修复后通过了"*。
 
 ## 让它学习你的被拒记录
 

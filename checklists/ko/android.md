@@ -182,6 +182,7 @@
 - 사례: [커뮤니티](../../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video)
 - 한국 사례: VC 6을 고친 뒤에도 **공개 테스트** 트랙의 VC 3이 지적됨 — 그 트랙에 수정 번들로 릴리즈를 만들어 옛 번들을 비활성화; 테스트 트랙 번들은 삭제 불가, 덮어쓰기만 가능.
 - Play 3차 사례 — **일시중지로는 부족**: 일시중지된 테스트 트랙과 100% 미만 프로덕션 출시의 번들도 심사관이 보는 대상(증상: 몇 달 전 스크린샷, 사용 안 된 리뷰어 자격 증명, 제거된 화면 인용); 트랙을 완전히 교체하거나 비활성화; 옛 번들 재스캔으로 이의 제기가 수락된 앱이 다시 정지된 사례; "콘솔에서 무엇이든 바꾸면 심사 타이머가 리셋". [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
+- 비영어권 3차 단계: Google 템플릿이 "deactivate the non-compliant App Bundle Version… Track: Production and increment the version code"를 요구하는데 콘솔이 허용하지 않으면 **앱을 직접 게시 취소**(출시 → 설정 → 고급 설정 → 앱 사용 가능 여부)하고 *모든* 트랙에 100%로 재업로드 — 이것이 결국 해결. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### AND-CONSOLE-12 정부 정보 앱
 - 근거: 혼동을 야기하는 주장 리젝 "Your app doesn't provide a clear source of government information or its description lacks an easy-to-see disclaimer stating that the app doesn't represent a government entity" / "Identify a clear source of government information"; 고지문만으로는 거의 통과 못 함 — 정부 앱 선언 + 서면 승인, 앱 내 소개/고지 페이지, 설명의 완전한 출처 URL(심사관이 그대로 복사)이 있어야 통과
@@ -219,10 +220,12 @@
 - 사례 교훈: "테스터가 참여하지 않았다"며 프로덕션 접근 거부 — 옵트인만 하고 앱을 열지 않은 12개 계정은 실패; 테스터에게 자유 탐색을 맡기고, 신청 문항마다 ≥3줄의 실질적 답변(크래시 없음 명시, 구체적 피드백, 개선 계획).
 - 한국 사례(2024~2026): 12명 이상 옵트인을 **끝까지** 유지(30명 이상 모집; 품앗이/유료 테스터는 이탈), 실제 사용 세션, 테스트 중 2~3회 업데이트, 설문 항목마다 상세 답변; 멈춰 있던 신청이 비공개 트랙 업데이트 다음 날 승인된 사례.
 - 일본 사례(2026): 12명 옵트인이어도 "테스터 미참여"·"피드백 기반 업데이트 없음"으로 거절 — **설치 사용자 그래프**가 매일 ≥12 유지(10/12 설치는 실패), 리텐션 가시화, 피드백은 콘솔 피드백 이메일로(LINE 대화는 안 보임), 기간 중 2~3회 업데이트; Google Groups 링크는 승인제 그룹·LINE 브라우저에서 실패; 비공개 테스트 목록 ≠ 라이선스 테스트 목록(유료 앱은 테스터에게 과금). [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- 비영어권 3차 규칙: 12명을 채우려 **직접 만든 테스터 Google 계정**은 "봇 계정과 연관"으로 종료; 설치만 하고 안 쓰는 지인은 인정 안 됨 — 실제 테스터(15~25명, 17일 이상) 모집, 로그/영상 보관. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### AND-ACCOUNT-01 계정 인증
 - 근거: 신분증이 결제 프로필과 일치; 조직은 D-U-N-S; 개발자 정보 공개. 미완료 시 게시 불가.
 - 한국 사례: 주민등록등본(정부24)이 가장 잘 통과하지만 결제 프로필 주소가 문서와 글자 단위로 일치해야(지번 vs 도로명); 주민번호 뒷자리 마스킹; 주소 없는 명세서는 실패.
+- 비영어권 3차 사례: 한 번이라도 수익화한 계정은 실제 주소/전화 공개 필수(Authenticator Pro는 이 때문에 Play를 떠남); 휴면 계정(6년 미활동)은 수수료 환불과 함께 삭제 — 첫 유료 앱 전에 조직/개인 결정, 매년 활성 앱 1개 이상 유지. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### AND-ACCOUNT-02 앱 등록(2026) & 조직 요건
 - 근거: Play Console **앱 등록 2026-09-30까지** — 미등록 앱은 "Google Play에서 전 세계 삭제"; 금융·건강·VPN·정부 앱은 "조직으로 등록 필수"(D-U-N-S). 개발자 정보(법적 이름/주소/이메일/전화) 공개; 수익화 계정은 전체 주소 공개.
@@ -248,6 +251,7 @@
 - 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 - 일본 사례: *경미한* 메타데이터 리젝이 이어진 뒤 앱 3개가 "アプリ拒否スパム: Repeated app rejections"로 정지; 미출시 MVP로 회사 계정 종료; 정지 중 구독 자동 취소. 재제출마다 한 이슈를 완전히 해결하고 방치 앱은 삭제. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 - Play 3차 사례 — 카운터는 실재: 한 앱에서 ~30~60일 내 3~4회 리젝이면 각각 경미하고 고쳤어도 Enforcement Process 정지; 정지 후 App access 선언 수정 불가, 단 한 번의 이의 제기는 *원래* 리젝 기준으로 판단; 2026 연관 벡터: 외주/에이전시 콘솔 접근, 공유 기기·빌려준 노트북, 가정 네트워크, D-U-N-S 동기화 지연, 자기 계정 간 앱 이전; 180일 규칙이 새 증거 제출을 막음. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
+- 비영어권 3차 규칙: **종료된 계정의 패키지명과 ContentProvider authority는 영구 예약**("já existe no Google Play") — 종료/재등록 후엔 새 applicationId와 새 provider authority로 재빌드. [사례](../../rejections/community-cases.md#cases-from-russian-spanish-portuguese-vietnamese-indonesian-turkish-german-and-french-sources-3rd-pass-2026-08-28)
 
 ### AND-REVIEW-01 심사 환경은 Play 스토어가 아니다
 - 근거: 심사관은 **Play 서명** 빌드를 설치(사전 출시 보고서와 다른 키 → Google/Firebase 로그인, App Check, 일부 라이브러리 실패); Play Asset Delivery 온디맨드 팩은 `AppNotOwned` / `AppUnavailable` / `InternalError`; 네트워크가 꺼져 있을 수 있음; 실시간/스트리밍 의존 화면은 비어 있음; 다른 릴리즈의 옛 자격 증명이 사용됨
