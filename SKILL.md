@@ -159,6 +159,9 @@ In B, if the project path is known also run A focused on the affected items.
 | any Apple resubmission | META-07 (reply vs resubmit, don't resubmit mid-dialogue, version reuse) |
 | storefronts include Japan / China | JP-01 / CN-01 (`references/japan-china.md`) |
 | `form.factor` > 0 (Auto / Wear / TV / XR opt-in or library-merged services) | AND-FORM-01 |
+| `plist.default.purpose` > 0 | IOS-PLIST-05 (plugin default purpose strings) |
+| `toss.miniapp` > 0 | KR-05 (Toss mini-app review) |
+| production login can't be completed by a foreign reviewer (Kakao KR phone, SIWA + SMS) | ACC-07 documented reviewer path (never hidden behaviour) |
 
 ## Learning rules (keeping the KB alive)
 

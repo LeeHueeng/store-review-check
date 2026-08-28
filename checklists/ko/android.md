@@ -15,6 +15,7 @@
 ### AND-SDK-02 16KB 페이지 크기
 - 근거: "2025-11-01부터 Android 15+ 기기를 타겟하는 모든 신규 앱·업데이트는 16KB 페이지 지원 필수"; "**2027-02-01부터** 16KB 미지원 업데이트는 출시 불가"; 기술 품질: "네이티브 코드가 있는 앱은 16KB 지원 필수. Java/Kotlin 전용 앱은 기본 호환"(TV 2026-08-01, Wear 2026-09-15)
 - 확인: `.so` 포함 앱(Flutter, RN, SQLite…)은 AGP 8.5.1+ / NDK r28+로 빌드; 아니면 Play Console 앱 번들 탐색기에 경고.
+- 한국 3차 사례: 프레임워크 코어가 호환돼도 서드파티 네이티브 라이브러리(react-native-skia)에서 16KB 거부 — `patch-package`로 링커 플래그(`-Wl,-z,max-page-size=16384`) 패치 또는 업그레이드. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### AND-BUILD-01 서명·번들
 - 확인: AAB 업로드(2021-08부터 신규 앱 필수), 업로드 키 서명(릴리즈에 `signingConfigs.debug` 금지; 업로드 키 "RSA 2048비트 이상"), Play 앱 서명, `debuggable false`, `minifyEnabled`(2027-02부터 25% 코드 최적화가 품질 요건), arm64-v8a 포함("네이티브 코드 앱은 64비트 필수").
@@ -127,6 +128,7 @@
 
 ### AND-CONSOLE-01 개인정보처리방침 URL
 - 근거: 모든 앱 필수(2024~). 스토어 등록정보 + 앱 내 링크. `common.md` PRIV-01.
+- 한/일 3차 사례: "Invalid privacy policy"는 이제 **내용**을 검사 — 방침에 앱 이름과 등록된 개발자 법인명이 있어야 하고("プライバシー ポリシーに、アプリの名称または Google Play ストアの掲載情報に記載されている法人…が含まれている必要があります") 건강 데이터 접근을 열거해야("Health Data의 액세스 또는 수집과 사용을 포괄적으로 공개하세요"). [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### AND-CONSOLE-02 데이터 보안(Data safety)
 - 근거: SDK 포함 수집·공유·보안 관행을 정확히 선언. 계정 삭제 URL 포함(AND-CONSOLE-08). 불일치 → 정책 통지·업데이트 거부.

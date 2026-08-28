@@ -21,6 +21,7 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 ### IOS-LOGIN-02 Revoke Apple tokens on account deletion
 - Basis: 5.1.1(v) + Apple notice (2022) — when a Sign in with Apple user deletes their account, call the `revoke tokens` REST API
 - Verify: the account-deletion server function revokes the Apple token.
+- Korean 3rd-pass implementations (4 backends, 2026): capture `authorizationCode` at login (it expires in 5 min), exchange for a refresh token server-side, revoke on withdrawal; the token's `aud` is the **App ID** for native sign-in but the **Services ID** for web — validate accordingly. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### IOS-LOGIN-03 Korea: Sign in with Apple server-to-server notifications
 - Basis: Apple news 2025-10-09 — developers based in Korea must provide a server-to-server notification endpoint on the Services ID used for Sign in with Apple from 2026-01-01 (account changes/deletions are pushed to your server)
@@ -46,6 +47,7 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 - Fix: a width-constrained container (max 600 pt, centered) as minimum effort. Or go iPhone-only (`TARGETED_DEVICE_FAMILY = 1`) — still must not crash on iPad.
 - Cases: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — review devices included an iPad; [community](../rejections/community-cases.md#40-design--sign-in-with-apple-ux)
 - Japanese cases (2026): review devices logged as iPad Air 11 (M3/M4), iPad Pro 11 (M4), iPhone 17 Pro Max; an iPhone-only app was rejected for iPad layout even with iPad **unchecked** ("Appleユーザーは全デバイスで使えることを期待"); `UIRequiresFullScreen` + iPhone-only stopped one loop. Keep a log of the review device in every case file. [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Korean/Japanese 3rd-pass cases (2026): almost every rejection lists "iPad Air 11-inch (M3)" on iPadOS 26.x, including iPhone-only apps whose "iPhone-only" reply was refused; concrete failures: compat-mode window sizes, `flutter_screenutil` `.h` scaling, SwiftUI sheets not inheriting `EnvironmentObject`, bottom-of-page buttons off-screen. Test in the iPadOS 26 compatibility window before every submission. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### IOS-IPAD-02 Carrier (PASS/SMS) authentication cannot run on iPad
 - Basis: Korean 2.1 rejections on iPad Air: "Unable to proceed with PASS authentication after selecting a carrier option" — iPad has no SMS; Apple reviews iPhone-only apps on iPad anyway. `TARGETED_DEVICE_FAMILY = 1`, removing iPad screenshots/orientations and "Supported Destinations" did **not** stop the iPad review; only `UIRequiredDeviceCapabilities = [telephony]` made the app uninstallable on iPad → approved.
@@ -100,6 +102,13 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 
 ### IOS-PLIST-04 ATS (App Transport Security)
 - Verify: `NSAllowsArbitraryLoads = true` needs a justification in the review notes. Prefer per-domain exceptions.
+
+### IOS-PLIST-05 Plugin-injected default purpose strings
+- Basis: Apple's **automated** analysis now flags placeholder purpose strings — "An automated analysis of the submission indicates the following purpose strings… include placeholder text or are otherwise insufficient" — typically Expo config-plugin defaults ("Allow $(PRODUCT_NAME) to access your camera/microphone/Face ID/location") for permissions the app doesn't even use (expo-camera, expo-av, expo-local-authentication, expo-location left in the project)
+- Applies: Expo / React Native / Flutter projects with plugins that ship default `NS*UsageDescription` values
+- Verify: `npx expo config --type introspect` (or the merged Info.plist) shows only permissions you use, each with a specific string; set `cameraPermission: false` / `microphonePermission: false` / `faceIDPermission: false` in plugin options and remove unused packages (this also drops `RECORD_AUDIO` / `ACCESS_*_LOCATION` on Android).
+- Signals: `plist.default.purpose`
+- Cases: [Korean/Japanese 3rd pass](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 

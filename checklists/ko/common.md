@@ -88,6 +88,7 @@
 - 사례 교훈: Play 삭제 URL은 브라우저가 아닌 클라이언트가 검사 — 특수 TLS 설정 없는 일반 HTTPS; 카카오 사용자는 Unlink API로 해제; 일반 설정 페이지 링크는 불인정, 삭제 단계로 직접 링크; 심사관이 못 찾으면 리젝 — 노트에 경로 기재 또는 영상 첨부. [사례](../../rejections/community-cases.md#account-deletion)
 - 한국 사례: 탈퇴 후 **같은 Apple/Google 계정으로 재가입이 되어야** 함(리다이렉트 전에 서버 사용자 문서 저장; 휴대폰 인증·단일 기기 잠금 해제); Play 삭제 페이지는 앱·개발자명과 절차를 명시 — "고객센터 문의"나 로그인 필요 페이지는 실패. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Apple 2차 사례: **계정이 없는** 앱이 로컬 프로필/이름 입력 단계가 가입처럼 보여 5.1.1(v)로 거절 — 심사 노트에 "계정 없음, 로컬 프로필만, 삭제 경로: …"를 상시 기재. [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- 한/일 3차 사례: 삭제는 **새 심사관 계정이 도달하는 상태**(승인 대기 화면, 버튼이 접힘 아래로 간 iPad 레이아웃, 회색 저대비 텍스트)에서 도달·가시적이어야. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### ACC-03 심사용 데모 계정 (소셜 로그인만 있을 때의 함정)
 - 근거: Apple 2.1(a) "로그인이 있으면 데모 계정 정보 포함(백엔드 켜둘 것)… 법적·보안상 불가하면 Apple 사전 승인으로 내장 데모 모드"; ASC 도움말: 데모 계정은 "만료되면 안 됨" / Play **Sign-in details**(구 App access): "항상 접근 가능, 재사용 가능, 사용자 위치와 무관하게 유효… 2단계 인증/OTP가 필요하면 이를 우회하는 재사용 가능 자격 증명 제공… 영어로 제공… 비밀번호가 만료되면 앱이 거부될 수 있음"
@@ -113,6 +114,7 @@
 - 신호: `auth.kakao`, `auth.naver`
 - 수정: 카카오톡 미연동 리뷰어 계정 생성; 해외 IP에서 테스트; SIWA(IOS-LOGIN-01) + 이메일/비밀번호 리뷰어 로그인(ACC-03).
 - 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28) — DevTalk 135699 / 135723 / 139785
+- 3차 세부: 카카오 계정은 한국 전화번호 필요, Sign in with Apple은 항상 *새* 사용자를 만들어 SMS 인증에 걸림 — 그래서 팀들이 문서화된 리뷰어 로그인 + 고정 OTP를 추가(ACC-07). [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### ACC-06 규제·민감 데이터 앱의 조직 등록 (5.1.1(ix))
 - 근거: "The account that submits the app must be enrolled in the Apple Developer Program as an organization, and not as an individual" — 건강/신체 데이터, 보험, 대출, 도박, 암호화폐 거래소; 개인 계정의 서류로 대체 불가(Apple 5.1.1(ix)); Play: "Some types of apps can only be distributed by organizations"(AND-ACCOUNT-02)
@@ -120,6 +122,13 @@
 - 확인: 제출하는 Apple 개발자 계정이 조직(D-U-N-S); Play 계정 유형 일치.
 - 수정: 제출 전 조직으로 등록; 개인은 규제 기능 제거.
 - 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### ACC-07 리뷰 모드 백엔드: 문서화된 심사관 경로, 숨은 동작 아님
+- 근거: 카카오(한국 전화번호 필요)나 Sign in with Apple(항상 새 사용자 생성 → SMS 인증)만 있는 한국 팀들이 **심사관 전용 경로**를 만듦: 이메일/비밀번호 또는 숨은 진입(로고 길게 누르기) 로그인 + 고정 우회 OTP, 신고/차단 테스트용으로 가짜 친구/게시물을 미리 채운 서버 측 "리뷰 모드" 계정. 이는 **심사 노트에 명시**하고 다른 동작은 바뀌지 않을 때만 허용 — 문서화되지 않은 심사 감지는 Apple 2.3.1 / Play 기만 행위(CONTENT-10)
+- 적용: 해외 심사관 기기에서 프로덕션 로그인을 완료할 수 없는 앱
+- 확인: App Review Information / Play Sign-in details에 심사관 경로를 단계별 기술(진입 제스처, 자격 증명, 고정 OTP); 심사관 계정이 일반 사용자와 같은 기능을 봄; 시드 데이터에 "test/테스트/준비중" 문자열 없음(CONTENT-02); 출시 후에도 경로 유효(Google 재테스트).
+- 수정: 정상적이고 문서화된 로그인 옵션으로 구현; 심사관 IP/기기로 동작 분기 금지.
+- 사례: [한/일 3차](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 
@@ -164,6 +173,7 @@
 - 수정: 온보딩 뒤 첫 활성 포그라운드로 요청을 이동.
 - 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Apple 2차 사례: App Privacy "Used to Track You" 라벨, `NSUserTrackingUsageDescription`, 번들된 SDK 프라이버시 매니페스트(Meta, TikTok, 광고 SDK)가 실제 ATT 요청 여부와 모두 일치해야 — "App Privacy information… indicates tracking… but the app never shows an ATT prompt" 및 그 반대("the app still does not use App Tracking Transparency"). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- 한/일 3차 사례(iPadOS 26, 독립 앱 4개): 자체 "이미 물어봄" 플래그를 저장하지 말 것(Keychain은 재설치에도 남음 — 시스템 `notDetermined` 사용), 윈도우 활성 후 첫 화면 안에서 요청, 깊은 트리거 뒤에 가두지 말 것; 답신에 ~20초 새 설치 녹화 첨부. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### AI-01 AI 기능 (제3자 AI 공유, AI 생성 콘텐츠)
 - 근거: Apple 5.1.2(i) (2025-11) "제3자 AI를 포함한 제3자와 개인정보를 공유하는 곳을 명확히 고지하고 사전에 명시적 허가" / Play **AI 생성 콘텐츠**: "AI로 콘텐츠를 생성하는 앱은 앱을 나가지 않고 불쾌한 콘텐츠를 신고할 수 있는 앱 내 신고 기능 포함"; Play 사용자 데이터 요건은 "제3자 AI 통합에도 적용"(2026-07)
@@ -172,6 +182,7 @@
 - 신호: `ai.sdk`
 - 수정: 첫 사용 전 동의 화면; AI 응답에 "이 응답 신고"; 방침과 Data safety(공유 데이터)에 AI 제공자 기재.
 - Apple 2차 사례(2025-11 규칙): 각 AI 제공자를 명시한 동의 단계가 **첫 AI 호출 전**에 있어야; "Note that only including this information in the app's Terms of Service or Privacy Policy is not sufficient"; 목적 문구에 오디오/텍스트가 기기를 떠난다고 명시. [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- 한/일 3차 사례: 동의 게이트는 첫 AI 호출 전에 수신자를 **법인명**(예: Anthropic, OpenAI)으로 나열해야; 방침 한 줄만으로는 두 번 거절. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 
@@ -202,6 +213,7 @@
 - 확인: 버튼 라벨; 가짜 시스템 다이얼로그 없음; 실제 프롬프트가 즉시 이어짐; 거부해도 앱 사용 가능(PERM-02).
 - 신호: `perm.*`
 - 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- 한/일 3차 규칙: CTA는 중립("다음" / "続ける"); 커스텀 프롬프트의 **취소** 버튼 자체가 위반(시스템 프롬프트를 회피 가능); 시스템 프롬프트 **전에** 설정으로 보내는 것도 위반("권한 요청을 표시하기 전에 사용자를 설정 앱으로 리디렉션"). [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 
@@ -320,6 +332,7 @@
 - 확인: 디버그 메뉴, 스테이징 URL, 테스트 결제 키, 로그의 개인정보, `usesCleartextTraffic=true`.
 - 신호: `test.keys`, `cleartext`
 - 수정: 릴리즈 빌드에서 제외.
+- 한국 3차 규칙: "test / 테스트 / 준비중" 문자열이 든 시드 데이터 자체가 리젝 사유; 시뮬레이터 녹화는 반려. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### CONTENT-03 최소 기능 — 웹 래퍼 금지
 - 근거: Apple 4.2 (웹사이트 래퍼, 마케팅 앱, 단일 기능 앱) / Play 최소 기능
@@ -468,6 +481,12 @@
 ### KR-04 한국 관련 스토어 변경(2026)
 - 근거: Apple — 2026-10부터 한국에서 "경미한 비속어", "경미한 성인 주제"가 전체이용가 → 12+로(GRAC RCN 반영); 한국 기반 개발자는 2026-01-01부터 Sign in with Apple 서버 알림 엔드포인트 필수(IOS-LOGIN-03); 한국 외부 결제 엔타이틀먼트(IOS-IAP-02) / Play — 한국 대체 결제(AND-PAY-01)
 - 확인: 비속어/성인 주제 문항 답변; SIWA 엔드포인트 설정.
+
+### KR-05 토스 미니앱(앱인토스) 심사
+- 근거: 고유 규칙과 빠른(수 분) 자동+수동 심사를 가진 세 번째 한국 스토어: "미니앱 접속 직후 바텀시트가 바로 노출돼요"(진입 시 바텀시트 금지), "서비스 설명 없이 즉시 토스 로그인 유도"(서비스 설명 전 로그인 유도 금지), "탭바를 사용하는 경우, 토스 미니앱 브랜딩 가이드에 적합한 플로팅 형태를 사용해야 해요"(플로팅 캡슐 탭바), 미지원 카테고리(부동산); 거절 사유는 `review_get_feedback.comments`에만(`review_get`의 `rejectMessages`는 비어 있음); 취소된 심사는 새 번들 필요
+- 적용: 토스 미니앱으로 배포하는 앱
+- 확인: 첫 화면이 모달/로그인 없이 서비스를 설명; 탭바가 브랜딩 가이드 준수; 스크린샷이 현재 UI와 일치; 지원 카테고리.
+- 사례: [한/일 3차](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 

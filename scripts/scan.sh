@@ -7,7 +7,7 @@
 # 호환:  macOS 기본 bash 3.2 / BSD grep, Linux GNU grep 모두 동작.
 
 set -u
-VERSION="1.5.0"
+VERSION="1.6.0"
 ROOT="${1:-.}"
 ROOT="$(cd "$ROOT" 2>/dev/null && pwd)" || { echo "경로 없음: ${1:-.}" >&2; exit 1; }
 
@@ -314,6 +314,8 @@ sig applepay        '(PKPaymentButton|PKPaymentAuthorization|ApplePayButton|appl
 sig icloud.sync     '(NSUbiquitousKeyValueStore|CKContainer|CloudKit|iCloud ?(sync|동기화|同期)|NSPersistentCloudKitContainer)'
 sig emulator        '(emulator|エミュレータ|에뮬레이터|romPath|\.rom\b|mini ?game ?platform|H5 ?游戏)'
 sig form.factor     '(CarAppService|androidx\.car\.app|android\.hardware\.type\.automotive|WearableListenerService|android\.hardware\.type\.watch|LEANBACK_LAUNCHER|android\.software\.leanback|WatchKit|WKExtension|xr\.|visionos)'
+sig plist.default.purpose '(Allow \$\(PRODUCT_NAME\) to access|\$\(PRODUCT_NAME\) needs access|This app needs access to|이 앱은 .* 권한이 필요합니다\.?$|needs to access your (camera|microphone|photos|location)$)'
+sig toss.miniapp    '(apps-in-toss|@apps-in-toss|appsInToss|토스 ?미니앱|앱인토스)'
 sig sec.webview     '(Intent\.parseUri|parseUri\(|shouldOverrideUrlLoading|addJavascriptInterface|setJavaScriptEnabled\(true\)|setAllowFileAccess\(true\))'
 sig sec.webauth     '(WebView.*(oauth|login|authorize)|(oauth|authorize).*WebView|webview_flutter.*(oauth|login))'
 
@@ -408,6 +410,8 @@ if [ "$(cnt price.hardcoded)" -gt 0 ]; then flag "하드코딩된 가격/무료�
 if [ "$(cnt donation)" -gt 0 ]; then flag "후원/도네이션 링크 신호 → common.md PAY-01 (Apple: 'donations… must use In-App Purchase' — 연결된 웹사이트의 링크도 검사)"; HINTS=1; fi
 if [ "$(cnt applepay)" -gt 0 ]; then flag "Apple Pay 신호 → ios.md IOS-IAP-03 (4.9: 다른 결제 버튼과 동등하게 노출; PassKit만 링크하고 미사용이면 IOS-ENT-04)"; HINTS=1; fi
 if [ "$(cnt icloud.sync)" -gt 0 ] && [ "$(cnt pay.iap)" -gt 0 ]; then flag "iCloud 동기화 + IAP 신호 → ios.md IOS-IAP-04 (4.10: iCloud 동기화 등 내장 기능을 유료화 금지)"; HINTS=1; fi
+if [ "$(cnt plist.default.purpose)" -gt 0 ]; then flag "플러그인 기본 목적 문구(Allow \$(PRODUCT_NAME) to access…) 신호 → ios.md IOS-PLIST-05 (Apple 자동 분석이 플레이스홀더로 지적; 구체 문구 + 미사용 권한 제거)"; HINTS=1; fi
+if [ "$(cnt toss.miniapp)" -gt 0 ]; then flag "토스 미니앱(앱인토스) 신호 → common.md KR-05 (진입 시 바텀시트/로그인 금지, 플로팅 탭바, review_get_feedback 확인)"; HINTS=1; fi
 if [ "$(cnt form.factor)" -gt 0 ]; then flag "Auto/Wear/TV/XR 폼팩터 신호 → android.md AND-FORM-01 (별도 품질 심사; 라이브러리가 병합한 CarAppService는 tools:node=remove) / iOS watchOS·visionOS 심사 기기 확인"; HINTS=1; fi
 if [ "$(cnt emulator)" -gt 0 ]; then flag "에뮬레이터/미니게임 플랫폼 신호 → common.md CONTENT-14 (Apple 4.7: 레트로 콘솔·비주목적 HTML5만 허용)"; HINTS=1; fi
 if [ "$(cnt sec.aws)" -gt 0 ]; then flag "AWS 자격 증명 패턴(AKIA…/secret key) 신호 → android.md AND-SEC-01 (Play 'Leaked AWS credentials' 리젝; 사전 서명 URL/백엔드로 이동)"; HINTS=1; fi

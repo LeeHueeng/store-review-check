@@ -93,6 +93,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - From cases: the Play deletion URL is checked by a non-browser client — plain HTTPS, no client-specific TLS; Kakao users must be unlinked via the Kakao Unlink API; a generic settings page is not accepted, link straight to the deletion step; reviewers who can't find the entry reject — mention its path in the notes or attach a video. [cases](../rejections/community-cases.md#account-deletion)
 - Korean cases: after deletion, **re-signing up with the same Apple/Google identity must work** (write the server user doc before redirecting; clear phone-verification / single-device locks); a Play deletion page must name the app and developer and list the steps — "contact support" or login-gated pages fail. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Apple 2nd-pass case: an app with **no accounts** was rejected under 5.1.1(v) because a local profile/name step looked like sign-up — state "no accounts, local profile only, delete path: …" in the standing review notes. [case](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- Korean/Japanese 3rd-pass cases: deletion must be reachable and visible from the state a **fresh reviewer account lands in** (pending-approval screens, iPad layout where the button sat below the fold, grey low-contrast text). [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### ACC-03 Reviewer demo account (the social-login-only trap)
 - Basis: Apple 2.1(a) "include demo account info (and turn on your back-end service!) if your app includes a login. If you are unable to provide a demo account due to legal or security obligations, you may include a built-in demo mode in lieu of a demo account with prior approval by Apple"; ASC help: the demo account "must not expire" / Play **Sign-in details** (formerly App access): "Your sign-in details must be accessible at all times, reusable, and valid regardless of user location… If your app typically requires a 2-Step verification code or One-time password, make sure to provide reusable login credentials that can bypass these requirements… must be provided in English… If the provided password expires… the app may be rejected"
@@ -119,6 +120,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `auth.kakao`, `auth.naver`
 - Fix: create the reviewer Kakao account without KakaoTalk; test from a foreign IP; add SIWA (IOS-LOGIN-01) and an email/password reviewer login (ACC-03).
 - Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28) — DevTalk 135699 / 135723 / 139785
+- 3rd-pass detail: Kakao accounts need a Korean phone number, and Sign in with Apple always creates a *new* user that then hits SMS verification — hence teams add a documented reviewer login + fixed OTP (ACC-07). [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### ACC-06 Organization enrollment for regulated or sensitive-data apps (5.1.1(ix))
 - Basis: "The account that submits the app must be enrolled in the Apple Developer Program as an organization, and not as an individual" — health/body data, insurance, loans, gambling, crypto exchanges; documentation from an individual cannot substitute (Apple 5.1.1(ix)); Play: "Some types of apps can only be distributed by organizations" (AND-ACCOUNT-02)
@@ -126,6 +128,13 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: the submitting Apple developer account is an organization (D-U-N-S); Play account type matches.
 - Fix: enroll as an organization before submitting; individuals must remove the regulated feature.
 - Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### ACC-07 Review-mode backend: documented reviewer path, not hidden behaviour
+- Basis: Korean teams whose only logins are Kakao (needs a KR phone number) or Sign in with Apple (always creates a new user → SMS verification) built a **reviewer-only path**: an email/password or hidden entry (logo long-press) login with a fixed bypass OTP, and server-side "review mode" accounts pre-seeded with fake friends/posts so report/block can be tested. This is acceptable only when it is **declared in the review notes** and changes nothing else — undocumented review detection is Apple 2.3.1 / Play Deceptive Behavior (CONTENT-10)
+- Applies: apps whose production logins can't be completed from a foreign reviewer device
+- Verify: the reviewer path is described step-by-step in App Review Information / Play Sign-in details (entry gesture, credentials, fixed OTP); the reviewer account sees the same features as a normal user; seeded data has no "test/테스트/준비중" strings (CONTENT-02); the path stays valid after launch (Google re-tests).
+- Fix: implement as a normal, documented login option; never key behaviour on reviewer IP/device.
+- Cases: [Korean/Japanese 3rd pass](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 
@@ -170,6 +179,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: move the request to the first active foreground after onboarding.
 - Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Apple 2nd-pass cases: the App Privacy "Used to Track You" label, `NSUserTrackingUsageDescription` and bundled SDK privacy manifests (Meta, TikTok, ad SDKs) must all agree with whether ATT is actually requested — "App Privacy information… indicates tracking… but the app never shows an ATT prompt" and the reverse ("the app still does not use App Tracking Transparency"). [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- Korean/Japanese 3rd-pass cases (iPadOS 26, 4 independent apps): never persist your own "already asked" flag (Keychain survives reinstall — use the system `notDetermined`), request after the window is active and within the first screen, never gate behind a deep trigger; attach a ~20-second fresh-install recording to the reply. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### AI-01 AI features (third-party AI sharing, AI-generated content)
 - Basis: Apple 5.1.2(i) (2025-11) "You must clearly disclose where personal data will be shared with third parties, including with third-party AI, and obtain explicit permission before doing so" / Play **AI-Generated Content**: "Apps that generate content using AI must contain in-app user reporting or flagging features that allow users to report or flag offensive content to developers without needing to exit the app"; Play User Data requirements "apply to third-party AI integrations" (2026-07)
@@ -178,6 +188,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `ai.sdk`
 - Fix: consent screen before first AI use; "Report this response" on AI output; list the AI provider in the privacy policy and Data safety (shared data).
 - Apple 2nd-pass cases (2025-11 rule): a consent step naming each AI provider must appear **before the first AI call**; "Note that only including this information in the app's Terms of Service or Privacy Policy is not sufficient"; purpose strings must say audio/text leaves the device. [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- Korean/Japanese 3rd-pass cases: the consent gate must list each recipient by **legal entity** (e.g. Anthropic, OpenAI) before the first AI call; a privacy-policy line alone was rejected twice. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 
@@ -208,6 +219,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: button labels; no fake system dialog; the real prompt follows immediately; denial leaves the app usable (PERM-02).
 - Signals: `perm.*`
 - Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- Korean/Japanese 3rd-pass rules: the CTA must be neutral ("다음" / "続ける"); a **Cancel** button on the custom prompt is itself a violation (it lets users avoid the system prompt); redirecting to Settings **before** the system prompt is a violation ("권한 요청을 표시하기 전에 사용자를 설정 앱으로 리디렉션"). [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 
@@ -326,6 +338,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: debug menus, staging URLs, test payment keys, personal data in logs, `usesCleartextTraffic=true`.
 - Signals: `test.keys`, `cleartext`
 - Fix: exclude from release builds.
+- Korean 3rd-pass rule: seeded demo data containing "test / 테스트 / 준비중" strings is itself a rejection reason; simulator recordings are refused. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### CONTENT-03 Minimum functionality — no web wrappers
 - Basis: Apple 4.2 (websites wrapped in an app, marketing-only apps, single-feature apps) / Play Minimum functionality
@@ -473,6 +486,12 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 ### KR-04 Korea-specific store changes (2026)
 - Basis: Apple — from 2026-10 "infrequent profanity" and "infrequent mature themes" move from All to 12+ in Korea (GRAC RCN override); Korea-based developers must provide a Sign in with Apple server-to-server notification endpoint on their Services ID since 2026-01-01 (IOS-LOGIN-03); Korea external-purchase entitlement (IOS-IAP-02) / Play — Korea alternative billing (AND-PAY-01)
 - Verify: age rating answers on profanity/mature themes; SIWA endpoint configured.
+
+### KR-05 Toss mini-app (앱인토스) review
+- Basis: a third Korean store with its own rules and fast (minutes) automated-plus-manual review: "미니앱 접속 직후 바텀시트가 바로 노출돼요" (no bottom sheet on entry), "서비스 설명 없이 즉시 토스 로그인 유도" (no login prompt before the service is explained), "탭바를 사용하는 경우, 토스 미니앱 브랜딩 가이드에 적합한 플로팅 형태를 사용해야 해요" (floating capsule tab bar), unsupported categories (real estate); rejection reasons appear only in `review_get_feedback.comments` (`review_get` returns empty `rejectMessages`); a cancelled review needs a new bundle
+- Applies: apps shipped as Toss mini-apps
+- Verify: first screen explains the service with no modal/login; tab bar follows the branding guide; screenshots match the current UI; category supported.
+- Cases: [Korean/Japanese 3rd pass](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 

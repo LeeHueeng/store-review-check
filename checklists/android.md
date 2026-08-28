@@ -16,6 +16,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 ### AND-SDK-02 16 KB page size
 - Basis: "Starting November 1st, 2025, all new apps and updates to existing apps submitted to Google Play and targeting Android 15+ devices must support 16 KB page sizes"; "Starting February 1, 2027, if your app updates don't support 16 KB memory page sizes, you won't be able to release these updates"; technical quality: "Apps that contain native code must support devices with 16 KB memory page sizes. Java/Kotlin only apps are compatible by default." (TV 2026-08-01, Wear 2026-09-15)
 - Verify: apps with `.so` files (Flutter, RN, SQLite…) build with AGP 8.5.1+ / NDK r28+; Play Console App bundle explorer shows a warning otherwise.
+- Korean 3rd-pass case: 16 KB refusals hit third-party native libs (react-native-skia) even when the framework core is compliant — patch the library's linker flags (`-Wl,-z,max-page-size=16384`) via `patch-package` or upgrade. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### AND-BUILD-01 Signing & bundle
 - Verify: AAB upload (required for new apps since 2021-08), signed with the upload key (no `signingConfigs.debug` in release; upload key "Must be an RSA key of 2048 bits or more"), Play App Signing enrolled, `debuggable false`, `minifyEnabled` (25% code optimization becomes a quality requirement 2027-02), arm64-v8a included ("Apps that contain native code must support 64-bit only architectures").
@@ -128,6 +129,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 
 ### AND-CONSOLE-01 Privacy policy URL
 - Basis: required for all apps (2024~). Store listing + in-app link. `common.md` PRIV-01.
+- Korean/Japanese 3rd-pass cases: "Invalid privacy policy" now checks **content** — the policy must name the app and the registered developer entity ("プライバシー ポリシーに、アプリの名称または Google Play ストアの掲載情報に記載されている法人…が含まれている必要があります") and enumerate health-data access ("Health Data의 액세스 또는 수집과 사용을 포괄적으로 공개하세요"). [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### AND-CONSOLE-02 Data safety
 - Basis: declare collection, sharing and security practices accurately, including SDKs. Includes the account-deletion URL (AND-CONSOLE-08). Mismatch → policy notice / update rejection.

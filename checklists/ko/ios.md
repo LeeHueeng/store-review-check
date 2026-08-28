@@ -20,6 +20,7 @@
 ### IOS-LOGIN-02 계정 삭제 시 Apple 토큰 폐기
 - 근거: 5.1.1(v) + Apple 공지(2022) — Sign in with Apple 사용자 계정 삭제 시 `revoke tokens` REST API 호출
 - 확인: 계정 삭제 서버 함수에서 Apple 토큰 폐기.
+- 한국 3차 구현(백엔드 4곳, 2026): 로그인 시 `authorizationCode`를 확보(5분 만료) → 서버에서 리프레시 토큰 교환 → 탈퇴 시 폐기; 토큰의 `aud`는 네이티브 로그인은 **App ID**, 웹은 **Services ID** — 그에 맞게 검증. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### IOS-LOGIN-03 한국: Sign in with Apple 서버 알림
 - 근거: Apple 뉴스 2025-10-09 — 한국 기반 개발자는 2026-01-01부터 SIWA에 쓰는 Services ID에 서버 간 알림 엔드포인트 필수(계정 변경/삭제 이벤트 수신)
@@ -45,6 +46,7 @@
 - 수정: 폭 제한 컨테이너(max 600pt 중앙) 최소 대응. 또는 iPhone 전용 — 그래도 iPad 크래시 금지.
 - 사례: [2026-08-27 iOS 1.2 UGC](../../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — 심사 기기에 iPad; [커뮤니티](../../rejections/community-cases.md#40-design--sign-in-with-apple-ux)
 - 일본 사례(2026): 심사 기기 기록 — iPad Air 11(M3/M4), iPad Pro 11(M4), iPhone 17 Pro Max; iPhone 전용 앱이 iPad를 **체크 해제**했는데도 iPad 레이아웃으로 거절("Appleユーザーは全デバイスで使えることを期待"); `UIRequiresFullScreen` + iPhone 전용으로 한 루프를 끊음. 케이스 파일마다 심사 기기를 기록할 것. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- 한/일 3차 사례(2026): 거의 모든 리젝이 iPadOS 26.x의 "iPad Air 11-inch (M3)"를 심사 기기로 기록, iPhone 전용이라는 답신은 거부됨; 구체 실패: 호환 모드 윈도우 크기, `flutter_screenutil` `.h` 스케일링, `EnvironmentObject`를 상속 못 한 SwiftUI 시트, 화면 아래로 벗어난 버튼. 제출 전마다 iPadOS 26 호환 창에서 테스트. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ### IOS-IPAD-02 휴대폰 본인인증(PASS/SMS)은 iPad에서 불가
 - 근거: iPad Air 심사에서의 한국 2.1 리젝: "Unable to proceed with PASS authentication after selecting a carrier option" — iPad엔 SMS가 없는데 Apple은 iPhone 전용 앱도 iPad로 심사. `TARGETED_DEVICE_FAMILY = 1`, iPad 스크린샷/방향 제거, "Supported Destinations"로는 iPad 심사를 막지 **못했고**, `UIRequiredDeviceCapabilities = [telephony]`로 iPad 설치 불가 처리 후 승인.
@@ -99,6 +101,13 @@
 
 ### IOS-PLIST-04 ATS
 - 확인: `NSAllowsArbitraryLoads = true`면 심사 노트에 사유. 가능하면 도메인 예외만.
+
+### IOS-PLIST-05 플러그인이 주입한 기본 목적 문구
+- 근거: Apple의 **자동** 분석이 플레이스홀더 목적 문구를 지적 — "An automated analysis of the submission indicates the following purpose strings… include placeholder text or are otherwise insufficient" — 대개 Expo 설정 플러그인 기본값("Allow $(PRODUCT_NAME) to access your camera/microphone/Face ID/location")이며 앱이 쓰지도 않는 권한(프로젝트에 남은 expo-camera, expo-av, expo-local-authentication, expo-location)
+- 적용: 기본 `NS*UsageDescription` 값을 넣는 플러그인을 쓰는 Expo / React Native / Flutter 프로젝트
+- 확인: `npx expo config --type introspect`(또는 병합된 Info.plist)에 실제 쓰는 권한만 구체 문구로; 플러그인 옵션에 `cameraPermission: false` / `microphonePermission: false` / `faceIDPermission: false`, 미사용 패키지 제거(Android의 `RECORD_AUDIO` / `ACCESS_*_LOCATION`도 함께 빠짐).
+- 신호: `plist.default.purpose`
+- 사례: [한/일 3차](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
 
 ---
 
