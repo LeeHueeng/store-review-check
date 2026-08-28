@@ -87,6 +87,7 @@
 - 증빙: 녹화(선택); Play Data safety URL.
 - 사례 교훈: Play 삭제 URL은 브라우저가 아닌 클라이언트가 검사 — 특수 TLS 설정 없는 일반 HTTPS; 카카오 사용자는 Unlink API로 해제; 일반 설정 페이지 링크는 불인정, 삭제 단계로 직접 링크; 심사관이 못 찾으면 리젝 — 노트에 경로 기재 또는 영상 첨부. [사례](../../rejections/community-cases.md#account-deletion)
 - 한국 사례: 탈퇴 후 **같은 Apple/Google 계정으로 재가입이 되어야** 함(리다이렉트 전에 서버 사용자 문서 저장; 휴대폰 인증·단일 기기 잠금 해제); Play 삭제 페이지는 앱·개발자명과 절차를 명시 — "고객센터 문의"나 로그인 필요 페이지는 실패. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- Apple 2차 사례: **계정이 없는** 앱이 로컬 프로필/이름 입력 단계가 가입처럼 보여 5.1.1(v)로 거절 — 심사 노트에 "계정 없음, 로컬 프로필만, 삭제 경로: …"를 상시 기재. [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### ACC-03 심사용 데모 계정 (소셜 로그인만 있을 때의 함정)
 - 근거: Apple 2.1(a) "로그인이 있으면 데모 계정 정보 포함(백엔드 켜둘 것)… 법적·보안상 불가하면 Apple 사전 승인으로 내장 데모 모드"; ASC 도움말: 데모 계정은 "만료되면 안 됨" / Play **Sign-in details**(구 App access): "항상 접근 가능, 재사용 가능, 사용자 위치와 무관하게 유효… 2단계 인증/OTP가 필요하면 이를 우회하는 재사용 가능 자격 증명 제공… 영어로 제공… 비밀번호가 만료되면 앱이 거부될 수 있음"
@@ -97,6 +98,7 @@
 - 증빙: `templates/review-notes.md` (Apple 노트 ≤ 4000바이트; Play 안내 최대 5세트 + OTP/MFA용 "기타 안내").
 - 사례: [2026-08-27 iOS 1.2 UGC](../../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — "Please provide a pre-populated demo account (Google or Kakao)"; [커뮤니티 사례](../../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
 - 한국 사례: 데모 계정은 새 기기에서 반복 로그인 가능해야 — 오래된 푸시 토큰/기기 바인딩, 일회용 휴대폰 인증 금지, 고정 OTP; GitHub/Google 데모는 2FA 끔 **그리고** 새 기기 확인 없음; Play는 한글 ID·관리자 계정·자격 증명 대신 영상을 거부; QR/하드웨어 게이트 앱은 장기 코드 제공. 막힌 건은 App Review와 한국어 전화 통화로 해결된 사례. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- 일본 사례: 데모 Google 계정의 "본인 확인"은 코드 없이 2FA를 켜고 답신에 **백업 코드**를 적어 해결. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### ACC-04 소셜 로그인 콘솔 설정
 - 근거: 가이드라인은 아니지만 심사 중 로그인 실패 → 2.1 리젝
@@ -111,6 +113,13 @@
 - 신호: `auth.kakao`, `auth.naver`
 - 수정: 카카오톡 미연동 리뷰어 계정 생성; 해외 IP에서 테스트; SIWA(IOS-LOGIN-01) + 이메일/비밀번호 리뷰어 로그인(ACC-03).
 - 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28) — DevTalk 135699 / 135723 / 139785
+
+### ACC-06 규제·민감 데이터 앱의 조직 등록 (5.1.1(ix))
+- 근거: "The account that submits the app must be enrolled in the Apple Developer Program as an organization, and not as an individual" — 건강/신체 데이터, 보험, 대출, 도박, 암호화폐 거래소; 개인 계정의 서류로 대체 불가(Apple 5.1.1(ix)); Play: "Some types of apps can only be distributed by organizations"(AND-ACCOUNT-02)
+- 적용: 고도 규제 분야 또는 건강/금융 데이터를 다루는 앱
+- 확인: 제출하는 Apple 개발자 계정이 조직(D-U-N-S); Play 계정 유형 일치.
+- 수정: 제출 전 조직으로 등록; 개인은 규제 기능 제거.
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ---
 
@@ -146,12 +155,22 @@
 - 신호: `perm.*`, `ads.sdk`
 - 수정: 권한 요청 직전 명시적 수락 버튼이 있는 다이얼로그; 광범위 권한 대신 피커(Photo Picker, 연락처 피커, 공유 시트).
 
+### PRIV-05 ATT 프롬프트는 새 심사 기기에서 도달 가능해야
+- 근거: 2026 리젝 "We were unable to locate the App Tracking Transparency permission request when reviewed on iOS/iPadOS" — ATT 호출은 있었지만 발동하지 않은 앱들: 앱이 활성 상태가 되기 전 요청(`undetermined`가 조용히 반환되고 재시도 없음), 마운트되지 않은 배너에 묶임, 광고 재고에 의존(AdMob은 미출시 앱에 광고를 주지 않음), 깊은 진행도(게임오버 6회)에 의존, 권한 체인의 4번째, 설치 24시간 뒤
+- 적용: ATT를 링크하는 모든 앱(광고/분석 SDK가 링크함)
+- 확인: `applicationState == .active`일 때 요청(SwiftUI: `scenePhase`, Flutter/RN: 첫 프레임 + 라이프사이클 active 이후), `notDetermined`면 재시도, 광고 SDK 초기화 **전**에 요청, 광고 재고·진행도 무관, 설정에 수동 진입점, `NSUserTrackingUsageDescription` 현지화, 화면 녹화 + 심사 노트에 위치. 바이너리에 ATT가 있으면 App Privacy에 추적 선언(아니면 ASC가 차단).
+- 신호: `track.att`, `ads.sdk`
+- 수정: 온보딩 뒤 첫 활성 포그라운드로 요청을 이동.
+- 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- Apple 2차 사례: App Privacy "Used to Track You" 라벨, `NSUserTrackingUsageDescription`, 번들된 SDK 프라이버시 매니페스트(Meta, TikTok, 광고 SDK)가 실제 ATT 요청 여부와 모두 일치해야 — "App Privacy information… indicates tracking… but the app never shows an ATT prompt" 및 그 반대("the app still does not use App Tracking Transparency"). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
 ### AI-01 AI 기능 (제3자 AI 공유, AI 생성 콘텐츠)
 - 근거: Apple 5.1.2(i) (2025-11) "제3자 AI를 포함한 제3자와 개인정보를 공유하는 곳을 명확히 고지하고 사전에 명시적 허가" / Play **AI 생성 콘텐츠**: "AI로 콘텐츠를 생성하는 앱은 앱을 나가지 않고 불쾌한 콘텐츠를 신고할 수 있는 앱 내 신고 기능 포함"; Play 사용자 데이터 요건은 "제3자 AI 통합에도 적용"(2026-07)
 - 적용: 사용자 데이터를 OpenAI/Gemini/Claude 등에 보내는 모든 호출; AI 채팅·요약·이미지 생성
 - 확인: 첫 AI 호출 전 고지(방침 + 앱 내)와 명시적 허가; AI 출력에 신고 수단; AI 출력도 UGC 필터/신고 규칙 적용.
 - 신호: `ai.sdk`
 - 수정: 첫 사용 전 동의 화면; AI 응답에 "이 응답 신고"; 방침과 Data safety(공유 데이터)에 AI 제공자 기재.
+- Apple 2차 사례(2025-11 규칙): 각 AI 제공자를 명시한 동의 단계가 **첫 AI 호출 전**에 있어야; "Note that only including this information in the app's Terms of Service or Privacy Policy is not sufficient"; 목적 문구에 오디오/텍스트가 기기를 떠난다고 명시. [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ---
 
@@ -176,6 +195,13 @@
 - 신호: 권한 목록 vs `perm.*`
 - 수정: 제거; 남기면 심사 노트에 이유.
 
+### PERM-04 사전 권한 안내("프라이밍") 화면
+- 근거: Apple 5.1.1(iv) 리젝 "A custom message appears before the permission request… Use words like 'Continue' or 'Next' on the button instead" — 시스템 프롬프트 전 커스텀 화면은 시스템 알림을 흉내 내면 안 되고, 중립 문구("계속"/"다음", 절대 "허용/수락/부여/연결" 금지), 시스템 프롬프트를 회피하는 건너뛰기 금지, iOS가 재요청하지 않을 땐 "설정 열기" 경로; 한국 사례: 거부 시 종료 버튼 + 설정 이동이 유도로 판단됨
+- 적용: 카메라/사진/위치/알림/ATT 프롬프트 전 온보딩 설명 화면
+- 확인: 버튼 라벨; 가짜 시스템 다이얼로그 없음; 실제 프롬프트가 즉시 이어짐; 거부해도 앱 사용 가능(PERM-02).
+- 신호: `perm.*`
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
 ---
 
 ## PAY — 결제
@@ -186,6 +212,7 @@
 - 확인: Stripe/토스/아임포트 등으로 디지털 재화 판매 → FAIL. 실물·오프라인 서비스는 IAP **불가**(Apple 3.1.3(e)); 소셜 "부스트"/홍보 게시물은 IAP(3.1.3(g)). "웹에서 더 싸게" 문구 → 미국 외 FAIL.
 - 신호: `pay.external`, `pay.iap`
 - 수정: StoreKit/Play Billing 또는 RevenueCat. 웹 결제 안내·링크 제거 또는 승인 프로그램 하에 지역별 분기.
+- Apple 2차 사례: 후원 버튼/링크(Ko-fi, GitHub Sponsors, Buy Me a Coffee)는 디지털 구매로 간주 — "Although these donations may be optional, they must use In-App Purchase" — 연결된 웹사이트에만 있어도 마찬가지; 3.1.3(a) 링크아웃은 External Link Account API 모달을 "매번" 표시; 3.1.3(c) 기업용 가격이 "개인 소비자 판매로 해석될 수 있음". [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### PAY-02 구독 고지 + 약관 링크
 - 근거: Apple 3.1.2(a) "구독 기간 최소 7일, 모든 기기에서 사용 가능"; 3.1.2(c) "구독 전에 가격 대비 제공 내용을 명확히"; Schedule 2: 이용약관(EULA)·개인정보 링크를 앱 안과 메타데이터에 / Play **구독**: "구독 비용, 청구 주기, 자동 갱신 조건" 공개; 무료 체험은 "기간, 가격… 전환 방식, 해지 방법"; "계정 설정(또는 동등 페이지)에 쉬운 온라인 해지 방법"(2025-10-30 명확화)
@@ -194,6 +221,7 @@
 - 수정: 페이월 표준 문구 + 링크; ASC "라이선스 계약" 필드에 EULA URL(또는 Apple 표준 EULA); 계정 설정에 관리/해지 링크.
 - 사례 교훈: 링크는 앱 **과** App Store 설명 둘 다; 청구 금액이 체험 가격보다 눈에 띄어야; "지속적 가치" 없으면 비갱신 구독으로; Play는 가격·주기·전환일·해지 경로를 단순한 페이월 한 화면에. [사례](../../rejections/community-cases.md#312-subscriptions)
 - 한국 사례: EULA 링크는 App Store **설명**에 있어야; Resolution Center 답신으로는 메타데이터가 갱신되지 않음 — 빌드 재제출.
+- 일본/중국 사례: Apple 표준 EULA를 써도 링크는 App 설명에 있어야; 실제 연간 청구액보다 주 단위 환산가를 크게 표시하면 거절. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### PAY-03 구매 복원
 - 근거: Apple 3.1.1 "복원 가능한 IAP는 복원 메커니즘 제공"
@@ -207,6 +235,22 @@
 - 확인: ASC IAP "Ready to Submit" + 버전에 첨부. Paid Apps Agreement·은행·세금 완료. Play — 라이선스 테스터, 상품 활성.
 - 수정: 콘솔 작업. IAP 미첨부는 흔한 2.1/3.1.1 리젝. IAP 프로모 코드는 2026-03-26 이후 생성 불가(오퍼 코드 사용).
 - 한국 사례(2026-08): **Paid Apps Agreement 미서명** / 세금 정보 누락(2024-12부터 사업자등록번호 필수) / 은행 정보 누락이 상품 설정 문제처럼 보이는 구독 리젝 3~4회를 만듦; 구독 심사 스크린샷도 첨부. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
+### PAY-05 바이너리 밖의 IAP 배선 (계약, 상품 ID, RevenueCat, 제출 초안)
+- 근거: 2026년 가장 잦은 IAP 리젝 문구 "one or more of the in-app purchase products have not been submitted for review", "Family Pack… not found", "광고 제거 버튼 오류", "Confirm you have a Paid Apps Agreement in effect" — 모두 코드 버그가 아님
+- 적용: 모든 IAP / 구독
+- 제출 전 확인: (1) Paid Apps Agreement **발효**(은행+세금 완료 — 이것만 완료하고 같은 빌드가 다음 날 승인된 사례); (2) 모든 IAP가 **같은** 제출 초안에 첨부("審査と一緒に提出" / 제출물(2)) — IAP의 "심사 제출"은 별도 초안을 만듦; (3) 코드·ASC·RevenueCat의 상품 ID 동일; (4) RevenueCat: App Store Connect In-App Purchase 키(.p8) 업로드, 오퍼링이 실제 상품에 매핑, 웹훅 환경 **Production + Sandbox**; (5) CI 빌드에 API 키 포함(`eas build`는 `.env`를 읽지 않음); (6) 항상 도달 가능한 복원 버튼(PAY-03).
+- 신호: `pay.iap`
+- 수정: 위 목록; 대부분 새 빌드 불필요 — 콘솔 쪽을 고치고 재제출.
+- 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+
+### PAY-06 가격·통화·체험 문구는 코드가 아니라 스토어에서
+- 근거: Apple 2.1(b) "アプリが無料トライアルを広告しているにもかかわらず、決済時にユーザーへ提供されていない"(상품에 체험이 없는데 "7일 무료" 하드코딩); Play 구독 "購入フロー内で目立つ価格の通貨が異なる"(하드코딩 ¥500 vs 현지화된 결제 통화); Apple 3.1.2 청구 금액이 소개 가격보다 덜 눈에 띔
+- 적용: 가격/체험을 언급하는 모든 페이월·설정·온보딩·스크린샷·설명
+- 확인: 모든 가격·통화·기간·체험 문자열은 `Product.displayPrice` / `priceString` / Play `formattedPrice`에서 렌더링; 상품 로드 전 CTA 비활성; 스크린샷·설명에 스토어프론트마다 달라지는 가격 없음.
+- 신호: `price.hardcoded`
+- 수정: 스토어 상품 데이터를 단일 소스로; IPA/AAB 문자열에서 고정 가격 검색.
+- 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -237,6 +281,7 @@
 - 확인: 첫 실행이 아니라 맥락에서 권한 요청(권장). 설정에서 알림 끄기. 마케팅은 별도 명시적 토글. 거부해도 동작.
 - 신호: `perm.push`
 - 수정: 알림 설정 화면; 마케팅 토글 분리; 푸시 뒤에 기능 가두지 않기.
+- Apple 2차 문구: "The app does not request and obtain the user's consent before sending push notifications" · "requires push notifications in order to function" · "uses public APIs with Notification Center in a manner not prescribed by Apple". [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ---
 
@@ -296,6 +341,7 @@
 - 근거: Apple 5.6.1 "제공된 API로 리뷰 요청… 커스텀 리뷰 프롬프트 불허"; 3.2.2(x) "평가·리뷰·다른 앱 다운로드를 기능 사용 조건으로 강요 금지" / Play — 리뷰 보상·게이팅 금지
 - 확인: 커스텀 "별 5개 주면 프리미엄" → FAIL. `SKStoreReviewController`/`requestReview`(iOS), In-App Review API(Android)만.
 - 신호: `review.prompt`
+- Apple 2차 문구: "prompts users to rate the app in exchange for in-app currency, points, or other incentives"(3.2.2(x)). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### CONTENT-07 포화 카테고리 — "simple timers"는 의미 있게 다른 경험 필요
 - 근거: Apple 4.3(b) (2026-06 개정): "dating, flashlight, sound effects, wallpaper, simple timers, and fortune telling… 의미 있게 다르거나 개선된 경험을 제공하지 않으면 신규 제출을 받지 않으며… 업데이트·개선되지 않거나 고객을 끌지 못하면 삭제할 수 있음"; 4.3(a) 같은 앱의 복수 Bundle ID 금지; 4.2 "특별히 유용·독특·앱답지 않으면" / Play **기능·콘텐츠·UX**: "기능과 콘텐츠가 제한적인 앱 불허"
@@ -304,6 +350,7 @@
 - 신호: 앱 이름/설명 키워드(`saturated.category` 힌트)
 - 수정: 스토어 설명과 심사 노트 첫 줄에 차별점; 스크린샷에 보이게; 새 번들 ID로 유사 앱 제출 금지.
 - 사례 교훈: 4.3을 실제로 통과시킨 것은 **아이콘 + UI 대폭 변경** + 실제 신규 기능; 색만 바꾸기·이의 제기만으로는 실패. 이의 제기 성공 후엔 이후 모든 업데이트에 심사 노트 추가. [사례](../../rejections/community-cases.md#43-spam--duplicates--templates)
+- 일본/중국 사례: 첫 제출의 4.3(a)는 **같은 빌드를 실제 심사 노트 + 녹화와 함께 재제출**해 해결(WidgetKit 스도쿠); 기계 판정 4.3("机审")은 컨셉 변경 없이는 안 풀림; 데이팅/운세 앱은 4.3(b) "99%". [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### CONTENT-08 녹화 동의·표시
 - 근거: Apple 2.5.14 "사용자 활동을 녹화·기록할 때 명시적 동의 + 명확한 시각/청각 표시… 카메라·마이크·화면 녹화·기타 입력 포함" / Play 기기·네트워크 남용, 스토커웨어
@@ -316,6 +363,7 @@
 - 확인: 하드코딩 IPv4 없음; macOS "NAT64 네트워크 생성" 핫스팟으로 테스트.
 - 수정: 호스트명 사용; API 호스트 AAAA/NAT64 호환.
 - 한국 사례: 무료 동적 DNS(DuckDNS, iptime)와 IPv4 전용 EC2는 Apple의 IPv6 전용 심사망에서 접속 불가 → 2.1 "로그인 불가/데이터 로드 안 됨" 5연속. 실제 도메인 + AAAA/NAT64 호환 호스팅. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- 일본/중국 사례: 심사 트래픽은 미국(Apple)·마닐라 등(Play)에서 옴 — WAF 지역 차단과 "运维禁用了海外IP"가 "로그인 불가/네트워크 오류" 리젝을 만듦; 심사 기간에 해당 지역과 IPv6 개방. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### CONTENT-10 숨은·휴면 기능 금지; OTA 코드 푸시 신고
 - 근거: Apple 2.3.1(a) "숨은·휴면·문서화되지 않은 기능 금지"; 2.5.2 기능을 바꾸는 코드 금지; Play 기만 행위 "숨은·휴면·문서화되지 않은 기능 금지"
@@ -348,6 +396,12 @@
 - 수정: 구체적 개발 리전; Base 현지화 완성; 두 로케일 모두 테스트.
 - 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
+### CONTENT-14 에뮬레이터·미니앱 호스트·콘텐츠 필터 (4.7 / 2.5.1 / 2.4.5)
+- 근거: Apple 4.7은 레트로 **게임 콘솔** 에뮬레이터와 앱의 주 목적이 아닌 HTML5 미니앱만 허용("offering HTML5 games appears to be the primary purpose of your app", "not emulating a retro game console specifically", "PC is not a console"); VPN/루트 인증서 콘텐츠 필터, 접근성 자동 붙여넣기, Notification Center 오용은 2.5.1 / 2.4.5; "The app installed or launched executable code. Specifically, the app uses the itms-services URL scheme"(2.5.2)
+- 적용: 에뮬레이터, 미니게임 포털, 챗봇/플러그인 호스트, VPN 기반 필터, 빌드 배포 앱
+- 확인: 주 목적이 자체 기능; 에뮬레이션 대상이 콘솔; itms-services/엔터프라이즈 배포 링크 없음; 공개 API 오용 없음.
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
 ---
 
 ## META — 스토어 메타데이터 (코드 밖)
@@ -360,6 +414,7 @@
 - 근거: Apple 2.3.7 "앱 이름 30자 제한"; 메타데이터에 상표·인기 앱 이름·가격 금지; 2.3.2 설명/스크린샷에 IAP 고지; 2.3.8 메타데이터 4+ 적합; 2.3.12 중요 변경은 What's New에 / Play **메타데이터**: 제목 ≤ 30자; "이모지·이모티콘·반복 특수문자" 금지; 제목/아이콘/개발자명에 성과·순위·가격·홍보 문구 금지("App of the year", "#1", "Best of Play", "10% off", "free for limited time only", "Editor's choice", "New"); 브랜드 외 대문자 남용 금지; "출처 없는 사용자 후기" 금지; **기만 행위**: 제목/설명/아이콘/스크린샷의 허위·오도 주장 금지
 - 확인: 미출시 기능 약속, 타 플랫폼 언급(CONTENT-04), 다른 앱 이름, 홍보 문구, 제목의 이모지.
 - 사례 교훈: "Tutorial & Rules"(외부 콘텐츠 암시), 스페인어 "libre"("free"로 판독), 이름의 "ChatGPT", "Anonymous/匿名" 키워드, 하드웨어 브랜드명 — 모두 거절. [사례](../../rejections/community-cases.md#metadata--misleading-claims)
+- Apple 2차 사례(2.3.2): 구매가 필요한 기능은 설명/스크린샷에 표시("(Pro)", "구독 필요") — "metadata refers to paid content or features, but they are not clearly identified as requiring additional purchase"; 플레이스홀더 아이콘과 Kids 카테고리 아닌 앱 이름의 "Kids"는 2.3.8; "resembles Pokemon"/스포츠 리그 유사는 4.1(a). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### META-03 연령 등급 설문
 - 근거: Apple 2.3.6 "정직하게 답변"; 새 등급 4+/9+/13+/16+/18+와 새 문항(앱 내 제어, 기능, 의료/웰니스, 폭력) — 2026-01-31까지 응답 필수; **2026-09부터 제출 시 소셜미디어 문항 필수**; "Social Media" 기능 선언 시 최소 13+(iOS 27 Time Allowances) / Play **콘텐츠 등급**(IARC): "모든 앱은 등급 필수… 등급 없는 앱은 삭제"; "허위 표기 시 삭제·정지"; "Users Interact"는 사용자 간 통신·미디어 공유
@@ -370,6 +425,7 @@
 
 ### META-04 URL 동작
 - 확인: 지원·마케팅·개인정보 URL 200 + 내용. 노션은 "웹에 게시" 켜짐.
+- Apple 2차 사례: 링크된 페이지도 **메타데이터** — 지원 URL, README, 노트에 링크한 마케팅 사이트의 상표·타 플랫폼 언급·후원 링크·허위 주장이 심사됨. [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### META-05 심사 노트
 - 근거: Apple 2.3.1(a) "모든 신규 기능·변경은 App Store Connect의 Notes for Review에 **구체적으로** 기술(일반적 서술은 거절)"; App Review 페이지: "Incomplete information"(데모 계정, 특수 설정, 데모 영상/하드웨어)이 상위 리젝 사유 / Play Sign-in details(AND-CONSOLE-03)
@@ -381,6 +437,11 @@
 - 신호: plist `CFBundleDisplayName` / `android:label` vs 스토어 이름
 - 수정: 이름·아이콘 통일; 스크린샷 재촬영; 설명을 기능 목록으로.
 - 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28), [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
+### META-07 재제출 메커닉스
+- 근거: 절차 자체로 며칠을 잃은 사례들: Resolution Center 답신은 심사를 재시작하지 **않음**("However, in order for us to proceed with the review of your app, please resubmit the app for review in App Store Connect") — Apple이 버그 수정 패스를 명시적으로 제안한 경우 제외; 반대로 4.3/2.1 대화 중 심사관 답변 전에 재제출하면 스레드가 끊김; 거절된 버전 문자열은 재사용 불가(1.7.0 → 1.7.1); IAP "심사 제출"은 별도 초안 생성; Play: 재제출마다 한 이슈를 완전히 해결하지 않으면 "Repeated app rejections"로 정지
+- 확인: 답신 후 Apple이 새 빌드/메타데이터를 요구하면 "심사에 재제출" 누르기; 심사관이 질문했으면 답변을 기다리기; 빌드/버전 올리기; ASC 제출 초안에 앱 + IAP가 함께 있는지 확인.
+- 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -416,3 +477,25 @@
 - 신호: `ugc.*`, `pay.iap`
 - 수정: 연령 API 채택; 연령 적합성 페이지; 연령 등급 최신 유지(META-03).
 - 증빙: 없음(플랫폼 측).
+### LAW-02 규제 금융/암호화폐 스토어프론트 증빙 (3.1.5, 3.2.2(viii))
+- 근거: "The storefronts you selected in App Store Connect include locations where you… have not provided supporting evidence of permissions, registrations, and/or licenses" · "facilitates trading in contracts for difference" — 암호화폐 거래/스왑/온램프, CFD/파생상품 기능은 스토어프론트별 라이선스 증빙을 App Review Information에 첨부; 없으면 기능 제거 또는 스토어프론트 제한; Play: 금융 기능 선언 + 라이선스(AND-CONSOLE-09)
+- 적용: 암호화폐 지갑/거래소, 트레이딩, 대출, 보험
+- 확인: 스토어프론트 목록 vs 라이선스; 증빙 첨부; 조직 계정(ACC-06).
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+---
+
+## JP — 일본
+
+### JP-01 일본 특화 스토어·법적 요건
+- 근거: **MSCA / スマホ新法**(2025-12-18 시행): Apple Japan은 외부 구매 링크/대체 결제 허용(IAP 병행 표시, Apple 고지 시트, 월별 보고; 실효 수수료 ≈ 26%/15%), Google Play Japan 외부 결제 프로그램("등록정보에 앱 외 구매 언급 금지"); **特定商取引法**(2022-06): 구독 주문 화면에 가격·기간·자동갱신·해지 조건 표시 — Apple 3.1.2 / Play 구독 리젝과 대응; **資金決済法**: 구매한 앱 내 포인트는 前払式支払手段 — 미사용 잔액 ¥10M 초과 시 공탁 의무(6개월 내 소멸하면 예외); Play: 개인사업자(開業届)는 D-U-N-S를 받아 조직 계정으로 등록해 12×14 비공개 테스트를 건너뛸 수 있음
+- 확인: 페이월/지원 페이지에서 特商法表記 페이지 링크; 포인트 소멸 ≤ 6개월 또는 공탁 회계; 스토어 가격 사용(PAY-06); 심사 노트는 일본어 가능하지만 Play Sign-in details는 영어.
+- 사례/출처: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), `../../references/japan-china.md`
+
+## CN — 중국
+
+### CN-01 중국 특화 스토어·법적 요건
+- 근거: App Store 중국 본토용 **ICP备案** 필수(2024-04부터 엄격): 미신고 앱 삭제; ASC 앱 이름이 MIIT 기록과 일치해야; 오프라인/IAP 전용 앱은 면제 신청 가능; 게임은 **版号** 필요; 대출/금융 앱은 ICP + 金融许可证 필요; Apple은 라이선스 없는 **AI 기능**을 본토 배포에서 거절("Guideline 5 - Legal" → AI 제거, 중국 본토 해제, 또는 서류 제출); 위챗/QQ 로그인은 제3자 로그인 → Sign in with Apple(4.8), 위챗 미설치 시 버튼 숨김은 면제 안 됨; iOS 앱 내 위챗 미니프로그램 홍보 → 3.2.2; 중국 SDK는 Google Play 빌드 필요(JPush `google_play` jar), DCloud/uni-app 런타임의 APK 설치 코드(Play 삭제), Umeng 코드 경로가 Apple 2.3.1 유발, Adjust의 설치 앱 읽기(Data safety); 운영팀의 해외 IP 차단은 반복되는 2.1 원인; 중국 신규 Play 계정 정지("高风险", 账号关联) — "연관 방지" VPS·계정 구매 가이드는 정책 위반이지 해결책이 아님
+- 확인: ASC에 ICP 신고 번호; 라이선스 없는 AI 기능이면 중국 본토 해제; HIG 버튼의 SIWA; 미니프로그램 홍보 없음; 중국 SDK의 Google Play 변형; 심사 중 해외 IP 개방.
+- 사례/출처: [중국어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), `../../references/japan-china.md`
+

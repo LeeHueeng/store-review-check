@@ -3,7 +3,7 @@
 Two kinds of cases live here:
 
 - **Your own cases** — one file per rejection, from `templates/rejection-case.md`, named `YYYY-MM-DD-<ios|android>-<guideline>-<app-slug>.md`. Their frontmatter `checklist_ids` is what the pre-check compares against for "Recurrence risk".
-- **Community cases** — [`community-cases.md`](community-cases.md): real rejection stories collected from developer forums/blogs (with source links), mapped to checklist IDs.
+- **Community cases** — [`community-cases.md`](community-cases.md): 759 real rejection entries (2022–2026) from forums, Stack Overflow, GitHub, HN and blogs in English/Korean/Japanese/Chinese, each with a source link and mapped to checklist IDs; ends with reviewer-phrasing indexes (English, Korean, Japanese/Chinese) for parsing rejection emails.
 
 | Date | Platform | App | Guideline | Status | Checklist IDs | File |
 |---|---|---|---|---|---|---|

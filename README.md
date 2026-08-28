@@ -104,13 +104,14 @@ Report: store-review/report-2026-08-28.html
 | **Background & timers** | Silent-audio timer keepers (2.5.4), FGS types + Play declaration, local notifications instead | Apple 2.5.4 · Android 14 FGS |
 | **Completeness & metadata** | Placeholders, crashes on iPad, other-platform mentions, screenshots, age rating "users interact", title rules, support URL | Apple 2.1, 2.3.x, 2.4.1, 4.0 · Play Metadata |
 | **Platform requirements** | targetSdk deadline, 16 KB pages, AAB/64-bit, export compliance, minimum Xcode, closed testing for new Play accounts, FamilyControls entitlement | — |
+| **Process & regional** | IAP wiring outside the binary (agreements, product IDs, RevenueCat), store-fetched prices, ATT reachability, resubmission mechanics, rejection strikes, Play review environment, Korea (Kakao/Naver login, 본인인증 on iPad, 사업자등록), Japan (MSCA, 特商法), China (ICP, AI licence, WeChat login) | case-derived |
 | **Korea** | Under-14 parental consent, mandatory policy contents, IARC/GRAC | 개인정보보호법 |
 
-**118 items**, each with *Basis / Applies when / Verify / Scanner signals / Fix / Evidence / Cases*. Every item was checked against the official guideline text on 2026-08-28 (App Store Review Guidelines of 2026-06-08, Play Policy Center) — see [`references/`](references/) for the verbatim quotes, URLs and the 2025–2026 change log.
+**144 items**, each with *Basis / Applies when / Verify / Scanner signals / Fix / Evidence / Cases*. Every item was checked against the official guideline text on 2026-08-28 (App Store Review Guidelines of 2026-06-08, Play Policy Center) — see [`references/`](references/) for the verbatim quotes, URLs and the 2025–2026 change log.
 
 ## Real-world rejection cases
 
-[`rejections/community-cases.md`](rejections/community-cases.md) collects **100+ real rejection stories** (2022–2026) from developer forums, Reddit, Apple Developer Forums, Play developer communities and blogs (English, Korean, Japanese, Chinese sources) with the guideline quoted, root cause, the fix that got approved and the source link. Each case is mapped to checklist IDs, so a pre-check can say *"this exact thing got someone rejected — here's what fixed it"*.
+[`rejections/community-cases.md`](rejections/community-cases.md) collects **759 real rejection entries** (2022–2026) from Apple Developer Forums, Play developer communities, Stack Overflow, GitHub issues, Hacker News, Kakao DevTalk and developer blogs in English, Korean, Japanese and Chinese with the guideline quoted, root cause, the fix that got approved and the source link. Each case is mapped to checklist IDs, so a pre-check can say *"this exact thing got someone rejected — here's what fixed it"*.
 
 ## Teach it your rejections
 
@@ -128,7 +129,7 @@ checklists/common.md         feature-conditional items
 checklists/ios.md            App Store items
 checklists/android.md        Google Play items
 checklists/ko/               translations (English is canonical)
-references/                  official sources the checklists were verified against
+references/                  official sources (Apple, Google Play) + Korea / Japan / China gotchas with sources
 templates/                   report schema, case, review notes, reviewer reply, UGC EULA clause, recording script
 rejections/                  case KB — your cases + community-cases.md
 docs/                        sample report JSON + screenshot

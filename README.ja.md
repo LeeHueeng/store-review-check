@@ -103,11 +103,11 @@ Flutter、React Native、Expo、iOS/Android ネイティブを認識します。
 | **プラットフォーム要件** | targetSdk 期限、16KB ページ、AAB/64bit、輸出コンプライアンス、最小 Xcode、新規 Play アカウントのクローズドテスト、FamilyControls 承認 | — |
 | **韓国** | 14歳未満の法定代理人同意、ポリシー必須記載、IARC/GRAC | 個人情報保護法 |
 
-**118 項目**、それぞれに *根拠 / 適用条件 / 確認 / スキャナーシグナル / 修正 / 証跡 / 事例*。全項目を 2026-08-28 時点の公式原文(App Store Review Guidelines 2026-06-08 改訂版、Play ポリシーセンター)と照合しています — 原文引用・URL・2025〜2026 の変更履歴は [`references/`](references/)。
+**144 項目**、それぞれに *根拠 / 適用条件 / 確認 / スキャナーシグナル / 修正 / 証跡 / 事例*。全項目を 2026-08-28 時点の公式原文(App Store Review Guidelines 2026-06-08 改訂版、Play ポリシーセンター)と照合しています — 原文引用・URL・2025〜2026 の変更履歴は [`references/`](references/)。
 
 ## 実際のリジェクト事例
 
-[`rejections/community-cases.md`](rejections/community-cases.md) に、**100 件以上の実際のリジェクト事例**(2022〜2026)を開発者フォーラム・Reddit・Apple Developer Forums・Play コミュニティ・ブログ(英・韓・日・中)から集めた実際のリジェクト事例を、審査官の文言、原因、承認された修正、出典リンクとともにまとめています。各事例はチェックリスト ID に紐づいており、事前チェックで *「これで実際にリジェクトされた人がいて、こう直して通った」* と示せます。
+[`rejections/community-cases.md`](rejections/community-cases.md) に、**759 件の実際のリジェクト事例**(2022〜2026)を Apple Developer Forums・Play コミュニティ・Stack Overflow・GitHub Issues・Hacker News・Kakao DevTalk・開発者ブログ(英・韓・日・中)から集めた実際のリジェクト事例を、審査官の文言、原因、承認された修正、出典リンクとともにまとめています。各事例はチェックリスト ID に紐づいており、事前チェックで *「これで実際にリジェクトされた人がいて、こう直して通った」* と示せます。
 
 ## 自分のリジェクトを学習させる
 
@@ -125,7 +125,7 @@ checklists/common.md         機能条件付き項目
 checklists/ios.md            App Store 項目
 checklists/android.md        Google Play 項目
 checklists/ko/               翻訳(英語が正)
-references/                  チェックリストを照合した公式ソース
+references/                  公式ソース(Apple・Google Play)+ 韓国・日本・中国固有の落とし穴と出典
 templates/                   レポートスキーマ、ケース、審査ノート、返信、UGC 規約条項、録画手順
 rejections/                  ケース KB — 自分のケース + community-cases.md
 docs/                        サンプルレポート JSON + スクリーンショット

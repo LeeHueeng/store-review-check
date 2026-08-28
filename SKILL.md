@@ -98,6 +98,9 @@ In B, if the project path is known also run A focused on the affected items.
 | Play Sign-in details / closed testing (Korea) | ACC-05, AND-CONSOLE-03, AND-TEST-01, AND-ACCOUNT-01 (등본 address match) |
 | Play Deceptive Behavior / Misleading Claims / icon-title mismatch | META-02, META-06, AND-META-01, AND-CONSOLE-12 (government info), CONTENT-10 |
 | Play Families | AND-CONSOLE-07 (neutral age screen, certified ad SDKs), ADS-02, PRIV-02, AND-REVIEW-01 |
+| Apple 2.1(b) IAP "not found / not submitted / agreement" | PAY-05, PAY-04, PAY-06, IOS-META-07 (promoted images), META-07 |
+| Apple 5.1.2 ATT | PRIV-05, PRIV-03, IOS-PRIV-04, PRIV-02 (labels) |
+| Apple 5.1.1(ix) / 3.1.5 / 3.2.2 regulated | ACC-06, LAW-02, AND-ACCOUNT-02 |
 
 ## C. Submission info
 
@@ -146,6 +149,15 @@ In B, if the project path is known also run A focused on the affected items.
 | `CFBundleDisplayName` ≠ store name | META-06 |
 | `sec.aws` / `sec.webview` / `sec.webauth` > 0 | AND-SEC-01 (Play security scanner: leaked credentials, intent hijacking, WebView XSS, WebView OAuth) |
 | any Play resubmission after a rejection | AND-ENFORCE-01 (stop after the 2nd rejection), AND-CONSOLE-11 (old builds), AND-REVIEW-01 (Play-signed build, asset packs, offline) |
+| `price.hardcoded` > 0 | PAY-06 (store-fetched price/trial text) |
+| `donation` > 0 | PAY-01 (donations must use IAP) |
+| `applepay` > 0 | IOS-IAP-03 (4.9 prominence) |
+| `icloud.sync` > 0 with `pay.iap` | IOS-IAP-04 (4.10) |
+| `emulator` > 0 | CONTENT-14 (4.7) |
+| `pay.iap` > 0 (always) | PAY-05 (agreement, submission draft, product IDs, RevenueCat wiring) |
+| `track.att` > 0 (always) | PRIV-05 (ATT reachable on a fresh device, label consistency), IOS-PRIV-04 (ITMS-91064) |
+| any Apple resubmission | META-07 (reply vs resubmit, don't resubmit mid-dialogue, version reuse) |
+| storefronts include Japan / China | JP-01 / CN-01 (`references/japan-china.md`) |
 
 ## Learning rules (keeping the KB alive)
 

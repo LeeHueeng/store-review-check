@@ -103,13 +103,14 @@ Flutter, React Native, Expo, iOS·Android 네이티브를 인식합니다. 출�
 | **백그라운드·타이머** | 타이머 유지용 무음 오디오(2.5.4), FGS 타입+Play 선언, 로컬 알림 대체 | Apple 2.5.4 · Android 14 FGS |
 | **완성도·메타데이터** | 플레이스홀더, iPad 크래시, 타 플랫폼 언급, 스크린샷, 연령 등급 "사용자 상호작용", 제목 규칙, 지원 URL | Apple 2.1, 2.3.x, 2.4.1, 4.0 · Play 메타데이터 |
 | **플랫폼 요구치** | targetSdk 마감, 16KB 페이지, AAB/64비트, 수출 규정, 최소 Xcode, 신규 Play 계정 비공개 테스트, FamilyControls 승인 | — |
+| **절차·지역** | 바이너리 밖 IAP 배선(계약·상품 ID·RevenueCat), 스토어 가격 사용, ATT 도달성, 재제출 메커닉스, 리젝 누적 정지, Play 심사 환경, 한국(카카오/네이버 로그인, iPad 본인인증, 사업자등록), 일본(MSCA, 特商法), 중국(ICP, AI 라이선스, 위챗 로그인) | 사례 기반 |
 | **한국** | 만 14세 미만 법정대리인 동의, 방침 필수 기재, IARC/GRAC | 개인정보보호법 |
 
-**118개 항목**, 각각 *근거 / 적용 조건 / 확인 / 스캐너 신호 / 수정 / 증빙 / 사례*. 전 항목을 2026-08-28 기준 공식 원문(App Store Review Guidelines 2026-06-08 개정판, Play 정책 센터)과 대조했습니다 — 원문 인용·URL·2025~2026 변경 이력은 [`references/`](references/).
+**144개 항목**, 각각 *근거 / 적용 조건 / 확인 / 스캐너 신호 / 수정 / 증빙 / 사례*. 전 항목을 2026-08-28 기준 공식 원문(App Store Review Guidelines 2026-06-08 개정판, Play 정책 센터)과 대조했습니다 — 원문 인용·URL·2025~2026 변경 이력은 [`references/`](references/).
 
 ## 실제 리젝 사례
 
-[`rejections/community-cases.md`](rejections/community-cases.md)에 **실제 리젝 사례 100건 이상**(2022~2026)을 개발자 포럼·Reddit·Apple Developer Forums·Play 커뮤니티·블로그(영·한·일·중)에서 모은 실제 리젝 사례를 심사관 문구, 원인, 통과시킨 수정, 출처 링크와 함께 정리했습니다. 각 사례는 체크리스트 ID에 연결되어 사전 점검에서 *"이것 때문에 실제로 리젝된 사람이 있고, 이렇게 고쳐서 통과했다"*고 알려줍니다.
+[`rejections/community-cases.md`](rejections/community-cases.md)에 **실제 리젝 사례 759건**(2022~2026)을 Apple Developer Forums·Play 커뮤니티·Stack Overflow·GitHub 이슈·Hacker News·카카오 DevTalk·개발자 블로그(영·한·일·중)에서 모은 실제 리젝 사례를 심사관 문구, 원인, 통과시킨 수정, 출처 링크와 함께 정리했습니다. 각 사례는 체크리스트 ID에 연결되어 사전 점검에서 *"이것 때문에 실제로 리젝된 사람이 있고, 이렇게 고쳐서 통과했다"*고 알려줍니다.
 
 ## 내 리젝을 학습시키기
 
@@ -127,7 +128,7 @@ checklists/common.md         기능 조건부 항목
 checklists/ios.md            App Store 항목
 checklists/android.md        Google Play 항목
 checklists/ko/               번역 (영어가 정본)
-references/                  체크리스트를 대조한 공식 출처
+references/                  공식 출처(Apple·Google Play) + 한국·일본·중국 특화 함정과 출처
 templates/                   리포트 스키마, 케이스, 심사 노트, 답신, UGC 약관 조항, 녹화 순서
 rejections/                  케이스 KB — 내 케이스 + community-cases.md
 docs/                        샘플 리포트 JSON + 스크린샷

@@ -15,6 +15,7 @@
 - 수정: 버튼 추가(HIG: 검정/흰색 Apple 로고 버튼; "로그인은 최대한 늦게") → Firebase/Supabase Apple 제공자 → 계정 병합 정책. 새 릴레이 도메인 `private.icloud.com`도 `privaterelay.appleid.com`과 함께 허용(2026-08).
 - 증빙: 없음(심사관 확인). 심사 노트에 "Sign in with Apple available" 한 줄.
 - 사례: [2026-08-27 iOS 1.2 UGC](../../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — 메일엔 없지만 구글/카카오만 있어 동반 리젝 위험; IOS-LOGIN-01 태그 커뮤니티 사례
+- 중국 사례: 위챗/구글 버튼을 앱 미설치 시 숨겨도 면제되지 않음(iPhone 심사관은 봄); 이메일/비밀번호나 휴대폰 OTP만으로는 "동등"하지 않음; Apple 버튼은 HIG(로고, 동일 크기) 준수. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### IOS-LOGIN-02 계정 삭제 시 Apple 토큰 폐기
 - 근거: 5.1.1(v) + Apple 공지(2022) — Sign in with Apple 사용자 계정 삭제 시 `revoke tokens` REST API 호출
@@ -43,6 +44,7 @@
 - 신호: pbxproj, plist orientations
 - 수정: 폭 제한 컨테이너(max 600pt 중앙) 최소 대응. 또는 iPhone 전용 — 그래도 iPad 크래시 금지.
 - 사례: [2026-08-27 iOS 1.2 UGC](../../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — 심사 기기에 iPad; [커뮤니티](../../rejections/community-cases.md#40-design--sign-in-with-apple-ux)
+- 일본 사례(2026): 심사 기기 기록 — iPad Air 11(M3/M4), iPad Pro 11(M4), iPhone 17 Pro Max; iPhone 전용 앱이 iPad를 **체크 해제**했는데도 iPad 레이아웃으로 거절("Appleユーザーは全デバイスで使えることを期待"); `UIRequiresFullScreen` + iPhone 전용으로 한 루프를 끊음. 케이스 파일마다 심사 기기를 기록할 것. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### IOS-IPAD-02 휴대폰 본인인증(PASS/SMS)은 iPad에서 불가
 - 근거: iPad Air 심사에서의 한국 2.1 리젝: "Unable to proceed with PASS authentication after selecting a carrier option" — iPad엔 SMS가 없는데 Apple은 iPhone 전용 앱도 iPad로 심사. `TARGETED_DEVICE_FAMILY = 1`, iPad 스크린샷/방향 제거, "Supported Destinations"로는 iPad 심사를 막지 **못했고**, `UIRequiredDeviceCapabilities = [telephony]`로 iPad 설치 불가 처리 후 승인.
@@ -58,6 +60,7 @@
 
 ### IOS-UI-02 비공개 API·다운로드 코드 금지 (2.5.1 / 2.5.2)
 - 확인: private API를 쓰는 플러그인(업로드 시 ITMS 경고). 코드 푸시(CodePush/Shorebird…)는 앱의 주 목적을 바꾸지 않는 범위에서만.
+- Apple 2차 문구: "The app installed or launched executable code. Specifically, the app uses the itms-services URL scheme"(2.5.2); "uses public APIs with Notification Center in a manner not prescribed by Apple"; PC 에뮬레이터와 VPN/루트 인증서 필터는 2.5.1(CONTENT-14). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### IOS-UI-03 외부 링크·앱 유도 (3.1.1(a) / 2.3.10)
 - 확인: 미국 스토어프론트 외에서는 "웹에서 더 싸게 구독" 링크·버튼·문구 없음(3.1.1(a): 미국만 엔타이틀먼트 없이 허용; EU/일본/한국은 프로그램 — IOS-IAP-02). 다른 앱 설치 유도 최소; 다운로드·리뷰 강요 금지(3.2.2(x)).
@@ -87,6 +90,8 @@
 
 ### IOS-PLIST-02 UIBackgroundModes 정당성 (2.5.4)
 - `common.md` BG-01. `audio`·`location`·`voip`·`fetch`·`processing` 각각 실제 기능 필요.
+- 일본 사례: `expo-audio`는 `enableBackgroundPlayback: true`가 기본이고 `expo-notifications`는 `aps-environment`를 추가 — `npx expo config --type introspect`로 확인; 실제 기능 하나당 백그라운드 모드 하나. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Apple 2차 문구: "declares support for external-accessory in the UIBackgroundModes key… does not declare any external accessory protocols". [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### IOS-PLIST-03 URL Scheme·LSApplicationQueriesSchemes
 - 확인: 카카오 → `kakao{APP_KEY}` scheme + `LSApplicationQueriesSchemes`에 `kakaokompassauth`, `kakaolink`, `kakaoplus`. 네이버 → `naversearchapp`, `naversearchthirdlogin`. 없으면 카카오톡 앱 로그인 실패.
@@ -112,6 +117,13 @@
 - 신호: `PrivacyInfo.xcprivacy 파일 수`
 - 수정: Xcode > New File > App Privacy. Flutter/RN: `ios/Runner/PrivacyInfo.xcprivacy` + 프로젝트 추가. 매니페스트를 포함한 SDK 버전으로 갱신.
 
+### IOS-PRIV-04 병합된 프라이버시 매니페스트의 추적 플래그 일관성 (ITMS-91064)
+- 근거: 업로드 거절 "ITMS-91064: Invalid privacy manifest… NSPrivacyTracking must be true if NSPrivacyTrackingDomains isn't empty"(그 반대: 도메인이 **비어 있는데** tracking=true) — 병합된 SDK 매니페스트(AdMob, UnityFramework 포드)가 플래그나 도메인을 불일치하게 설정하고, 소스 수정은 빌드 시 덮어써짐
+- 적용: 광고/어트리뷰션 SDK, Unity, `NSPrivacyTracking`이 있는 모든 앱
+- 확인: 아카이브 후 .xcarchive의 모든 `PrivacyInfo.xcprivacy`(앱 + 프레임워크): `NSPrivacyTracking=true` ⇔ `NSPrivacyTrackingDomains` 1개 이상(예: `googleads.g.doubleclick.net`); 중복 매니페스트 없음(ITMS-91056).
+- 수정: 아카이브 후 플래그/도메인을 맞추고 재서명하는 스크립트, 또는 SDK 업데이트.
+- 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+
 ---
 
 ## 메타데이터·제출
@@ -122,6 +134,7 @@
 ### IOS-META-02 App Review Information
 - 근거: 2.3.1(a) 신규 기능은 "Notes for Review에 구체적으로… (일반적 서술은 거절)"; 2.1(a)/(b) 데모 계정과 IAP 가시성; App Review 페이지 "Incomplete information"이 상위 리젝 사유("미해결 이슈의 40% 이상이 2.1 App Completeness")
 - 확인: "Sign-in required" + "만료되지 않는" 데모 계정(추가 계정은 노트에), 노트 ≤ 4000바이트 어떤 언어든(`templates/review-notes.md`), 연락처 이름/이메일/전화("+" 국제 형식), 첨부/링크(녹화). UGC 앱은 녹화 링크 **필수**(사례). 조건부(지역·역할·시간·하드웨어) 기능 설명.
+- Apple 2차 사례: 첫 제출부터 심사관의 7문항 템플릿(녹화, 기기, 목적, 접근, 외부 서비스, 지역 차이, 규제 여부)을 미리 채움; "Would you please explain the difference between this app and [App ID]?", "we want to understand your business model"은 노트에서 답변; 데모 계정이 페이월/링크아웃을 *볼 수 있게*(구독자 계정은 숨김). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### IOS-META-03 수출 규정 준수
 - 확인: `ITSAppUsesNonExemptEncryption` 키. HTTPS만 → `false`로 업로드마다 질문 생략. 자체 암호화(E2EE…) → `true` + 연 1회 자가 분류 보고(미국).
@@ -139,6 +152,18 @@
 - 근거: 등급 4+/9+/13+/16+/18+와 새 문항(앱 내 제어: 자녀 보호·연령 확인; 기능: 무제한 웹 접근, UGC, 소셜 미디어, 메시지·채팅, 광고; 의료/웰니스; 폭력; 확률형: 도박, 모의 도박, 콘테스트, 루트박스). 2026-01-31까지 응답 필수; **2026-09부터 제출 시 소셜미디어 문항 필수**; "Social Media" 기능은 최소 13+(iOS 27 Time Allowances); 루트박스 → 브라질 18+; 한국 비속어/성인 주제 → 2026-10부터 12+. 2.3.6: 정직하게.
 - 확인: ASC 설문이 UGC/메시지/소셜 기능과 웹 탐색을 반영; 결과 등급이 마케팅과 일치(Kids 카테고리 외 "for kids" 문구 금지 — 5.1.4(b)).
 - 신호: `ugc.*`, `webview`, `pay.iap`(루트박스)
+
+### IOS-META-07 프로모션 인앱 구매 이미지 (2.3.2)
+- 근거: 2026년 리젝 6건: "Your promotional image is the same as the app's icon" · "duplicate or identical promotional images for different promoted In-App Purchase products" — 프로모션 IAP마다 앱 아이콘도 스크린샷도 아닌 고유한 1024×1024 이미지, 가격 없음, 글자 최소
+- 적용: ASC에서 "프로모션" 표시된 IAP
+- 확인: 상품별 고유 아트워크; 가격 텍스트 없음; 아이콘 아님.
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### IOS-META-08 EU DSA 트레이더 상태
+- 근거: ASC > Business > Compliance Requirements — 트레이더 상태를 선언하지 않으면 승인된 앱이 EU27에서 조용히 비공개("トレーダーステータスが提供されていません")
+- 적용: EU에 배포하는 모든 앱
+- 확인: 트레이더 상태 선언(수익화하면 트레이더) + 연락처 검증.
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ---
 
@@ -188,3 +213,15 @@
 - 근거: **한국** — StoreKit External Purchase entitlement(한국 전용 바이너리; 승인 PSP KCP·이니시스·토스·NICE; "사용자 지불액의 26% 수수료"; 결제 흐름마다 모달 고지; 월별 매출 보고). **미국** — 3.1.1(a): 엔타이틀먼트 없이 링크·버튼 허용, IAP도 제공해야; 수수료 소송 진행 중(2026-08). **EU** — 2026-10-01부터 통합 조건(Core Technology Commission 5%, IAP와 병행 대체 결제). **일본** — MSCA: iOS 26.2+ 대체 결제/마켓, IAP 병행 제시.
 - 적용: `pay.external` > 0 & 디지털 재화
 - 확인: 엔타이틀먼트 승인 + 지역 한정 바이너리; 고지 표시; 아니면 3.1.1 리젝.
+### IOS-IAP-03 Apple Pay 표시 (4.9)
+- 근거: "The Apple Pay button isn't displayed prominently as an equivalent purchase option" — 모든 결제 화면에서 Apple Pay가 다른 결제 버튼과 최소 동등하게 노출; 중개 앱은 시트에 "PAY <merchant> (VIA <app>)" 표시; PassKit을 링크만 하고 안 쓰면 "binary includes the PassKit framework… unable to verify any integration"(IOS-ENT-04)
+- 적용: Apple Pay가 있는 실물 상품/서비스 결제(flutter_stripe, Shopify…)
+- 확인: 버튼 위치/크기; 가맹점 표기; PassKit은 쓸 때만.
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### IOS-IAP-04 내장 기능은 페이월 기능이 아니다 (4.10)
+- 근거: "The app charges users for access to built-in iOS capabilities. Specifically, iCloud sync." — iCloud 동기화, 푸시, 카메라 등 OS 내장 기능을 구매 뒤에 두지 말 것; 백업/내보내기 기능 이름이 동기화가 유료인 것처럼 보이지 않게
+- 적용: 프리미엄 등급이 있는 앱
+- 확인: 페이월이 해제하는 것; "동기화"/"백업" 문구.
+- 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+

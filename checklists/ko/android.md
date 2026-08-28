@@ -93,6 +93,7 @@
 - 신호: 의존성 목록(`camera/media`, `background`, `push`), 자동 힌트
 - 수정: 앱 매니페스트에 `<uses-permission android:name="…" tools:node="remove"/>`(Expo: app.json `android.blockedPermissions`); 병합 매니페스트 재확인. Play가 여전히 옛 빌드를 지적할 수 있음 — AND-CONSOLE-11.
 - 사례: [커뮤니티 — 사진·동영상](../../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video), [포그라운드 서비스](../../rejections/community-cases.md#foreground-service-declarations)
+- 중국 SDK 변형: 중국 SDK는 Google Play 빌드 사용(JPush `jcore/jpush-*-google_play.jar`), DCloud/uni-app APK 설치 모듈 제거(`plus.runtime.install`은 권한 없이도 삭제 사유), Umeng/Adjust 동작(설치 앱 읽기 → Data safety) 주의. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### AND-PERM-14 VpnService
 - 근거: VpnService는 핵심 VPN + 자녀 보호/기업, 앱 사용 추적, 기기 보안, 네트워크 도구, 브라우저, 통신사 앱만; "눈에 띄는 고지·동의 없이 개인정보 수집", "수익화를 위한 타 앱 트래픽 리디렉션·조작" 금지. 리젝 문구: "We are unable to confirm your app's declared use of VpnService as a permitted use case… should be removed from the app manifest across all release tracks."
@@ -204,6 +205,7 @@
 - 확인: 계정 생성일·유형. 해당되면 최소 2주 일정.
 - 사례 교훈: "테스터가 참여하지 않았다"며 프로덕션 접근 거부 — 옵트인만 하고 앱을 열지 않은 12개 계정은 실패; 테스터에게 자유 탐색을 맡기고, 신청 문항마다 ≥3줄의 실질적 답변(크래시 없음 명시, 구체적 피드백, 개선 계획).
 - 한국 사례(2024~2026): 12명 이상 옵트인을 **끝까지** 유지(30명 이상 모집; 품앗이/유료 테스터는 이탈), 실제 사용 세션, 테스트 중 2~3회 업데이트, 설문 항목마다 상세 답변; 멈춰 있던 신청이 비공개 트랙 업데이트 다음 날 승인된 사례.
+- 일본 사례(2026): 12명 옵트인이어도 "테스터 미참여"·"피드백 기반 업데이트 없음"으로 거절 — **설치 사용자 그래프**가 매일 ≥12 유지(10/12 설치는 실패), 리텐션 가시화, 피드백은 콘솔 피드백 이메일로(LINE 대화는 안 보임), 기간 중 2~3회 업데이트; Google Groups 링크는 승인제 그룹·LINE 브라우저에서 실패; 비공개 테스트 목록 ≠ 라이선스 테스트 목록(유료 앱은 테스터에게 과금). [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### AND-ACCOUNT-01 계정 인증
 - 근거: 신분증이 결제 프로필과 일치; 조직은 D-U-N-S; 개발자 정보 공개. 미완료 시 게시 불가.
@@ -230,6 +232,7 @@
 - 적용: 모든 개발자
 - 확인/규칙: 같은 빌드가 **두 번** 거절되면 멈추고 내부 트랙에서 자가 테스트 + 이의 제기(재업로드 금지); 정지 후 같은/유사 패키지 재업로드 금지; 콘솔에 초대하는 사용자 검증; 정확한 변경 내용을 적은 이의 제기문 보관.
 - 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+- 일본 사례: *경미한* 메타데이터 리젝이 이어진 뒤 앱 3개가 "アプリ拒否スパム: Repeated app rejections"로 정지; 미출시 MVP로 회사 계정 종료; 정지 중 구독 자동 취소. 재제출마다 한 이슈를 완전히 해결하고 방치 앱은 삭제. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### AND-REVIEW-01 심사 환경은 Play 스토어가 아니다
 - 근거: 심사관은 **Play 서명** 빌드를 설치(사전 출시 보고서와 다른 키 → Google/Firebase 로그인, App Check, 일부 라이브러리 실패); Play Asset Delivery 온디맨드 팩은 `AppNotOwned` / `AppUnavailable` / `InternalError`; 네트워크가 꺼져 있을 수 있음; 실시간/스트리밍 의존 화면은 비어 있음; 다른 릴리즈의 옛 자격 증명이 사용됨

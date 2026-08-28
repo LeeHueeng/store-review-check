@@ -94,6 +94,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Signals: dependency list (`camera/media`, `background`, `push`), auto-hint
 - Fix: `<uses-permission android:name="…" tools:node="remove"/>` in the app manifest (Expo: `android.blockedPermissions` in app.json); then re-check the merged manifest. Note that Play may still cite an older build — see AND-CONSOLE-11.
 - Cases: [community — Photo & Video](../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video), [foreground services](../rejections/community-cases.md#foreground-service-declarations)
+- Chinese SDK variants: use the Google-Play builds of Chinese SDKs (JPush `jcore/jpush-*-google_play.jar`), strip the DCloud/uni-app APK-install module (`plus.runtime.install` gets the app removed even without the permission), watch Umeng/Adjust behaviours (installed-apps reads → Data safety). [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### AND-PERM-14 VpnService
 - Basis: VpnService only for core VPN plus parental control/enterprise, app-usage tracking, device security, network tools, browsers, carrier apps; never "Collect personal and sensitive user data without prominent disclosure and consent" or "Redirect or manipulate user traffic… for monetization". Rejection text: "We are unable to confirm your app's declared use of VpnService as a permitted use case… should be removed from the app manifest across all release tracks."
@@ -205,6 +206,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Verify: account creation date and type. If it applies, plan at least two weeks.
 - From cases: Google rejects production access when "testers did not engage" — 12 opted-in accounts that never open the app fail; give testers free rein, then answer the production-access questions with ≥ 3 substantive lines each (crash-free statement, concrete feedback, planned changes).
 - Korean cases (2024–2026): keep ≥ 12 opted-in testers **until the end** (recruit 30+; 품앗이 / paid testers drop out), require real sessions, ship 2–3 updates during the test, answer each questionnaire item in detail; a stalled application was approved the day after the closed track was updated.
+- Japanese cases (2026): rejections cite "testers didn't engage" and "no feedback-driven updates" even at 12 opted-in — the **installed-users graph** must stay ≥ 12 every day (10/12 installed failed), retention must be visible, feedback must arrive through the Console feedback email (LINE chats are invisible), 2–3 updates during the window; Google Groups links fail when the group is approval-only or opened in the LINE browser; closed-test list ≠ License testing list (paid apps charge testers). [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### AND-ACCOUNT-01 Account verification
 - Basis: identity verification (ID, phone, email); organizations need D-U-N-S. Publishing is blocked until complete.
@@ -231,6 +233,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Applies: every developer
 - Verify/Rules: stop after the **second** rejection of the same build — self-test from the internal track and appeal instead of re-uploading; never re-upload the same or near-identical package after a suspension; vet every invited Console user; keep a written appeal that names the exact change made.
 - Cases: [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+- Japanese cases: three apps suspended as "アプリ拒否スパム: Repeated app rejections" after a run of *minor* metadata rejections; a company account terminated over an unpublished MVP; subscriptions auto-cancel during suspension. Fix one issue completely per resubmission and delete unmaintained apps. [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### AND-REVIEW-01 The review environment is not the Play Store
 - Basis: reviewers install the **Play-signed** build (different key than the pre-launch report → Google/Firebase sign-in, App Check and some libraries fail), Play Asset Delivery on-demand packs return `AppNotOwned` / `AppUnavailable` / `InternalError`, networking may be off, live/stream-dependent screens are empty, older credentials in other releases are used

@@ -92,6 +92,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Evidence: optional recording; Play Data safety URL.
 - From cases: the Play deletion URL is checked by a non-browser client — plain HTTPS, no client-specific TLS; Kakao users must be unlinked via the Kakao Unlink API; a generic settings page is not accepted, link straight to the deletion step; reviewers who can't find the entry reject — mention its path in the notes or attach a video. [cases](../rejections/community-cases.md#account-deletion)
 - Korean cases: after deletion, **re-signing up with the same Apple/Google identity must work** (write the server user doc before redirecting; clear phone-verification / single-device locks); a Play deletion page must name the app and developer and list the steps — "contact support" or login-gated pages fail. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- Apple 2nd-pass case: an app with **no accounts** was rejected under 5.1.1(v) because a local profile/name step looked like sign-up — state "no accounts, local profile only, delete path: …" in the standing review notes. [case](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### ACC-03 Reviewer demo account (the social-login-only trap)
 - Basis: Apple 2.1(a) "include demo account info (and turn on your back-end service!) if your app includes a login. If you are unable to provide a demo account due to legal or security obligations, you may include a built-in demo mode in lieu of a demo account with prior approval by Apple"; ASC help: the demo account "must not expire" / Play **Sign-in details** (formerly App access): "Your sign-in details must be accessible at all times, reusable, and valid regardless of user location… If your app typically requires a 2-Step verification code or One-time password, make sure to provide reusable login credentials that can bypass these requirements… must be provided in English… If the provided password expires… the app may be rejected"
@@ -103,6 +104,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Cases: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — "Please provide a pre-populated demo account (Google or Kakao)"; see also community cases tagged ACC-03
 - [community cases](../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
 - Korean cases: the demo account must be loginable repeatedly on new devices — no stale push-token/device binding, no single-use phone verification, fixed OTP; GitHub/Google demo logins need 2FA off **and** no new-device challenge; Play refuses Hangul IDs, admin accounts and demo videos in place of credentials; QR/hardware-gated apps must supply long-lived codes. A Korean-language phone call with App Review resolved one stuck case. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- Japanese case: Google's "Verify it's you" on a demo Google account was solved without code by enabling 2FA and listing **backup codes** in the reply. [case](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### ACC-04 Social-login console configuration
 - Basis: not a guideline, but a broken login during review becomes a 2.1 rejection
@@ -117,6 +119,13 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `auth.kakao`, `auth.naver`
 - Fix: create the reviewer Kakao account without KakaoTalk; test from a foreign IP; add SIWA (IOS-LOGIN-01) and an email/password reviewer login (ACC-03).
 - Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28) — DevTalk 135699 / 135723 / 139785
+
+### ACC-06 Organization enrollment for regulated or sensitive-data apps (5.1.1(ix))
+- Basis: "The account that submits the app must be enrolled in the Apple Developer Program as an organization, and not as an individual" — health/body data, insurance, loans, gambling, crypto exchanges; documentation from an individual cannot substitute (Apple 5.1.1(ix)); Play: "Some types of apps can only be distributed by organizations" (AND-ACCOUNT-02)
+- Applies: apps in highly regulated fields or handling health/financial data
+- Verify: the submitting Apple developer account is an organization (D-U-N-S); Play account type matches.
+- Fix: enroll as an organization before submitting; individuals must remove the regulated feature.
+- Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ---
 
@@ -152,12 +161,22 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `perm.*`, `ads.sdk`
 - Fix: a dialog immediately before the permission request with an explicit Accept action; prefer pickers (Photo Picker, contact picker, share sheet) over broad permissions.
 
+### PRIV-05 ATT prompt must be reachable on a fresh review device
+- Basis: 2026 rejections "We were unable to locate the App Tracking Transparency permission request when reviewed on iOS/iPadOS" for apps whose ATT call existed but never fired: requested before the app was active (`undetermined` returned silently, never retried), tied to an ad banner that never mounted, gated on ad inventory (AdMob serves nothing to unpublished apps) or on deep progress (6 game-overs), shown 4th in a permission chain, or 24 h after install
+- Applies: any app that links ATT (ad/analytics SDKs do)
+- Verify: request when `applicationState == .active` (SwiftUI: `scenePhase`, Flutter/RN: after first frame + lifecycle active), retry while `notDetermined`, request **before** initializing ad SDKs, no dependency on ad inventory or progress, a manual entry in Settings, localized `NSUserTrackingUsageDescription`, and a screen recording + location in the review notes. If ATT is in the binary, App Privacy must declare tracking (ASC blocks otherwise).
+- Signals: `track.att`, `ads.sdk`
+- Fix: move the request to the first active foreground after onboarding.
+- Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- Apple 2nd-pass cases: the App Privacy "Used to Track You" label, `NSUserTrackingUsageDescription` and bundled SDK privacy manifests (Meta, TikTok, ad SDKs) must all agree with whether ATT is actually requested — "App Privacy information… indicates tracking… but the app never shows an ATT prompt" and the reverse ("the app still does not use App Tracking Transparency"). [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
 ### AI-01 AI features (third-party AI sharing, AI-generated content)
 - Basis: Apple 5.1.2(i) (2025-11) "You must clearly disclose where personal data will be shared with third parties, including with third-party AI, and obtain explicit permission before doing so" / Play **AI-Generated Content**: "Apps that generate content using AI must contain in-app user reporting or flagging features that allow users to report or flag offensive content to developers without needing to exit the app"; Play User Data requirements "apply to third-party AI integrations" (2026-07)
 - Applies: any call to OpenAI/Gemini/Claude/etc. with user data; AI chat, summaries, image generation
 - Verify: a disclosure (privacy policy + in-app, before the first AI call) that user content is sent to <provider>; an explicit permission step; a report/flag control on AI output; AI output subject to the same UGC filter/report rules.
 - Signals: `ai.sdk`
 - Fix: consent screen before first AI use; "Report this response" on AI output; list the AI provider in the privacy policy and Data safety (shared data).
+- Apple 2nd-pass cases (2025-11 rule): a consent step naming each AI provider must appear **before the first AI call**; "Note that only including this information in the app's Terms of Service or Privacy Policy is not sufficient"; purpose strings must say audio/text leaves the device. [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ---
 
@@ -182,6 +201,13 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: permission list vs `perm.*`
 - Fix: remove; if kept, justify in review notes.
 
+### PERM-04 Pre-permission ("priming") screens
+- Basis: Apple 5.1.1(iv) rejections "A custom message appears before the permission request… Use words like 'Continue' or 'Next' on the button instead" — custom screens must not mimic the system alert, must use neutral wording (never "Allow / Accept / Grant / Connect"), must not offer a skip that avoids the system prompt, and must provide an "Open Settings" path when iOS won't re-prompt; Korean case: an exit button + Settings redirect on denial was read as steering
+- Applies: any onboarding explainer shown before camera/photos/location/notifications/ATT prompts
+- Verify: button labels; no fake system dialog; the real prompt follows immediately; denial leaves the app usable (PERM-02).
+- Signals: `perm.*`
+- Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
 ---
 
 ## PAY — payments
@@ -192,6 +218,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: selling digital goods via Stripe/Toss/iamport etc. → FAIL. Physical goods and offline services must **not** use IAP (Apple 3.1.3(e)); social "boosts"/promoted posts must use IAP (3.1.3(g)). "Cheaper on the web" copy → FAIL outside the US.
 - Signals: `pay.external`, `pay.iap`
 - Fix: switch to StoreKit / Play Billing or RevenueCat. Remove web-payment prompts/links, or gate them by storefront/region under an approved program.
+- Apple 2nd-pass cases: donation buttons/links (Ko-fi, GitHub Sponsors, Buy Me a Coffee) count as digital purchases — "Although these donations may be optional, they must use In-App Purchase" — even when they only live on the linked website; 3.1.3(a) link-outs must use the External Link Account API modal "before every instance of linking out"; 3.1.3(c) enterprise pricing "could be interpreted as being sold to individual consumers". [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### PAY-02 Subscription disclosure + terms links
 - Basis: Apple 3.1.2(a) "the subscription period must last at least seven days and be available across all of the user's devices"; 3.1.2(c) "Before asking a customer to subscribe, you should clearly describe what the user will get for the price"; Schedule 2 requires Terms of Use (EULA) and privacy-policy links in the app and in metadata / Play **Subscriptions**: disclose "the cost of your subscription, the frequency of your billing cycle, the automatic renewal terms"; trials must "clearly and accurately describe the terms of your offer, including the duration, pricing… how it converts, how to cancel"; and the app must "clearly disclose how a user can manage or cancel their subscription" with an easy online method in "your app's account settings (or equivalent page)" (clarified 2025-10-30)
@@ -200,6 +227,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: standard footer text + links on the paywall; EULA URL in the ASC "License Agreement" field (or Apple's standard EULA); a manage/cancel link in account settings.
 - From cases: links must be in the app **and** in the App Store description; the billed amount must be more prominent than the intro price; no "ongoing value" → use non-renewing subscriptions; Play wants price, cycle, conversion date and cancel path on one simple paywall. [cases](../rejections/community-cases.md#312-subscriptions)
 - Korean case: the EULA link must be in the App Store **description**; replying in Resolution Center does not update metadata — resubmit a build.
+- Japanese/Chinese cases: with Apple's standard EULA the link must still be in the App Description; a weekly-equivalent price shown larger than the actual annual charge was rejected. [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### PAY-03 Restore purchases
 - Basis: Apple 3.1.1 "make sure you have a restore mechanism for any restorable in-app purchases"
@@ -213,6 +241,22 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: ASC IAP status "Ready to Submit" and attached to the version. Paid Apps Agreement signed, banking and tax done. Play — license testers, products active.
 - Fix: console work. Un-attached IAP is a frequent 2.1 / 3.1.1 rejection. IAP promo codes can no longer be created after 2026-03-26 (use offer codes).
 - Korean case (2026-08): an unsigned **Paid Apps Agreement** / missing tax info (사업자등록번호 required since 2024-12) / missing bank details produced 3–4 subscription rejections that looked like product-configuration problems; also attach the subscription review screenshot. [case](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
+### PAY-05 IAP wiring outside the binary (agreements, product IDs, RevenueCat, submission draft)
+- Basis: the most frequent 2026 IAP rejections read "one or more of the in-app purchase products have not been submitted for review", "Family Pack… not found", "Remove ads button errors", "Confirm you have a Paid Apps Agreement in effect" — and none of them are code bugs
+- Applies: any IAP / subscription
+- Verify before submitting: (1) Paid Apps Agreement **in effect** (bank + tax complete — the same build was approved the next day after this alone); (2) every IAP attached to the **same** submission draft ("審査と一緒に提出" / 提出物(2)) — "Submit for review" on an IAP creates a separate draft; (3) product IDs identical in code, ASC and RevenueCat; (4) RevenueCat: the App Store Connect In-App Purchase key (.p8) uploaded, offerings mapped to real products, webhook environment **Production + Sandbox**; (5) CI builds carry the API keys (`eas build` does not read `.env`); (6) a restore control reachable at all times (PAY-03).
+- Signals: `pay.iap`
+- Fix: as listed; most need no new build — resubmit after fixing the console side.
+- Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+
+### PAY-06 Price, currency and trial text come from the store, never from code
+- Basis: Apple 2.1(b) "アプリが無料トライアルを広告しているにもかかわらず、決済時にユーザーへ提供されていない" (hard-coded "7-day free trial" while the product had none); Play subscriptions "購入フロー内で目立つ価格の通貨が異なる" (hard-coded ¥500 vs localized cart currency); Apple 3.1.2 billed amount less prominent than an intro price
+- Applies: any paywall, settings, onboarding, screenshots or description mentioning price/trial
+- Verify: every price, currency, period and trial string is rendered from `Product.displayPrice` / `priceString` / Play `formattedPrice`; the CTA is disabled until the product loads; screenshots and the description don't state prices that differ by storefront.
+- Signals: `price.hardcoded`
+- Fix: single source of truth from the store product; scan the IPA/AAB strings for fixed prices.
+- Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -243,6 +287,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: permission is requested in context, not at first launch (recommended). Notifications can be disabled in Settings. Marketing has a separate explicit opt-in toggle. App works when denied.
 - Signals: `perm.push`
 - Fix: notification settings screen; separate marketing toggle; never block a feature behind push.
+- Apple 2nd-pass wording: "The app does not request and obtain the user's consent before sending push notifications" · "requires push notifications in order to function" · "uses public APIs with Notification Center in a manner not prescribed by Apple". [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ---
 
@@ -302,6 +347,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Basis: Apple 5.6.1 "Use the provided API to prompt users to review your app… we will disallow custom review prompts"; 3.2.2(x) "Apps must not force users to rate the app, review the app, download other apps, or other store-related actions in order to access functionality, content, or use of the app" / Play — no rewards or gating for reviews
 - Verify: custom "rate 5 stars for premium" → FAIL. Only `SKStoreReviewController` / `requestReview` (iOS) and the In-App Review API (Android).
 - Signals: `review.prompt`
+- Apple 2nd-pass wording: "prompts users to rate the app in exchange for in-app currency, points, or other incentives" (3.2.2(x)). [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### CONTENT-07 Saturated categories — "simple timers" need a meaningfully different experience
 - Basis: Apple 4.3(b) (2026-06 wording): "Certain kinds of apps, such as dating, flashlight, sound effects, wallpaper, simple timers, and fortune telling, are well established on the App Store and we will not accept new submissions unless they offer a meaningfully different or improved experience. We may remove these apps from the App Store going forward if they are not updated, improved, or do not attract customers"; 4.3(a) no multiple Bundle IDs of the same app; 4.2 "not particularly useful, unique, or 'app-like'" / Play **Functionality, Content, and User Experience**: "We do not allow apps that only have limited functionality and content"
@@ -310,6 +356,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: app name / description keywords (`saturated.category` hint)
 - Fix: lead the store description and Notes for Review with the differentiator; make it visible in screenshots; don't submit near-duplicates under new bundle IDs.
 - From cases: what actually cleared 4.3 was a **significantly different icon + UI** plus a real new feature; color-only changes and appeals alone did not. After an appeal succeeds, add a reviewer note on every later update. [cases](../rejections/community-cases.md#43-spam--duplicates--templates)
+- Japanese/Chinese cases: 4.3(a) on a first submission was cleared by resubmitting the **same build with real review notes + a recording** (WidgetKit Sudoku); machine-flagged 4.3 ("机审") never clears without a concept change; dating/fortune-telling apps hit 4.3(b) "99%". [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### CONTENT-08 Recording consent & indicator
 - Basis: Apple 2.5.14 "Apps must request explicit user consent and provide a clear visual and/or audible indication when recording, logging, or otherwise making a record of user activity. This includes any use of the device camera, microphone, screen recordings, or other user inputs" / Play Device & Network Abuse, Stalkerware
@@ -322,6 +369,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: no hard-coded IPv4 addresses; test with macOS "Create NAT64 Network" hotspot.
 - Fix: use hostnames; ensure the API host has AAAA/NAT64 compatibility.
 - Korean cases: free dynamic-DNS domains (DuckDNS, iptime) and IPv4-only EC2 instances are unreachable from Apple's IPv6-only review network → 2.1 "cannot login / data not loading" ×5. Use a real domain with AAAA or NAT64-compatible hosting. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+- Japanese/Chinese cases: reviewer traffic comes from the US (Apple) and e.g. Manila (Play) — WAF geo-blocks and "运维禁用了海外IP" produce "cannot log in / network error" rejections; open those regions and IPv6 for the review window. [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ### CONTENT-10 No hidden or dormant features; declare OTA code push
 - Basis: Apple 2.3.1(a) "Don't include any hidden, dormant, or undocumented features in your app"; 2.5.2 no code that changes features; Play Deceptive Behavior "don't include any hidden, dormant, or undocumented features"
@@ -354,6 +402,12 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: concrete development region; complete Base localization; test both locales.
 - Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
+### CONTENT-14 Emulators, mini-app hosts, content filters (4.7 / 2.5.1 / 2.4.5)
+- Basis: Apple 4.7 allows retro **game-console** emulators and HTML5 mini-apps only when they are not the app's primary purpose ("offering HTML5 games appears to be the primary purpose of your app", "not emulating a retro game console specifically", "PC is not a console"); VPN/root-certificate content filters, accessibility auto-paste and Notification Center misuse fall under 2.5.1 / 2.4.5; "The app installed or launched executable code. Specifically, the app uses the itms-services URL scheme" (2.5.2)
+- Applies: emulators, mini-game portals, chatbot/plug-in hosts, VPN-based filters, apps distributing builds
+- Verify: the primary purpose is your own functionality; emulated systems are consoles; no itms-services / enterprise-distribution links; no public-API misuse.
+- Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
 ---
 
 ## META — store metadata (outside the code)
@@ -366,6 +420,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Basis: Apple 2.3.7 "App names must be limited to 30 characters"; no trademarked terms, popular app names or pricing in metadata; 2.3.2 IAP disclosure in description/screenshots; 2.3.8 metadata suitable for 4+; 2.3.12 meaningful "What's New" for significant changes / Play **Metadata**: title ≤ 30 chars; no "emojis, emoticons, or repeated special characters"; no store-performance, ranking, price or promotional text in title/icon/developer name ("App of the year", "#1", "Best of Play", "10% off", "free for limited time only", "Editor's choice", "New"); no all caps unless brand; no "unattributed or anonymous user testimonials"; **Deceptive Behavior**: no false or misleading claims in title/description/icon/screenshots
 - Verify: promises of unreleased features, other-platform mentions (CONTENT-04), other apps' names, promo words, emojis in the title.
 - From cases: "Tutorial & Rules" (implied external content), Spanish "libre" (read as "free"), "ChatGPT" in a name, "Anonymous/匿名" keywords, brand names of hardware — all rejected. [cases](../rejections/community-cases.md#metadata--misleading-claims)
+- Apple 2nd-pass cases (2.3.2): features that need a purchase must be labelled in the description/screenshots ("(Pro)", "subscription required") — "metadata refers to paid content or features, but they are not clearly identified as requiring additional purchase"; placeholder icons and the word "Kids" in a non-Kids app name are 2.3.8; "resembles Pokemon" / sports-league likeness is 4.1(a). [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### META-03 Age-rating questionnaire
 - Basis: Apple 2.3.6 "Answer the age rating questions in App Store Connect honestly"; new tiers 4+/9+/13+/16+/18+ with new questions (in-app controls, capabilities, medical/wellness, violence) — responses were required by 2026-01-31; **social-media questions required for submissions from 2026-09**; declaring the "Social Media" capability sets a minimum 13+ rating (iOS 27 Time Allowances) / Play **Content Ratings** (IARC): "All apps must have a content rating… Apps without a content rating will be removed"; "Misrepresentation of your app's content may result in removal or suspension"; interactive element "Users Interact" covers user-to-user communication and media sharing
@@ -376,6 +431,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 
 ### META-04 URLs work
 - Verify: support, marketing and privacy URLs return 200 with content. Notion pages: "publish to web" on.
+- Apple 2nd-pass cases: linked pages **are** metadata — the support URL, README and marketing site linked from notes are reviewed for trademarks, other-platform mentions, donation links and false claims. [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 
 ### META-05 Review notes
 - Basis: Apple 2.3.1(a) "All new features, functionality, and product changes must be described with specificity in the Notes for Review section of App Store Connect (generic descriptions will be rejected) and accessible for review"; App Review page: "Incomplete information" (demo account, special configurations, demo video/hardware) is a top rejection reason / Play Sign-in details (AND-CONSOLE-03)
@@ -387,6 +443,11 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: plist `CFBundleDisplayName` / `android:label` vs store name
 - Fix: align names and icons; retake screenshots; rewrite the description as a feature list.
 - Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28), [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
+### META-07 Resubmission mechanics
+- Basis: cases lost days to the process itself: a Resolution Center reply does **not** restart review ("However, in order for us to proceed with the review of your app, please resubmit the app for review in App Store Connect") unless Apple explicitly offers a bug-fix pass; conversely, resubmitting during a 4.3 / 2.1 dialogue before the reviewer answers kills the thread; a rejected version string can't be reused (1.7.0 → 1.7.1); IAP "Submit for review" creates a separate draft; Play: one issue fully fixed per resubmission or "Repeated app rejections" suspends the app
+- Verify: after replying, press "Resubmit for review" when Apple asks for a new build/metadata; wait for the reviewer's reply when they asked a question; bump build/version; check the ASC submission draft lists app + IAPs together.
+- Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -421,4 +482,26 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `ugc.*`, `pay.iap`
 - Fix: adopt the age APIs; provide an age-suitability page; keep the age rating current (META-03).
 - Evidence: none (platform-side).
+
+### LAW-02 Regulated finance / crypto storefront evidence (3.1.5, 3.2.2(viii))
+- Basis: "The storefronts you selected in App Store Connect include locations where you… have not provided supporting evidence of permissions, registrations, and/or licenses" · "facilitates trading in contracts for difference" — crypto exchange/swap/on-ramp and CFD/derivatives features need licence evidence per storefront attached in App Review Information; otherwise remove the feature or restrict storefronts; Play: Financial features declaration + licences (AND-CONSOLE-09)
+- Applies: crypto wallets/exchanges, trading, lending, insurance
+- Verify: storefront list vs licences; evidence attached; organization account (ACC-06).
+- Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+---
+
+## JP — Japan
+
+### JP-01 Japan-specific store and legal requirements
+- Basis: **MSCA / スマホ新法** (in force 2025-12-18): Apple Japan permits external purchase links / alternative payments (IAP must be shown alongside, Apple disclosure sheet, monthly reporting; effective commission ≈ 26%/15%), Google Play Japan external payments program ("Play store listings must not mention out-of-app purchases"); **特定商取引法** (2022-06): subscription order screens must show price, period, auto-renewal and cancellation terms — mirrors Apple 3.1.2 / Play subscription rejections; **資金決済法**: purchased in-app points are 前払式支払手段 — unused balance over ¥10M triggers deposit obligations unless points expire within 6 months; Play: sole proprietors (開業届) can obtain a D-U-N-S and register an organization account, skipping the 12×14 closed test
+- Verify: 特商法表記 page linked from the paywall/support page; point expiry ≤ 6 months or accounting for deposits; store-fetched prices (PAY-06); review notes in Japanese are fine but Play Sign-in details must be English.
+- Cases / sources: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), `../references/japan-china.md`
+
+## CN — China
+
+### CN-01 China-specific store and legal requirements
+- Basis: **ICP备案** required for App Store China mainland (strict since 2024-04): unfiled apps are removed; the ASC app name must match the MIIT record; offline/IAP-only apps may request an exemption; games need a **版号**; loan/finance apps need ICP + 金融许可证; Apple rejects **AI features** for mainland distribution without a licence ("Guideline 5 - Legal" → remove AI, deselect China mainland, or provide documentation); WeChat/QQ login is a third-party login → Sign in with Apple (4.8), hiding the WeChat button when WeChat isn't installed does not exempt; promoting a WeChat mini-program inside an iOS app → 3.2.2; Chinese SDKs need Google-Play builds (JPush `google_play` jars), DCloud/uni-app runtime carries APK-install code (Play removal), Umeng code paths triggered Apple 2.3.1, Adjust reads installed apps (Data safety); ops blocking overseas IPs is a recurring 2.1 cause; Play account bans for new Chinese accounts ("高风险", 账号关联) — "anti-association" VPS and account-buying guides are policy violations, not fixes
+- Verify: ICP filing number in ASC; China mainland deselected if AI features are unlicensed; SIWA present with HIG button; no mini-program promotion; Google-Play variants of Chinese SDKs; overseas IPs open during review.
+- Cases / sources: [Chinese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), `../references/japan-china.md`
 

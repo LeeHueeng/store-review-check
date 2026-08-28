@@ -7,7 +7,7 @@
 # 호환:  macOS 기본 bash 3.2 / BSD grep, Linux GNU grep 모두 동작.
 
 set -u
-VERSION="1.3.0"
+VERSION="1.4.0"
 ROOT="${1:-.}"
 ROOT="$(cd "$ROOT" 2>/dev/null && pwd)" || { echo "경로 없음: ${1:-.}" >&2; exit 1; }
 
@@ -308,6 +308,11 @@ sig record.activity '(ReplayKit|RPScreenRecorder|MediaProjection|screenRecord|sc
 sig carrier.auth    '(본인 ?인증|본인확인|PASS ?인증|(^|[^a-z])pass_?auth|NiceID|nice_id|kmcert|kmcis|다날|(^|[^a-z])danal|휴대폰 ?본인|carrierAuth|mobileok|kcb_)'
 sig dyn.dns         '(duckdns|no-ip\.|noip\.com|iptime\.org|ddns\.net|dynu\.com|ngrok\.io|ngrok-free|localtunnel|serveo)'
 sig sec.aws         '(AKIA[0-9A-Z]{16}|aws_secret_access_key|AWS_SECRET|BasicAWSCredentials|AWSStaticCredentialsProvider)' c
+sig price.hardcoded '(₩ ?[0-9][0-9,]*|[0-9][0-9,]* ?원|¥ ?[0-9][0-9,]*|[0-9][0-9,]* ?円|\$ ?[0-9]+(\.[0-9]{2})?( ?/ ?(mo|month|yr|year|week))|[0-9]+ ?(日間|days?|일) ?(無料|free|무료)|무료 ?체험|free ?trial|無料トライアル)'
+sig donation        '(ko-fi\.com|buymeacoffee|github\.com/sponsors|patreon\.com|paypal\.me|후원하기|寄付|donate)'
+sig applepay        '(PKPaymentButton|PKPaymentAuthorization|ApplePayButton|apple_pay|applePay|isApplePaySupported)'
+sig icloud.sync     '(NSUbiquitousKeyValueStore|CKContainer|CloudKit|iCloud ?(sync|동기화|同期)|NSPersistentCloudKitContainer)'
+sig emulator        '(emulator|エミュレータ|에뮬레이터|romPath|\.rom\b|mini ?game ?platform|H5 ?游戏)'
 sig sec.webview     '(Intent\.parseUri|parseUri\(|shouldOverrideUrlLoading|addJavascriptInterface|setJavaScriptEnabled\(true\)|setAllowFileAccess\(true\))'
 sig sec.webauth     '(WebView.*(oauth|login|authorize)|(oauth|authorize).*WebView|webview_flutter.*(oauth|login))'
 
@@ -398,6 +403,11 @@ if [ "$(cnt record.activity)" -gt 0 ]; then flag "화면/활동 녹화 신호 �
 if grep -qiE 'image_picker|file_picker|permission_handler|expo-image-picker|expo-video|agora|uploadservice|flutter_foreground_task|background_geolocation|background-actions|inappbrowser' "$DEPTMP" 2>/dev/null; then
   flag "권한을 병합 매니페스트에 주입하는 라이브러리 사용 → android.md AND-PERM-13 (build/intermediates/merged_manifests 확인, tools:node=\"remove\")"; HINTS=1
 fi
+if [ "$(cnt price.hardcoded)" -gt 0 ]; then flag "하드코딩된 가격/무료체험 문구 신호 → common.md PAY-06 (스토어 상품 데이터에서 가격·통화·체험 기간을 가져와야 — 2026 Apple 2.1(b)/Play 구독 리젝)"; HINTS=1; fi
+if [ "$(cnt donation)" -gt 0 ]; then flag "후원/도네이션 링크 신호 → common.md PAY-01 (Apple: 'donations… must use In-App Purchase' — 연결된 웹사이트의 링크도 검사)"; HINTS=1; fi
+if [ "$(cnt applepay)" -gt 0 ]; then flag "Apple Pay 신호 → ios.md IOS-IAP-03 (4.9: 다른 결제 버튼과 동등하게 노출; PassKit만 링크하고 미사용이면 IOS-ENT-04)"; HINTS=1; fi
+if [ "$(cnt icloud.sync)" -gt 0 ] && [ "$(cnt pay.iap)" -gt 0 ]; then flag "iCloud 동기화 + IAP 신호 → ios.md IOS-IAP-04 (4.10: iCloud 동기화 등 내장 기능을 유료화 금지)"; HINTS=1; fi
+if [ "$(cnt emulator)" -gt 0 ]; then flag "에뮬레이터/미니게임 플랫폼 신호 → common.md CONTENT-14 (Apple 4.7: 레트로 콘솔·비주목적 HTML5만 허용)"; HINTS=1; fi
 if [ "$(cnt sec.aws)" -gt 0 ]; then flag "AWS 자격 증명 패턴(AKIA…/secret key) 신호 → android.md AND-SEC-01 (Play 'Leaked AWS credentials' 리젝; 사전 서명 URL/백엔드로 이동)"; HINTS=1; fi
 if [ "$(cnt sec.webview)" -gt 0 ]; then flag "WebView intent/JS 인터페이스 신호 → android.md AND-SEC-01 ('intent scheme hijacking', 'cross-app scripting' — loadUrl 전 URL 검증, intent:// 파싱 금지)"; HINTS=1; fi
 if [ "$(cnt sec.webauth)" -gt 0 ]; then flag "WebView 기반 OAuth 신호 → AND-SEC-01 'Authentication via WebView' 경고 + Apple 4.0 (Custom Tabs / ASWebAuthenticationSession 사용)"; HINTS=1; fi
