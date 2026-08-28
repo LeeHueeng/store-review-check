@@ -91,6 +91,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: Settings > Delete account → confirm → server function deletes user doc, storage, auth → unlink providers → back to login. Web page (Notion/static) "request account deletion" → Play Console Data safety.
 - Evidence: optional recording; Play Data safety URL.
 - From cases: the Play deletion URL is checked by a non-browser client — plain HTTPS, no client-specific TLS; Kakao users must be unlinked via the Kakao Unlink API; a generic settings page is not accepted, link straight to the deletion step; reviewers who can't find the entry reject — mention its path in the notes or attach a video. [cases](../rejections/community-cases.md#account-deletion)
+- Korean cases: after deletion, **re-signing up with the same Apple/Google identity must work** (write the server user doc before redirecting; clear phone-verification / single-device locks); a Play deletion page must name the app and developer and list the steps — "contact support" or login-gated pages fail. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ### ACC-03 Reviewer demo account (the social-login-only trap)
 - Basis: Apple 2.1(a) "include demo account info (and turn on your back-end service!) if your app includes a login. If you are unable to provide a demo account due to legal or security obligations, you may include a built-in demo mode in lieu of a demo account with prior approval by Apple"; ASC help: the demo account "must not expire" / Play **Sign-in details** (formerly App access): "Your sign-in details must be accessible at all times, reusable, and valid regardless of user location… If your app typically requires a 2-Step verification code or One-time password, make sure to provide reusable login credentials that can bypass these requirements… must be provided in English… If the provided password expires… the app may be rejected"
@@ -101,11 +102,21 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Evidence: review notes via `templates/review-notes.md` (Apple Notes ≤ 4000 bytes; Play up to five sets of instructions + "Any other instructions" for OTP/MFA).
 - Cases: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — "Please provide a pre-populated demo account (Google or Kakao)"; see also community cases tagged ACC-03
 - [community cases](../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
+- Korean cases: the demo account must be loginable repeatedly on new devices — no stale push-token/device binding, no single-use phone verification, fixed OTP; GitHub/Google demo logins need 2FA off **and** no new-device challenge; Play refuses Hangul IDs, admin accounts and demo videos in place of credentials; QR/hardware-gated apps must supply long-lived codes. A Korean-language phone call with App Review resolved one stuck case. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ### ACC-04 Social-login console configuration
 - Basis: not a guideline, but a broken login during review becomes a 2.1 rejection
 - Verify: Kakao — iOS bundle ID / Android key hash (the **release** key!) registered, consent items (nickname, profile, email) configured, business app if email is required. Google — OAuth consent screen in "production", iOS client ID and Android SHA-1 (upload key **and** Play App Signing key) registered. Firebase Auth providers enabled.
 - Fix: check the above. Copy the Play App Signing SHA-1 from Play Console > App integrity.
+- Korean cases: with Play App Signing, register the **legacy** app-signing key hash as well as the upload key hash (Play Console > App integrity, filter "legacy") — a Flutter team's Kakao login only worked after that.
+
+### ACC-05 Kakao / Naver login review playbook (Korea)
+- Basis: Kakao DevTalk staff answers + repeated Korean cases: reviewer devices trigger Kakao's 2-step verification (unknown device / overseas IP) even with 2FA and overseas-login block turned off; cancelling the KakaoTalk app-switch shows an "install KakaoTalk" page that reviewers screenshot as a bug; Play rejects Kakao/Naver/Google-only logins outright in Sign-in details
+- Applies: any Kakao / Naver / LINE login
+- Verify: the review notes include (a) a Kakao account **not linked to KakaoTalk** (non-Kakao email) or an email inbox the reviewer can open to read the 8-digit code, (b) a sentence telling reviewers to log in via the web/account flow (or delete KakaoTalk / clear Safari website data) if the "install KakaoTalk" page appears, (c) an ID/password or Sign in with Apple path as well.
+- Signals: `auth.kakao`, `auth.naver`
+- Fix: create the reviewer Kakao account without KakaoTalk; test from a foreign IP; add SIWA (IOS-LOGIN-01) and an email/password reviewer login (ACC-03).
+- Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28) — DevTalk 135699 / 135723 / 139785
 
 ---
 
@@ -124,6 +135,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: derive collection from the SDK list: Firebase Auth (email, name, ID), Analytics (usage data, device ID), Crashlytics (diagnostics), AdMob (advertising ID, coarse location), Kakao (nickname, profile, email). Compare with the console declarations.
 - Signals: `SDK / dependencies` section
 - Fix: update the console declarations from the SDK list. For Firebase use the per-SDK table in Firebase's privacy docs.
+- Play 2nd-pass cases: "Invalid Data safety form" is usually an SDK you didn't think of — play-services-ads (phone number), analytics/Adjust/Amplitude/AppLovin/Segment (Device or other IDs), an OSM login (email), yandex ads in a kids app. Declare what the SDK collects (vendors publish tables) or remove the SDK; update the form on every SDK bump. [cases](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ### PRIV-03 Tracking / advertising-ID consent
 - Basis: Apple 5.1.2(i) "You must receive explicit permission from users via the App Tracking Transparency APIs to track their activity… Your app may not require users to enable system functionalities (e.g. push notifications, location services, tracking) in order to access functionality, content, use the app, or receive monetary or other compensation"; fingerprinting is prohibited ("you may not derive data from a device for the purpose of uniquely identifying it") / Play **Ads**: "The Android advertising identifier (AAID) must only be used for advertising and user analytics"; **Advertising ID**: apps targeting Android 13+ must declare `com.google.android.gms.permission.AD_ID`; declare "advertising identifier" under Device or other IDs in Data safety; Android ID is no longer treated as a persistent identifier (2025-04)
@@ -132,6 +144,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `ads.sdk`, `track.att`, `track.adid`
 - Fix: show the ATT prompt **before** initializing ads (after onboarding). App must work when denied. IDFV for same-vendor analytics doesn't need ATT.
 - Evidence: none (code).
+- Korean cases: ATT must be the **first** system prompt and shown at launch (not after sign-up, not 4th in a chain); Flutter needs a ~1 s delay before requesting; unused purpose keys left in the plist get flagged together with it.
 
 ### PRIV-04 Prominent disclosure & data minimization
 - Basis: Apple 5.1.1(iii) "Where possible, use the out-of-process picker or a share sheet rather than requesting full access to protected resources like Photos or Contacts" / Play **Prominent disclosure and consent** — required when access "may not be within the reasonable expectation of the user" (location for ads, contacts upload, background collection): "Must be within the app itself… displayed in the normal usage of the app and not require the user to navigate into a menu… Must describe the data being accessed or collected… Must explain how the data will be used and/or shared"; consent "Must require affirmative user action (for example, tap to accept, tick a check-box)", "Must not interpret navigation away from the disclosure as consent", "Must not use auto-dismissing or expiring messages", and must come before the runtime permission
@@ -186,6 +199,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `pay.iap`, `legal.terms`
 - Fix: standard footer text + links on the paywall; EULA URL in the ASC "License Agreement" field (or Apple's standard EULA); a manage/cancel link in account settings.
 - From cases: links must be in the app **and** in the App Store description; the billed amount must be more prominent than the intro price; no "ongoing value" → use non-renewing subscriptions; Play wants price, cycle, conversion date and cancel path on one simple paywall. [cases](../rejections/community-cases.md#312-subscriptions)
+- Korean case: the EULA link must be in the App Store **description**; replying in Resolution Center does not update metadata — resubmit a build.
 
 ### PAY-03 Restore purchases
 - Basis: Apple 3.1.1 "make sure you have a restore mechanism for any restorable in-app purchases"
@@ -198,6 +212,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Basis: Apple 2.1(b) "If you offer in-app purchases in your app, make sure they are complete, up-to-date, visible to the reviewer and functional. If any configured in-app purchase items cannot be found or reviewed in your app, explain the reason in your review notes"; on the first submission, submit the IAP products **with** the app version
 - Verify: ASC IAP status "Ready to Submit" and attached to the version. Paid Apps Agreement signed, banking and tax done. Play — license testers, products active.
 - Fix: console work. Un-attached IAP is a frequent 2.1 / 3.1.1 rejection. IAP promo codes can no longer be created after 2026-03-26 (use offer codes).
+- Korean case (2026-08): an unsigned **Paid Apps Agreement** / missing tax info (사업자등록번호 required since 2024-12) / missing bank details produced 3–4 subscription rejections that looked like product-configuration problems; also attach the subscription review screenshot. [case](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -212,6 +227,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: interstitial at launch / exit / level start → FAIL (Play). Close button within 15 s. A "report ad" affordance (Apple). Ads never in widgets/extensions. Ads don't look like content or system UI.
 - Fix: move interstitials to natural breaks; add close/skip; add an ad-report menu (AdMob "report ad" or a mailto).
 - From cases: ads triggered on button clicks were rejected as "interferes with the normal use of the application" even after interstitials were removed. [case](../rejections/community-cases.md#ads-subscriptions-payments)
+- Play 2nd-pass cases: rejections for ads on Settings/Download/Disconnect taps, on activity start, App Open ads on every foreground, "ads triggered by the back button", "out of context activities with ads… if the app is sent to the background"; Families apps additionally get "can't be closed after 5 seconds" for rewarded videos and close buttons hidden behind the navigation bar. Often the real reason sits in the AdMob policy center. Rule: ads only where the user expects them (label the button), never on navigation/exit/background. [cases](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ### ADS-03 Remove test ad units
 - Basis: leaving test units (`ca-app-pub-3940256099942544/...`) in release → zero revenue + AdMob policy; clicking live ads during development → violation.
@@ -255,6 +271,8 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `placeholder`, `todo.marks`
 - Fix: hide unfinished features. Add empty-state copy.
 - From cases: empty states without a message are read as "button leads to a blank page" (Play Broken Functionality); infinite spinners when a permission is denied or the network is off; splash hangs on iPad. [cases](../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
+- Korean case (Play): tests run with the network off — a blank or unresponsive error screen is "Broken Functionality"; show an error message + retry button.
+- Play 2nd-pass cases: the review runs the **Play-signed** build (different signing key than the pre-launch report → Google sign-in / App Check / third-party libs can fail), on-demand asset packs return `AppNotOwned` in the review environment, and stream-dependent screens are empty — see AND-REVIEW-01. [cases](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ### CONTENT-02 No test/debug leftovers
 - Verify: debug menus, staging URLs, test payment keys, personal data in logs, `usesCleartextTraffic=true`.
@@ -278,6 +296,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: Settings > Contact (mail or form); the support URL page shows an email.
 - Signals: `mod.contact`
 - From cases: a Twitter/X profile or a dead page as Support URL is rejected (1.5); use a real page or a form with an email. [cases](../rejections/community-cases.md#15-developer-information-frequent-co-rejection)
+- Korean cases: support URLs that failed 1.5 — a GitHub repo page, a default Apache page, a Notion page without an email, a velog URL with unencoded Korean characters.
 
 ### CONTENT-06 Ratings prompts & incentives
 - Basis: Apple 5.6.1 "Use the provided API to prompt users to review your app… we will disallow custom review prompts"; 3.2.2(x) "Apps must not force users to rate the app, review the app, download other apps, or other store-related actions in order to access functionality, content, or use of the app" / Play — no rewards or gating for reviews
@@ -302,6 +321,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Basis: Apple 2.5.5 "IPv6-only network" support required since 2016; a frequent hidden cause of "the app crashed / could not load content" 2.1 rejections when the backend or SDK uses IPv4 literals
 - Verify: no hard-coded IPv4 addresses; test with macOS "Create NAT64 Network" hotspot.
 - Fix: use hostnames; ensure the API host has AAAA/NAT64 compatibility.
+- Korean cases: free dynamic-DNS domains (DuckDNS, iptime) and IPv4-only EC2 instances are unreachable from Apple's IPv6-only review network → 2.1 "cannot login / data not loading" ×5. Use a real domain with AAAA or NAT64-compatible hosting. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ### CONTENT-10 No hidden or dormant features; declare OTA code push
 - Basis: Apple 2.3.1(a) "Don't include any hidden, dormant, or undocumented features in your app"; 2.5.2 no code that changes features; Play Deceptive Behavior "don't include any hidden, dormant, or undocumented features"
@@ -318,6 +338,21 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `force.update`
 - Fix: correct comparison; log the decision; test with a build number above the store's.
 - Cases: [community — 2.1](../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
+
+### CONTENT-12 Release-parity & fresh-install test
+- Basis: Korean 2.1 rejections that read "error message on launch/login" were caused by Release-only configuration: API host/port only set in the Debug scheme, HTTP endpoints blocked by ATS (-1022) / `ERR_CLEARTEXT_NOT_PERMITTED` in the AAB, first-run auth that only worked with a cached session
+- Applies: every submission
+- Verify: install the **Release** build on a wiped device with no saved session and run delete → install → sign-up → login → core flow → relaunch; Release config has the production host, HTTPS everywhere (no `NSAllowsArbitraryLoads` / `usesCleartextTraffic` workarounds), no debug-only feature flags.
+- Signals: `cleartext`, `test.keys`
+- Fix: move config to a shared place; HTTPS for every endpoint; automate the fresh-install smoke test in CI.
+- Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
+### CONTENT-13 Run the app in a non-Korean locale / region
+- Basis: reviewers run in a US region; Korean apps crashed on launch because `CFBundleDevelopmentRegion` was `$(DEVELOPMENT_LANGUAGE)` or the storyboard localization table lacked the base language; permission dialogs appeared in the wrong language (4.0)
+- Applies: apps developed in Korean (or any single locale)
+- Verify: set the device language/region to en-US and launch the Release build; `CFBundleDevelopmentRegion` is a concrete locale (`ko_KR` or `en`); all localization tables exist for the base language; `InfoPlist.strings` localized.
+- Fix: concrete development region; complete Base localization; test both locales.
+- Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -337,6 +372,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: **with UGC, chat or friends, answer "users interact / UGC / messaging" = Yes**; unrestricted web access if a WebView browses the web; loot boxes/gambling questions if applicable. Re-submit the questionnaire when features change.
 - Signals: `ugc.*`, `webview`
 - Cases: see community cases tagged META-03
+- Korean case: a WebView loading YouTube/open web content raised the rating to 12+ ("unrestricted web access") — open such links externally instead.
 
 ### META-04 URLs work
 - Verify: support, marketing and privacy URLs return 200 with content. Notion pages: "publish to web" on.
@@ -344,6 +380,13 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 ### META-05 Review notes
 - Basis: Apple 2.3.1(a) "All new features, functionality, and product changes must be described with specificity in the Notes for Review section of App Store Connect (generic descriptions will be rejected) and accessible for review"; App Review page: "Incomplete information" (demo account, special configurations, demo video/hardware) is a top rejection reason / Play Sign-in details (AND-CONSOLE-03)
 - Verify: `templates/review-notes.md` content is in ASC App Review Information (Notes ≤ 4000 bytes, contact phone in international format) / Play Sign-in details. Demo account + feature locations + recording link + background-mode reason + IAP location + anything hidden behind conditions (region, time, role).
+
+### META-06 Store assets must match the installed app and reachable states
+- Basis: Apple 2.3.8 "앱 마켓플레이스에 표시되는 앱 이름과 기기에 표시되는 앱 이름이 충분히 일치하지 않아" (long store name vs short `CFBundleDisplayName`); Play Misleading Claims / Metadata: "the app's icon or title when installed on the device differs from what is displayed in the Play Store" (adaptive/monochrome icon rendering white, an old test-track icon), screenshots of locked levels or dynamic content, screens that don't exist, "Identical title and description", "Your app is improperly categorized"
+- Verify: the App Store / Play title and the launcher name share the same core name (tagline in the subtitle); the hi-res icon and the launcher icon are the same asset (regenerate adaptive icons without stray monochrome layers); every screenshot shows a state the reviewer can reach (caption "representative" outside the device frame otherwise); title ≠ description.
+- Signals: plist `CFBundleDisplayName` / `android:label` vs store name
+- Fix: align names and icons; retake screenshots; rewrite the description as a feature list.
+- Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28), [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ---
 

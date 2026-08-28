@@ -86,6 +86,7 @@
 - 수정: 설정 > 계정 삭제 → 확인 → 서버 함수로 사용자 문서·스토리지·인증 삭제 → 제공자 연결 해제 → 로그인 화면. 웹 페이지(노션/정적) "계정 삭제 요청" → Play Console Data safety.
 - 증빙: 녹화(선택); Play Data safety URL.
 - 사례 교훈: Play 삭제 URL은 브라우저가 아닌 클라이언트가 검사 — 특수 TLS 설정 없는 일반 HTTPS; 카카오 사용자는 Unlink API로 해제; 일반 설정 페이지 링크는 불인정, 삭제 단계로 직접 링크; 심사관이 못 찾으면 리젝 — 노트에 경로 기재 또는 영상 첨부. [사례](../../rejections/community-cases.md#account-deletion)
+- 한국 사례: 탈퇴 후 **같은 Apple/Google 계정으로 재가입이 되어야** 함(리다이렉트 전에 서버 사용자 문서 저장; 휴대폰 인증·단일 기기 잠금 해제); Play 삭제 페이지는 앱·개발자명과 절차를 명시 — "고객센터 문의"나 로그인 필요 페이지는 실패. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ### ACC-03 심사용 데모 계정 (소셜 로그인만 있을 때의 함정)
 - 근거: Apple 2.1(a) "로그인이 있으면 데모 계정 정보 포함(백엔드 켜둘 것)… 법적·보안상 불가하면 Apple 사전 승인으로 내장 데모 모드"; ASC 도움말: 데모 계정은 "만료되면 안 됨" / Play **Sign-in details**(구 App access): "항상 접근 가능, 재사용 가능, 사용자 위치와 무관하게 유효… 2단계 인증/OTP가 필요하면 이를 우회하는 재사용 가능 자격 증명 제공… 영어로 제공… 비밀번호가 만료되면 앱이 거부될 수 있음"
@@ -95,11 +96,21 @@
 - 수정(권장 순): (1) Sign in with Apple 추가(IOS-LOGIN-01 동시 해결; 심사관 본인 Apple ID로 로그인 — 빈 계정에 데모 데이터 자동 생성 고려) (2) Firebase 등에 이메일/비밀번호 켜고 **리뷰어 전용 계정**(버튼 노출이 숨김 진입보다 안전) (3) 카카오/구글 데모 계정을 줄 땐 2단계 끄기, 복구 이메일, 로그인 알림 승인 대기. 채팅·친구 요청 양쪽을 볼 수 있게 두 번째 계정 제공.
 - 증빙: `templates/review-notes.md` (Apple 노트 ≤ 4000바이트; Play 안내 최대 5세트 + OTP/MFA용 "기타 안내").
 - 사례: [2026-08-27 iOS 1.2 UGC](../../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — "Please provide a pre-populated demo account (Google or Kakao)"; [커뮤니티 사례](../../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
+- 한국 사례: 데모 계정은 새 기기에서 반복 로그인 가능해야 — 오래된 푸시 토큰/기기 바인딩, 일회용 휴대폰 인증 금지, 고정 OTP; GitHub/Google 데모는 2FA 끔 **그리고** 새 기기 확인 없음; Play는 한글 ID·관리자 계정·자격 증명 대신 영상을 거부; QR/하드웨어 게이트 앱은 장기 코드 제공. 막힌 건은 App Review와 한국어 전화 통화로 해결된 사례. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ### ACC-04 소셜 로그인 콘솔 설정
 - 근거: 가이드라인은 아니지만 심사 중 로그인 실패 → 2.1 리젝
 - 확인: 카카오 — iOS 번들ID/Android 키해시(**릴리즈 키!**) 등록, 동의항목(닉네임·프로필·이메일), 이메일 필수면 비즈앱. 구글 — OAuth 동의 화면 "프로덕션", iOS 클라이언트 ID·Android SHA-1(업로드 키 **와** Play 앱 서명 키). Firebase Auth 제공자 활성화.
 - 수정: 위 점검. Play 앱 서명 SHA-1은 Play Console > 앱 무결성에서 복사.
+- 한국 사례: Play 앱 서명 사용 시 업로드 키 해시 외에 **legacy** 앱 서명 키 해시도 등록(Play Console > 앱 무결성, "legacy" 필터) — Flutter 팀의 카카오 로그인이 그제야 동작.
+
+### ACC-05 카카오/네이버 로그인 심사 플레이북 (한국)
+- 근거: 카카오 DevTalk 공식 답변 + 반복된 한국 사례: 심사관 기기(미등록 기기·해외 IP)에서 2단계 인증·해외 로그인 차단을 꺼도 카카오 위험 감지로 2단계 인증이 뜸; "카카오톡으로 열겠습니까?"에서 취소하면 "카카오톡 설치" 페이지가 떠 심사관이 버그로 스크린샷; Play는 카카오/네이버/구글만 있는 로그인을 Sign-in details에서 거부
+- 적용: 카카오 / 네이버 / LINE 로그인
+- 확인: 심사 노트에 (a) **카카오톡과 연동되지 않은** 카카오 계정(비카카오 이메일) 또는 8자리 코드를 읽을 수 있는 이메일함, (b) "설치" 페이지가 뜨면 웹/계정 로그인 흐름을 쓰거나 카카오톡 삭제·Safari 데이터 삭제 안내, (c) ID/PW 또는 Sign in with Apple 경로.
+- 신호: `auth.kakao`, `auth.naver`
+- 수정: 카카오톡 미연동 리뷰어 계정 생성; 해외 IP에서 테스트; SIWA(IOS-LOGIN-01) + 이메일/비밀번호 리뷰어 로그인(ACC-03).
+- 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28) — DevTalk 135699 / 135723 / 139785
 
 ---
 
@@ -118,6 +129,7 @@
 - 확인: SDK 목록으로 수집 추정: Firebase Auth(이메일·이름·ID), Analytics(사용 데이터·기기 ID), Crashlytics(진단), AdMob(광고 ID·대략 위치), 카카오(닉네임·프로필·이메일). 콘솔 선언과 비교.
 - 신호: `SDK / 의존성` 섹션
 - 수정: SDK 기준으로 콘솔 선언 갱신. Firebase는 개인정보 문서의 SDK별 표 사용.
+- Play 2차 사례: "Invalid Data safety form"은 대개 생각 못 한 SDK 때문 — play-services-ads(전화번호), 분석/Adjust/Amplitude/AppLovin/Segment(기기 ID), OSM 로그인(이메일), 키즈 앱의 yandex 광고. SDK 수집 항목(벤더 표)을 선언하거나 SDK 제거; SDK 버전 올릴 때마다 양식 갱신. [사례](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ### PRIV-03 추적·광고 ID 동의
 - 근거: Apple 5.1.2(i) "App Tracking Transparency API로 명시적 허가… 푸시·위치·추적 등 시스템 기능 활성화를 기능 사용·보상의 조건으로 요구 금지"; 핑거프린팅 금지 / Play **광고**: "AAID는 광고와 사용자 분석에만 사용"; **광고 ID**: Android 13+ 타겟은 `com.google.android.gms.permission.AD_ID` 선언; Data safety에 "광고 식별자"; Android ID는 더 이상 영구 식별자 아님(2025-04)
@@ -126,6 +138,7 @@
 - 신호: `ads.sdk`, `track.att`, `track.adid`
 - 수정: ATT 프롬프트를 광고 초기화 **전**(온보딩 뒤)에. 거부해도 동작. 동일 벤더 분석용 IDFV는 ATT 불필요.
 - 증빙: 없음(코드).
+- 한국 사례: ATT는 **첫 번째** 시스템 프롬프트로 앱 실행 시 표시(가입 후·4번째 프롬프트 불가); Flutter는 요청 전 ~1초 지연; plist에 남은 미사용 목적 키도 함께 지적됨.
 
 ### PRIV-04 민감 데이터 사전 고지·최소 수집
 - 근거: Apple 5.1.1(iii) "가능하면 사진·연락처 전체 접근 대신 out-of-process 피커나 공유 시트" / Play **눈에 잘 띄는 공개 및 동의** — 사용자가 "합리적으로 예상하지 못하는" 접근(광고용 위치, 연락처 업로드, 백그라운드 수집)에 필요: "앱 안에… 정상 사용 흐름에서 표시되고 메뉴 탐색 불필요… 접근·수집 데이터 설명… 사용·공유 방식 설명"; 동의는 "적극적 행동(탭, 체크) 필요", "이탈을 동의로 해석 금지", "자동 닫힘·만료 메시지 금지", 런타임 권한 전에
@@ -180,6 +193,7 @@
 - 신호: `pay.iap`, `legal.terms`
 - 수정: 페이월 표준 문구 + 링크; ASC "라이선스 계약" 필드에 EULA URL(또는 Apple 표준 EULA); 계정 설정에 관리/해지 링크.
 - 사례 교훈: 링크는 앱 **과** App Store 설명 둘 다; 청구 금액이 체험 가격보다 눈에 띄어야; "지속적 가치" 없으면 비갱신 구독으로; Play는 가격·주기·전환일·해지 경로를 단순한 페이월 한 화면에. [사례](../../rejections/community-cases.md#312-subscriptions)
+- 한국 사례: EULA 링크는 App Store **설명**에 있어야; Resolution Center 답신으로는 메타데이터가 갱신되지 않음 — 빌드 재제출.
 
 ### PAY-03 구매 복원
 - 근거: Apple 3.1.1 "복원 가능한 IAP는 복원 메커니즘 제공"
@@ -192,6 +206,7 @@
 - 근거: Apple 2.1(b) "IAP는 완성·최신·심사관에게 보이고 동작해야… 앱에서 찾을 수 없는 IAP 항목은 심사 노트에 이유 설명"; 첫 제출 시 IAP 상품을 앱 버전과 **함께 제출**
 - 확인: ASC IAP "Ready to Submit" + 버전에 첨부. Paid Apps Agreement·은행·세금 완료. Play — 라이선스 테스터, 상품 활성.
 - 수정: 콘솔 작업. IAP 미첨부는 흔한 2.1/3.1.1 리젝. IAP 프로모 코드는 2026-03-26 이후 생성 불가(오퍼 코드 사용).
+- 한국 사례(2026-08): **Paid Apps Agreement 미서명** / 세금 정보 누락(2024-12부터 사업자등록번호 필수) / 은행 정보 누락이 상품 설정 문제처럼 보이는 구독 리젝 3~4회를 만듦; 구독 심사 스크린샷도 첨부. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -206,6 +221,7 @@
 - 확인: 앱 실행/종료/레벨 시작 시 전면 광고 → FAIL(Play). 15초 내 닫기. "광고 신고" 수단(Apple). 위젯/익스텐션에 광고 없음. 광고가 콘텐츠·시스템 UI처럼 보이지 않음.
 - 수정: 전면 광고를 자연스러운 구간으로; 닫기/건너뛰기; 광고 신고 메뉴(AdMob 신고 또는 mailto).
 - 사례 교훈: 버튼 클릭 시 뜨는 광고 코드는 전면 광고를 제거한 뒤에도 "정상 사용 방해"로 거절됨. [사례](../../rejections/community-cases.md#ads-subscriptions-payments)
+- Play 2차 사례: 설정/다운로드/연결 해제 탭 시 광고, 액티비티 시작 시 광고, 포그라운드 복귀마다 앱 오픈 광고, "뒤로 가기 버튼으로 트리거되는 광고", "백그라운드 전환 시 맥락 없는 광고 액티비티"로 거절; Families 앱은 보상형 영상도 "5초 내 닫기 불가", 내비게이션 바 뒤에 숨은 닫기 버튼으로 거절. 실제 원인은 AdMob 정책 센터에 있는 경우가 많음. 규칙: 사용자가 기대하는 곳에만(버튼에 명시), 이동/종료/백그라운드엔 절대 금지. [사례](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ### ADS-03 테스트 광고 유닛 제거
 - 근거: 릴리즈에 테스트 유닛(`ca-app-pub-3940256099942544/...`) → 수익 0 + AdMob 정책; 개발 중 실광고 클릭 → 위반.
@@ -249,6 +265,8 @@
 - 신호: `placeholder`, `todo.marks`
 - 수정: 미완성 기능 숨김. 빈 상태 문구.
 - 사례 교훈: 문구 없는 빈 상태는 "버튼이 빈 페이지로 이동"(Play Broken Functionality)으로 읽힘; 권한 거부·오프라인 시 무한 스피너; iPad 스플래시 멈춤. [사례](../../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
+- 한국 사례(Play): 네트워크를 끄고 테스트함 — 빈/무반응 오류 화면은 "손상된 기능"; 오류 문구 + 다시 시도 버튼.
+- Play 2차 사례: 심사는 **Play 서명** 빌드로 진행(사전 출시 보고서와 서명 키가 달라 Google 로그인/App Check/일부 라이브러리 실패), 온디맨드 에셋 팩은 심사 환경에서 `AppNotOwned` 반환, 스트리밍 의존 화면은 비어 있음 — AND-REVIEW-01 참고. [사례](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ### CONTENT-02 테스트·디버그 흔적 제거
 - 확인: 디버그 메뉴, 스테이징 URL, 테스트 결제 키, 로그의 개인정보, `usesCleartextTraffic=true`.
@@ -272,6 +290,7 @@
 - 확인: 설정 > 문의하기(메일 또는 폼); 지원 URL 페이지에 이메일.
 - 신호: `mod.contact`
 - 사례 교훈: 트위터/X 프로필이나 죽은 페이지를 지원 URL로 쓰면 거절(1.5); 이메일이 있는 실제 페이지/폼 사용. [사례](../../rejections/community-cases.md#15-developer-information-frequent-co-rejection)
+- 한국 사례: 1.5에 걸린 지원 URL — GitHub 레포 페이지, Apache 기본 페이지, 이메일 없는 노션 페이지, 한글이 인코딩되지 않은 velog URL.
 
 ### CONTENT-06 평가 요청·인센티브
 - 근거: Apple 5.6.1 "제공된 API로 리뷰 요청… 커스텀 리뷰 프롬프트 불허"; 3.2.2(x) "평가·리뷰·다른 앱 다운로드를 기능 사용 조건으로 강요 금지" / Play — 리뷰 보상·게이팅 금지
@@ -296,6 +315,7 @@
 - 근거: Apple 2.5.5 IPv6-only 지원(2016~); 백엔드/SDK가 IPv4 리터럴을 쓰면 "크래시/콘텐츠 로드 실패" 2.1 리젝의 숨은 원인
 - 확인: 하드코딩 IPv4 없음; macOS "NAT64 네트워크 생성" 핫스팟으로 테스트.
 - 수정: 호스트명 사용; API 호스트 AAAA/NAT64 호환.
+- 한국 사례: 무료 동적 DNS(DuckDNS, iptime)와 IPv4 전용 EC2는 Apple의 IPv6 전용 심사망에서 접속 불가 → 2.1 "로그인 불가/데이터 로드 안 됨" 5연속. 실제 도메인 + AAAA/NAT64 호환 호스팅. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ### CONTENT-10 숨은·휴면 기능 금지; OTA 코드 푸시 신고
 - 근거: Apple 2.3.1(a) "숨은·휴면·문서화되지 않은 기능 금지"; 2.5.2 기능을 바꾸는 코드 금지; Play 기만 행위 "숨은·휴면·문서화되지 않은 기능 금지"
@@ -312,6 +332,21 @@
 - 신호: `force.update`
 - 수정: 비교 로직 수정; 판단 로그; 스토어보다 큰 빌드 번호로 테스트.
 - 사례: [커뮤니티 — 2.1](../../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
+
+### CONTENT-12 릴리즈 동일성 & 새 설치 테스트
+- 근거: "실행/로그인 시 오류 메시지"로 읽힌 한국 2.1 리젝의 원인은 Release 전용 설정: API 호스트/포트가 Debug 스킴에만, HTTP 엔드포인트가 ATS(-1022) / AAB의 `ERR_CLEARTEXT_NOT_PERMITTED`에 막힘, 캐시된 세션에서만 되는 첫 실행 인증
+- 적용: 모든 제출
+- 확인: 초기화된 기기에 **Release** 빌드를 세션 없이 설치해 삭제 → 설치 → 가입 → 로그인 → 핵심 흐름 → 재실행; Release 설정에 프로덕션 호스트, 전 구간 HTTPS(`NSAllowsArbitraryLoads` / `usesCleartextTraffic` 우회 금지), 디버그 전용 플래그 없음.
+- 신호: `cleartext`, `test.keys`
+- 수정: 설정을 공용 위치로; 모든 엔드포인트 HTTPS; CI에 새 설치 스모크 테스트.
+- 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
+### CONTENT-13 비한국어 로케일/리전에서 실행
+- 근거: 심사관은 미국 리전에서 실행; `CFBundleDevelopmentRegion`이 `$(DEVELOPMENT_LANGUAGE)`이거나 스토리보드 현지화 테이블에 기본 언어가 없어 실행 시 크래시; 권한 다이얼로그가 다른 언어로 뜸(4.0)
+- 적용: 한국어(단일 로케일)로 개발한 앱
+- 확인: 기기 언어/지역을 en-US로 두고 Release 빌드 실행; `CFBundleDevelopmentRegion`이 구체 값(`ko_KR` 또는 `en`); 기본 언어 현지화 테이블 존재; `InfoPlist.strings` 현지화.
+- 수정: 구체적 개발 리전; Base 현지화 완성; 두 로케일 모두 테스트.
+- 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 
 ---
 
@@ -331,6 +366,7 @@
 - 확인: **UGC·채팅·친구가 있으면 "사용자 상호작용/UGC/메시지" = 예**; 웹뷰로 웹 탐색이면 무제한 웹 접근; 해당 시 루트박스/도박. 기능 변경 시 설문 재제출.
 - 신호: `ugc.*`, `webview`
 - 사례: META-03 태그 커뮤니티 사례 참고
+- 한국 사례: 웹뷰로 YouTube/외부 웹을 로드하면 등급이 12+로 상향("무제한 웹 접근") — 외부 브라우저로 열기.
 
 ### META-04 URL 동작
 - 확인: 지원·마케팅·개인정보 URL 200 + 내용. 노션은 "웹에 게시" 켜짐.
@@ -338,6 +374,13 @@
 ### META-05 심사 노트
 - 근거: Apple 2.3.1(a) "모든 신규 기능·변경은 App Store Connect의 Notes for Review에 **구체적으로** 기술(일반적 서술은 거절)"; App Review 페이지: "Incomplete information"(데모 계정, 특수 설정, 데모 영상/하드웨어)이 상위 리젝 사유 / Play Sign-in details(AND-CONSOLE-03)
 - 확인: `templates/review-notes.md` 내용이 ASC App Review Information(노트 ≤ 4000바이트, 국제 형식 전화번호) / Play Sign-in details에 있는가. 데모 계정 + 기능 위치 + 녹화 링크 + 백그라운드 모드 사유 + IAP 위치 + 조건부(지역·시간·역할) 기능 설명.
+
+### META-06 스토어 자산은 설치된 앱·도달 가능한 상태와 일치해야
+- 근거: Apple 2.3.8 "앱 마켓플레이스에 표시되는 앱 이름과 기기에 표시되는 앱 이름이 충분히 일치하지 않아"(긴 스토어 이름 vs 짧은 `CFBundleDisplayName`); Play 혼동을 야기하는 주장/메타데이터: "the app's icon or title when installed on the device differs from what is displayed in the Play Store"(적응형/모노크롬 아이콘이 흰색으로 렌더링, 옛 테스트 트랙 아이콘), 잠긴 레벨·동적 콘텐츠 스크린샷, 존재하지 않는 화면, "Identical title and description", "Your app is improperly categorized"
+- 확인: App Store/Play 제목과 런처 이름이 같은 핵심 이름(태그라인은 부제); 고해상도 아이콘과 런처 아이콘이 같은 자산(모노크롬 레이어 정리해 재생성); 모든 스크린샷이 심사관이 도달 가능한 상태(아니면 프레임 밖에 "예시" 캡션); 제목 ≠ 설명.
+- 신호: plist `CFBundleDisplayName` / `android:label` vs 스토어 이름
+- 수정: 이름·아이콘 통일; 스크린샷 재촬영; 설명을 기능 목록으로.
+- 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28), [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ---
 

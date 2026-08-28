@@ -7,7 +7,7 @@
 # 호환:  macOS 기본 bash 3.2 / BSD grep, Linux GNU grep 모두 동작.
 
 set -u
-VERSION="1.1.0"
+VERSION="1.3.0"
 ROOT="${1:-.}"
 ROOT="$(cd "$ROOT" 2>/dev/null && pwd)" || { echo "경로 없음: ${1:-.}" >&2; exit 1; }
 
@@ -305,6 +305,11 @@ sig force.update    '(forceUpdate|force_update|forcedUpdate|mustUpdate|minimumVe
 sig wakelock        '(WakeLock|wakelock|WakelockPlus|keepScreenOn|FLAG_KEEP_SCREEN_ON|isIdleTimerDisabled|keepAwake)'
 sig perm.vpn        '(VpnService|NEVPNManager|NETunnelProvider|BIND_VPN_SERVICE)'
 sig record.activity '(ReplayKit|RPScreenRecorder|MediaProjection|screenRecord|screen_record|화면 ?녹화)'
+sig carrier.auth    '(본인 ?인증|본인확인|PASS ?인증|(^|[^a-z])pass_?auth|NiceID|nice_id|kmcert|kmcis|다날|(^|[^a-z])danal|휴대폰 ?본인|carrierAuth|mobileok|kcb_)'
+sig dyn.dns         '(duckdns|no-ip\.|noip\.com|iptime\.org|ddns\.net|dynu\.com|ngrok\.io|ngrok-free|localtunnel|serveo)'
+sig sec.aws         '(AKIA[0-9A-Z]{16}|aws_secret_access_key|AWS_SECRET|BasicAWSCredentials|AWSStaticCredentialsProvider)' c
+sig sec.webview     '(Intent\.parseUri|parseUri\(|shouldOverrideUrlLoading|addJavascriptInterface|setJavaScriptEnabled\(true\)|setAllowFileAccess\(true\))'
+sig sec.webauth     '(WebView.*(oauth|login|authorize)|(oauth|authorize).*WebView|webview_flutter.*(oauth|login))'
 
 # ───────────────────────────────────────────────────────────────
 h2 "콘텐츠/메타데이터 신호"
@@ -393,7 +398,14 @@ if [ "$(cnt record.activity)" -gt 0 ]; then flag "화면/활동 녹화 신호 �
 if grep -qiE 'image_picker|file_picker|permission_handler|expo-image-picker|expo-video|agora|uploadservice|flutter_foreground_task|background_geolocation|background-actions|inappbrowser' "$DEPTMP" 2>/dev/null; then
   flag "권한을 병합 매니페스트에 주입하는 라이브러리 사용 → android.md AND-PERM-13 (build/intermediates/merged_manifests 확인, tools:node=\"remove\")"; HINTS=1
 fi
+if [ "$(cnt sec.aws)" -gt 0 ]; then flag "AWS 자격 증명 패턴(AKIA…/secret key) 신호 → android.md AND-SEC-01 (Play 'Leaked AWS credentials' 리젝; 사전 서명 URL/백엔드로 이동)"; HINTS=1; fi
+if [ "$(cnt sec.webview)" -gt 0 ]; then flag "WebView intent/JS 인터페이스 신호 → android.md AND-SEC-01 ('intent scheme hijacking', 'cross-app scripting' — loadUrl 전 URL 검증, intent:// 파싱 금지)"; HINTS=1; fi
+if [ "$(cnt sec.webauth)" -gt 0 ]; then flag "WebView 기반 OAuth 신호 → AND-SEC-01 'Authentication via WebView' 경고 + Apple 4.0 (Custom Tabs / ASWebAuthenticationSession 사용)"; HINTS=1; fi
+if [ "$(cnt carrier.auth)" -gt 0 ]; then flag "휴대폰 본인인증(PASS/NICE/KMC) 신호 → ios.md IOS-IPAD-02 (iPad Air에서 심사 시 SMS 불가 — 대체 경로 또는 UIRequiredDeviceCapabilities=telephony)"; HINTS=1; fi
+if [ "$(cnt dyn.dns)" -gt 0 ]; then flag "동적 DNS/터널 도메인 신호 → common.md CONTENT-09 (Apple IPv6-only 심사망에서 접속 불가로 2.1 리젝 사례) + CONTENT-12"; HINTS=1; fi
+if [ "$(cnt auth.kakao)" -gt 0 ] || [ "$(cnt auth.naver)" -gt 0 ]; then flag "카카오/네이버 로그인 → common.md ACC-05 (심사관 2단계 인증·카카오톡 설치 페이지 문제: 카톡 미연동 계정 + 이메일함 제공, ID/PW 또는 Apple 로그인 병행)"; HINTS=1; fi
 if [ -s "$PLISTTMP" ]; then
+  grep -q 'CFBundleDevelopmentRegion' "$PLISTTMP" && grep -A1 'CFBundleDevelopmentRegion' "$PLISTTMP" | grep -q 'DEVELOPMENT_LANGUAGE' && { flag "CFBundleDevelopmentRegion = \$(DEVELOPMENT_LANGUAGE) → common.md CONTENT-13 (미국 리전 심사 기기에서 실행 시 크래시 사례 — ko_KR/en 등 구체 값으로)"; HINTS=1; }
   [ "$(cnt perm.camera)" -gt 0 ] && ! has_plist_key NSCameraUsageDescription && ! has_plist_key NSPhotoLibraryUsageDescription && { flag "카메라/사진 신호 있으나 NSCamera/NSPhotoLibraryUsageDescription 없음 → ios.md IOS-PLIST-01"; HINTS=1; }
   [ "$(cnt perm.location)" -gt 0 ] && ! has_plist_key NSLocationWhenInUseUsageDescription && { flag "위치 신호 있으나 NSLocationWhenInUseUsageDescription 없음 → IOS-PLIST-01"; HINTS=1; }
   [ "$(cnt perm.mic)" -gt 0 ] && ! has_plist_key NSMicrophoneUsageDescription && { flag "마이크 신호 있으나 NSMicrophoneUsageDescription 없음 → IOS-PLIST-01"; HINTS=1; }

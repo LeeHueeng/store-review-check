@@ -45,8 +45,17 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 - Fix: a width-constrained container (max 600 pt, centered) as minimum effort. Or go iPhone-only (`TARGETED_DEVICE_FAMILY = 1`) — still must not crash on iPad.
 - Cases: [2026-08-27 iOS 1.2 UGC](../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — review devices included an iPad; [community](../rejections/community-cases.md#40-design--sign-in-with-apple-ux)
 
+### IOS-IPAD-02 Carrier (PASS/SMS) authentication cannot run on iPad
+- Basis: Korean 2.1 rejections on iPad Air: "Unable to proceed with PASS authentication after selecting a carrier option" — iPad has no SMS; Apple reviews iPhone-only apps on iPad anyway. `TARGETED_DEVICE_FAMILY = 1`, removing iPad screenshots/orientations and "Supported Destinations" did **not** stop the iPad review; only `UIRequiredDeviceCapabilities = [telephony]` made the app uninstallable on iPad → approved.
+- Applies: apps whose sign-up requires PASS / carrier SMS verification (본인인증) or phone-only flows
+- Verify: a non-SMS fallback exists (email OTP, Sign in with Apple), or `UIRequiredDeviceCapabilities` includes `telephony` (accepting that the app won't install on iPad / Wi-Fi-only devices).
+- Signals: `auth.phone`, `carrier.auth`
+- Fix: add a fallback path, or declare `telephony`.
+- Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
 ### IOS-UI-01 Basic polish (4.0 Design)
 - Verify: dark-mode breakage (force light with `UIUserInterfaceStyle = Light` if needed), safe area / notch / Dynamic Island overlap, keyboard covering inputs, empty states, clipping with large Dynamic Type.
+- Korean case: opening Safari for sign-up or account deletion is a 4.0 rejection ("taken to the default web browser… poor user experience") — use `SFSafariViewController` / `ASWebAuthenticationSession`.
 
 ### IOS-UI-02 No private APIs or downloaded code (2.5.1 / 2.5.2)
 - Verify: plugins using private APIs (shows up as ITMS warnings on upload). Code push (CodePush/Shorebird…) allowed only when it doesn't change the app's primary purpose.
@@ -122,6 +131,7 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 ### IOS-META-04 Minimum Xcode / SDK
 - Basis: https://developer.apple.com/news/upcoming-requirements/ — "Apps uploaded to App Store Connect must be built with Xcode 26 or later using an SDK for iOS 26, iPadOS 26, tvOS 26, visionOS 26, or watchOS 26", effective **2026-04-28** (watchOS apps also 64-bit). Apple moves this every April.
 - Verify: `xcodebuild -version` ≥ 26; Flutter/RN/Expo version supports the iOS 26 SDK. CI images updated.
+- Korean case (2026-03): a vendor SDK bundling binaries built with a newer SDK than your Xcode (Realm inside Kakao Navi KNSDK-UI 1.12.16) fails upload with ITMS-90512 "Invalid SDK value" / ITMS-91065 "Missing signature"; re-signing breaks the signature — downgrade or update the SDK.
 
 ### IOS-META-05 Version & build numbers
 - Verify: bump `CFBundleVersion` (build) on resubmission. `MARKETING_VERSION` matches the store version.

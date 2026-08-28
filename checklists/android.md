@@ -20,6 +20,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 ### AND-BUILD-01 Signing & bundle
 - Verify: AAB upload (required for new apps since 2021-08), signed with the upload key (no `signingConfigs.debug` in release; upload key "Must be an RSA key of 2048 bits or more"), Play App Signing enrolled, `debuggable false`, `minifyEnabled` (25% code optimization becomes a quality requirement 2027-02), arm64-v8a included ("Apps that contain native code must support 64-bit only architectures").
 - Signals: Gradle section
+- Korean cases: `versionCode` must strictly increase across versionName bumps (`1.0.1+0` after `1.0.0+7` was refused as "앱 업데이트가 거부되었습니다"); an AAB built on another machine with a different upload key fails re-review.
 
 ### AND-BUILD-02 Manifest essentials
 - Verify: explicit `android:exported` (API 31+, components with intent filters), remove `usesCleartextTraffic="true"` or restrict via network_security_config, intentional `allowBackup`.
@@ -50,6 +51,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Type guide: keeping a timer notification alive → `specialUse` (subtype property + form) or `shortService` (3 min). White-noise playback → `mediaPlayback`. Tracking → `location`. Uploads → `dataSync` (restricted).
 - Signals: auto-hint (`FOREGROUND_SERVICE` without a type)
 - Fix: manifest type + permission + `startForeground(id, notification, type)` + console form + demo video.
+- Play 2nd-pass cases: SDKs (Zoom Meeting SDK, background-geolocation, expo-video) declare FGS types you don't use — remove the matching `FOREGROUND_SERVICE_*` permissions and `tools:replace="android:foregroundServiceType"` on the SDK service; Organic Maps was refused `specialUse` ("when it is not required to do so") until it used typed services with per-feature videos; `FOREGROUND_SERVICE_SPECIAL_USE` in the manifest alone triggers the declaration gate on upload.
 
 ### AND-PERM-06 Accessibility services
 - Basis: `BIND_ACCESSIBILITY_SERVICE` only for assisting users with disabilities. Other uses (app blocking, automation) must be declared as "non-accessibility" in the form + prominent disclosure + consent. High rejection rate.
@@ -75,6 +77,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Applies: timer-end alerts
 - Verify: a timer app justifies `USE_EXACT_ALARM` (declare it). Notification channel importance; full-screen intent usage.
 - From cases: `USE_FULL_SCREEN_INTENT` often arrives from notification libraries — remove with `tools:node="remove"` if not an alarm/call app; check `canScheduleExactAlarms()` before scheduling on Android 14+ (Play flags apps that don't).
+- Play 2nd-pass cases: Notifee < 9 adds `USE_FULL_SCREEN_INTENT`; ML Kit's datatransport telemetry uses `AlarmManager.setExact` → exact-alarm warnings; the Play Developer API refuses uploads with "You must let us know whether your app uses any exact alarm permissions" until the declaration exists. A non-alarm app that auto-dismissed its full-screen intent after a few minutes passed.
 
 ### AND-PERM-11 POST_NOTIFICATIONS (13+)
 - Verify: targetSdk 33+ requires the runtime notification permission. Denied → timer-end notifications won't show, so request in context + explain on denial.
@@ -97,6 +100,20 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Applies: `perm.vpn` > 0
 - Verify: use case matches the list; declaration form submitted; VpnService removed if not core.
 
+### AND-PERM-15 REQUEST_INSTALL_PACKAGES
+- Basis: "Permission use is not directly related to your app's core purpose. We found that your app is not compliant with how REQUEST_INSTALL_PACKAGES permission is allowed to be used… Please remove the use of REQUEST_INSTALL_PACKAGES permission from your app." Allowed only for apps whose core purpose delivers packages (browsers, file sharing/transfer, enterprise device management, backup/restore).
+- Applies: injected by `open_file` (Flutter), in-app updater plugins, file managers
+- Verify: not in the merged manifest unless the app installs packages; declaration submitted if it does.
+- Fix: switch plugin (`open_filex`) or `tools:node="remove"`.
+- Cases: [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
+### AND-SEC-01 App-security scanner flags
+- Basis: Play's security review rejects builds for "Leaked AWS credentials / Your app contains Exposed Amazon Web Services Credentials", "intent scheme hijacking" (`Intent.parseUri` from web content in `shouldOverrideUrlLoading`), "Your app(s) are using a WebView that is vulnerable to cross-app scripting" (unvalidated `loadUrl` from intents/push), and warns on "Authentication via WebView"
+- Applies: any app with a WebView, embedded cloud keys, or WebView-based OAuth
+- Verify: no client-side secrets (use pre-signed URLs / a backend); validate every URL before `loadUrl` (`Patterns.WEB_URL`, allow-list hosts); never parse `intent://` URIs from web content; OAuth via Custom Tabs / AppAuth, not a WebView.
+- Fix: as above; resubmit — the scanner re-checks the new AAB.
+- Cases: [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
 ---
 
 ## Play Console declarations (outside the code)
@@ -111,10 +128,12 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 ### AND-CONSOLE-03 Sign-in details (formerly "App access")
 - Basis: Play Console > Policy and programs > App content > **Sign-in details** ("up to five sets of instructions"; "Any other instructions" for OTP/MFA). Requirements: "Your sign-in details must be accessible at all times, reusable, and valid regardless of user location… If your app typically requires a 2-Step verification code or One-time password, make sure to provide reusable login credentials that can bypass these requirements… must be provided in English… If the provided password expires, we may not be able to review your app and, therefore, the app may be rejected." Paywalled content needs access instructions too. Rejections show up as "Broken Functionality" / could not verify.
 - Verify: `templates/review-notes.md` Android part; social-login-only → email reviewer account (ACC-03); credentials tested from a foreign IP.
+- Korean cases: Play does **not** accept demo videos instead of credentials; QR/hardware-gated apps must provide long-lived codes; Hangul IDs and admin accounts are refused; Kakao/Naver/Google-only login is not accepted — add ID/password login (ACC-05).
 
 ### AND-CONSOLE-04 Advertising ID & "contains ads"
 - Basis: `AD_ID` permission declaration (targetSdk 33+, merged by ad SDKs) + Data safety advertising ID + "Contains ads" declaration. Not using the ad ID → `tools:node="remove"` and answer "No".
 - Signals: auto-hint
+- Play 2nd-pass cases: with Firebase Analytics and no ads, answer the Advertising ID declaration **Yes** (analytics use case) rather than stripping the permission — Google support's own advice; contradictory errors in both directions usually mean an older active bundle differs (AND-CONSOLE-11).
 
 ### AND-CONSOLE-05 Content rating (IARC)
 - Basis: unfinished questionnaire blocks publishing. **UGC / chat / friends → answer "users interact / share information" = Yes.** False answers are a suspension reason.
@@ -128,6 +147,7 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 ### AND-CONSOLE-07 Target audience & children
 - Basis: Target audience and content questionnaire (age groups 5 and under / 6–8 / 9–12 / 13–15 / 16–17 / 18+). Including children triggers the **Families policy**: "Only use Google Play Families Self-Certified Ads SDKs" (the program is "currently not accepting new applicants"; AdMob ≥19, Unity Ads, ironSource… listed; AppLovin exited), no interest-based ads, child-only apps must not transmit AAID/IMEI etc., AR safety warning, social apps "an in-app reminder to be safe online"; mixed audience → "a neutral age screen must be implemented"; "Google Play may reject your app" if assets appeal to children unintentionally; review "up to 7 days or longer". Since 2026-07-15 social apps focused on chatting with strangers or anonymously must not target children.
 - Verify: store copy ("students", "kids") ↔ target audience; ad SDK is on the self-certified list if children are included.
+- Play 2nd-pass cases: "non-certified ad SDKs" fired for Stripe (not an ad SDK), Adjust, Amplitude, AdMob without child-directed tagging; the fix is `tagForChildDirectedTreatment` / removing the SDK / `AD_ID tools:node="remove"`. A **neutral age screen** must let users freely enter month/day/year — three age buttons are not neutral — and nothing (Play Games auto sign-in, analytics) may send the AAID before it. "App stability" rejections under Families came from on-demand asset packs failing in the review environment (AND-REVIEW-01).
 
 ### AND-CONSOLE-08 Account-deletion URL
 - Basis: apps with account creation must provide Data safety > "Account deletion request URL" + in-app deletion. `common.md` ACC-02.
@@ -148,6 +168,13 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Verify: Play Console > Releases: every active track's latest release is the fixed build (or the track is paused/deactivated); App bundle explorer shows no older bundles with the permission.
 - Fix: promote the fixed build to all tracks or deactivate them; then resubmit; still submit any required declaration form even if the permission is now gone.
 - Cases: [community](../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video)
+- Korean case: the violation cited version code 3 in the **open-testing** track after VC 6 was fixed — create a release in that track from the fixed bundle so the old one deactivates; test-track bundles cannot be deleted, only overlaid.
+
+### AND-CONSOLE-12 Government-information apps
+- Basis: Misleading Claims rejections "Your app doesn't provide a clear source of government information or its description lacks an easy-to-see disclaimer stating that the app doesn't represent a government entity" / "Identify a clear source of government information"; disclaimers alone rarely pass — cases passed only with the Government apps declaration + written authorization, an in-app about/disclaimer page, and fully-formed source URLs in the description (reviewers copy them verbatim)
+- Applies: apps republishing or embedding government/public-sector content (also see AND-META-04 for Korean cases)
+- Verify: Government apps declaration answered; authorization letter if claiming affiliation; disclaimer in the listing **and** in-app; every source URL complete and reachable; no embedded government websites without permission.
+- Cases: [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ---
 
@@ -163,6 +190,12 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 ### AND-META-03 Developer information
 - Basis: email required; organizations need D-U-N-S + public address/phone (2024~); individuals show name + email; address public for paid/IAP apps.
 
+### AND-META-04 Source citations & non-affiliation for public-information apps
+- Basis: Play "Misleading claims" rejection "제공된 출처가 불충분함": government/public-information apps must cite every source with a working official URL and must not imply government affiliation ("공식", "정부 제공", "국가 인증")
+- Applies: apps republishing government, medical, legal or financial information
+- Verify: each content item links to its official source; a disclaimer such as "This app is not affiliated with or endorsed by any government agency" in the listing and in-app.
+- Cases: [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
 ---
 
 ## Testing & account
@@ -171,13 +204,16 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Basis: **personal** accounts created after 2023-11-13 must run a closed test with **12+ testers opted in for 14 consecutive days** before applying for production access (questionnaire).
 - Verify: account creation date and type. If it applies, plan at least two weeks.
 - From cases: Google rejects production access when "testers did not engage" — 12 opted-in accounts that never open the app fail; give testers free rein, then answer the production-access questions with ≥ 3 substantive lines each (crash-free statement, concrete feedback, planned changes).
+- Korean cases (2024–2026): keep ≥ 12 opted-in testers **until the end** (recruit 30+; 품앗이 / paid testers drop out), require real sessions, ship 2–3 updates during the test, answer each questionnaire item in detail; a stalled application was approved the day after the closed track was updated.
 
 ### AND-ACCOUNT-01 Account verification
 - Basis: identity verification (ID, phone, email); organizations need D-U-N-S. Publishing is blocked until complete.
+- Korean cases: 주민등록등본 (정부24) passes fastest, but the payments-profile address must match the document character-for-character (지번 vs 도로명); mask ID digits; statements without an address fail.
 
 ### AND-ACCOUNT-02 App registration (2026) & organization requirement
 - Basis: Play Console requires **app registration by 2026-09-30** — unregistered apps face "global removal from Google Play"; financial, health, VPN and government apps "must register as an Organization" (D-U-N-S). Developer details (legal name/address/email/phone) are shown publicly; monetizing accounts must show their full address.
 - Verify: every published app registered; account type matches the app category.
+- Play 2nd-pass cases: "Some types of apps can only be distributed by organizations" (Play Console Requirements policy) fires for healthcare and "earn money"/rewards apps even after converting to an organization with D-U-N-S — a support ticket was needed for the Console to recognize the change; a company publishing from an individual account since 2016 had all apps removed until a new organization account + app transfer.
 
 ### AND-QUALITY-01 Technical quality thresholds
 - Basis: Play technical quality requirements — user-perceived crash rate ≤ 1.09% and ANR rate ≤ 0.47% (bad-behavior thresholds affect visibility/warnings); native code 64-bit + 16 KB; from 2027-02 apps must apply ≥25% code optimization (R8) and memory limits; Zero-Tap Sign-In from 2027-04 (announced). Suspensions count as strikes (enforcement policy).
@@ -189,6 +225,18 @@ Written as of 2026-08-28 against the Policy Center (https://support.google.com/g
 - Signals: `wakelock`
 - Fix: replace `WakeLock` with `FLAG_KEEP_SCREEN_ON` on the activity; if flagged, do **not** re-upload — appeal with VirusTotal report, source excerpts and a gameplay/feature video, and get the AV vendor to clear the detection first.
 - Cases: [community](../rejections/community-cases.md#closed-testing-malware-false-positives-verification-target-api-16-kb)
+
+### AND-ENFORCE-01 Rejection strikes, suspensions and account association
+- Basis: "Violation of Enforcement Process policy… Suspension can occur as the result of egregious or multiple policy violations, as well as repeated app rejections or removals… you can submit an updated, policy compliant app using a new package name and a new app name"; suspended apps cannot be updated; resubmitting under a near-identical package/app name after a suspension is read as review evasion (「危険性の高いパターンまたは不正使用のパターンが検出された」); inviting a Console user tied to a terminated account suspends the whole account ("prior violation of associated, previously terminated account")
+- Applies: every developer
+- Verify/Rules: stop after the **second** rejection of the same build — self-test from the internal track and appeal instead of re-uploading; never re-upload the same or near-identical package after a suspension; vet every invited Console user; keep a written appeal that names the exact change made.
+- Cases: [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
+### AND-REVIEW-01 The review environment is not the Play Store
+- Basis: reviewers install the **Play-signed** build (different key than the pre-launch report → Google/Firebase sign-in, App Check and some libraries fail), Play Asset Delivery on-demand packs return `AppNotOwned` / `AppUnavailable` / `InternalError`, networking may be off, live/stream-dependent screens are empty, older credentials in other releases are used
+- Applies: every submission
+- Verify: both upload and app-signing SHA-1/256 registered everywhere (Firebase, Google Cloud OAuth, Kakao/Naver key hashes); first-session asset packs are install-time; explicit offline/empty-state messages; install the internal-track build yourself before submitting; Sign-in details updated in the same submission as the build.
+- Cases: [Play 2nd pass](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ---
 

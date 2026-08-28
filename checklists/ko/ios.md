@@ -44,8 +44,17 @@
 - 수정: 폭 제한 컨테이너(max 600pt 중앙) 최소 대응. 또는 iPhone 전용 — 그래도 iPad 크래시 금지.
 - 사례: [2026-08-27 iOS 1.2 UGC](../../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — 심사 기기에 iPad; [커뮤니티](../../rejections/community-cases.md#40-design--sign-in-with-apple-ux)
 
+### IOS-IPAD-02 휴대폰 본인인증(PASS/SMS)은 iPad에서 불가
+- 근거: iPad Air 심사에서의 한국 2.1 리젝: "Unable to proceed with PASS authentication after selecting a carrier option" — iPad엔 SMS가 없는데 Apple은 iPhone 전용 앱도 iPad로 심사. `TARGETED_DEVICE_FAMILY = 1`, iPad 스크린샷/방향 제거, "Supported Destinations"로는 iPad 심사를 막지 **못했고**, `UIRequiredDeviceCapabilities = [telephony]`로 iPad 설치 불가 처리 후 승인.
+- 적용: 가입에 PASS/통신사 SMS 본인인증이 필요한 앱, 휴대폰 전용 흐름
+- 확인: SMS 외 대체 경로(이메일 OTP, Sign in with Apple) 존재, 또는 `UIRequiredDeviceCapabilities`에 `telephony`(iPad·Wi-Fi 전용 기기 설치 불가 감수).
+- 신호: `auth.phone`, `carrier.auth`
+- 수정: 대체 경로 추가 또는 `telephony` 선언.
+- 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
 ### IOS-UI-01 기본 완성도 (4.0 Design)
 - 확인: 다크 모드 깨짐(필요 시 `UIUserInterfaceStyle = Light`), safe area·노치·Dynamic Island 침범, 키보드가 입력창 가림, 빈 상태, 큰 Dynamic Type에서 잘림.
+- 한국 사례: 가입·탈퇴를 Safari로 열면 4.0 리젝("default web browser… poor user experience") — `SFSafariViewController` / `ASWebAuthenticationSession` 사용.
 
 ### IOS-UI-02 비공개 API·다운로드 코드 금지 (2.5.1 / 2.5.2)
 - 확인: private API를 쓰는 플러그인(업로드 시 ITMS 경고). 코드 푸시(CodePush/Shorebird…)는 앱의 주 목적을 바꾸지 않는 범위에서만.
@@ -121,6 +130,7 @@
 ### IOS-META-04 최소 Xcode / SDK
 - 근거: https://developer.apple.com/news/upcoming-requirements/ — "Xcode 26 이상, iOS 26/iPadOS 26/tvOS 26/visionOS 26/watchOS 26 SDK로 빌드", **2026-04-28** 시행(watchOS는 64비트도). 매년 4월 갱신.
 - 확인: `xcodebuild -version` ≥ 26; Flutter/RN/Expo가 iOS 26 SDK 지원; CI 이미지 갱신.
+- 한국 사례(2026-03): 벤더 SDK가 내 Xcode보다 새 SDK로 빌드된 바이너리를 번들(Kakao Navi KNSDK-UI 1.12.16의 Realm)하면 ITMS-90512 "Invalid SDK value" / ITMS-91065 "Missing signature"로 업로드 실패; 재서명은 서명을 깨뜨림 — SDK 다운/업그레이드.
 
 ### IOS-META-05 버전·빌드 번호
 - 확인: 재제출 시 `CFBundleVersion` 증가. `MARKETING_VERSION`은 스토어 버전과 일치.

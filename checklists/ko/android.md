@@ -19,6 +19,7 @@
 ### AND-BUILD-01 서명·번들
 - 확인: AAB 업로드(2021-08부터 신규 앱 필수), 업로드 키 서명(릴리즈에 `signingConfigs.debug` 금지; 업로드 키 "RSA 2048비트 이상"), Play 앱 서명, `debuggable false`, `minifyEnabled`(2027-02부터 25% 코드 최적화가 품질 요건), arm64-v8a 포함("네이티브 코드 앱은 64비트 필수").
 - 신호: Gradle 섹션
+- 한국 사례: `versionCode`는 versionName이 올라가도 반드시 증가(`1.0.0+7` 뒤 `1.0.1+0`은 "앱 업데이트가 거부되었습니다"); 다른 PC에서 다른 업로드 키로 만든 AAB는 재심사 실패.
 
 ### AND-BUILD-02 매니페스트 필수 속성
 - 확인: `android:exported` 명시(API 31+, 인텐트 필터 컴포넌트), `usesCleartextTraffic="true"` 제거 또는 network_security_config로 도메인 한정, `allowBackup` 의도 확인.
@@ -49,6 +50,7 @@
 - 타입 가이드: 타이머 알림 유지 → `specialUse`(서브타입 속성 + 양식) 또는 `shortService`(3분). 백색소음 재생 → `mediaPlayback`. 추적 → `location`. 업로드 → `dataSync`(제한).
 - 신호: 자동 힌트(`FOREGROUND_SERVICE` 있으나 타입 없음)
 - 수정: 매니페스트 타입 + 권한 + `startForeground(id, notification, type)` + 콘솔 양식 + 데모 영상.
+- Play 2차 사례: SDK(Zoom Meeting SDK, background-geolocation, expo-video)가 쓰지 않는 FGS 타입을 선언 — 해당 `FOREGROUND_SERVICE_*` 권한 제거 + SDK 서비스에 `tools:replace="android:foregroundServiceType"`; Organic Maps는 `specialUse`를 "필요 없을 때 사용"으로 거절당했다가 기능별 영상 + 타입 지정 서비스로 승인; 매니페스트의 `FOREGROUND_SERVICE_SPECIAL_USE`만으로 업로드 시 선언 게이트 발동.
 
 ### AND-PERM-06 접근성 서비스
 - 근거: `BIND_ACCESSIBILITY_SERVICE`는 장애 보조 목적만. 그 외(앱 차단, 자동화)는 양식에서 "접근성 이외 용도" 신고 + 눈에 띄는 고지 + 동의. 거부율 높음.
@@ -74,6 +76,7 @@
 - 적용: 타이머 종료 알림
 - 확인: 타이머 앱은 `USE_EXACT_ALARM` 정당(선언). 알림 채널 중요도; 전체화면 인텐트 사용.
 - 사례 교훈: `USE_FULL_SCREEN_INTENT`는 알림 라이브러리가 넣는 경우가 많음 — 알람/통화 앱이 아니면 `tools:node="remove"`; Android 14+에서 예약 전 `canScheduleExactAlarms()` 확인(안 하면 Play가 지적).
+- Play 2차 사례: Notifee < 9가 `USE_FULL_SCREEN_INTENT` 추가; ML Kit의 datatransport 텔레메트리가 `AlarmManager.setExact` 사용 → 정확한 알람 경고; Play Developer API는 선언 전까지 "You must let us know whether your app uses any exact alarm permissions"로 업로드 거부. 알람 앱이 아닌데 전체화면 인텐트를 몇 분 뒤 자동 닫기로 처리한 앱은 통과.
 
 ### AND-PERM-11 POST_NOTIFICATIONS (13+)
 - 확인: targetSdk 33+는 런타임 알림 권한. 거부 시 타이머 종료 알림 안 뜸 → 맥락 있는 요청 + 거부 시 안내.
@@ -96,6 +99,20 @@
 - 적용: `perm.vpn` > 0
 - 확인: 용도가 목록에 해당; 선언 양식 제출; 핵심이 아니면 VpnService 제거.
 
+### AND-PERM-15 REQUEST_INSTALL_PACKAGES
+- 근거: "Permission use is not directly related to your app's core purpose… not compliant with how REQUEST_INSTALL_PACKAGES permission is allowed to be used… Please remove the use of REQUEST_INSTALL_PACKAGES permission from your app." 패키지 전달이 핵심 목적인 앱(브라우저, 파일 공유/전송, 기업 기기 관리, 백업/복원)만 허용.
+- 적용: `open_file`(Flutter), 앱 내 업데이터 플러그인, 파일 관리자가 주입
+- 확인: 패키지를 설치하는 앱이 아니면 병합 매니페스트에 없음; 설치한다면 선언 제출.
+- 수정: 플러그인 교체(`open_filex`) 또는 `tools:node="remove"`.
+- 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
+### AND-SEC-01 앱 보안 스캐너 플래그
+- 근거: Play 보안 검토가 빌드를 거절: "Leaked AWS credentials / Your app contains Exposed Amazon Web Services Credentials", "intent scheme hijacking"(`shouldOverrideUrlLoading`에서 웹 콘텐츠의 `Intent.parseUri`), "WebView that is vulnerable to cross-app scripting"(인텐트/푸시에서 온 URL을 검증 없이 `loadUrl`), 경고 "Authentication via WebView"
+- 적용: WebView, 내장 클라우드 키, WebView 기반 OAuth가 있는 모든 앱
+- 확인: 클라이언트에 비밀 없음(사전 서명 URL/백엔드); `loadUrl` 전 URL 검증(`Patterns.WEB_URL`, 호스트 허용 목록); 웹 콘텐츠의 `intent://` URI 파싱 금지; OAuth는 Custom Tabs/AppAuth.
+- 수정: 위와 같이 고친 뒤 재제출 — 스캐너가 새 AAB를 재검사.
+- 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
 ---
 
 ## Play Console 선언 (코드 밖)
@@ -110,10 +127,12 @@
 ### AND-CONSOLE-03 Sign-in details (구 "앱 액세스")
 - 근거: Play Console > 정책 및 프로그램 > App content > **Sign-in details**("안내 최대 5세트"; OTP/MFA는 "기타 안내"). 요건: "항상 접근 가능, 재사용 가능, 사용자 위치와 무관하게 유효… 2단계 인증/OTP가 필요하면 이를 우회하는 재사용 가능 자격 증명… 영어로 제공… 비밀번호 만료 시 심사 불가로 거부 가능". 유료 콘텐츠도 접근 안내. 거부는 "Broken Functionality"/확인 불가로 나타남.
 - 확인: `templates/review-notes.md` Android 부분; 소셜 로그인만 → 이메일 리뷰어 계정(ACC-03); 해외 IP에서 자격 증명 테스트.
+- 한국 사례: Play는 자격 증명 대신 데모 영상을 **받지 않음**; QR/하드웨어 게이트 앱은 장기 코드 제공; 한글 ID·관리자 계정 거부; 카카오/네이버/구글만 있는 로그인 불인정 — ID/PW 로그인 추가(ACC-05).
 
 ### AND-CONSOLE-04 광고 ID·광고 포함
 - 근거: `AD_ID` 권한 선언(targetSdk 33+, 광고 SDK가 병합) + Data safety 광고 ID + "광고 포함" 선언. 광고 ID 안 쓰면 `tools:node="remove"` 후 "아니오".
 - 신호: 자동 힌트
+- Play 2차 사례: Firebase Analytics만 있고 광고가 없으면 광고 ID 선언에 **예**(분석 용도)로 답하라는 것이 Google 지원의 조언 — 권한 제거보다 안전; 양방향 모순 오류는 대개 옛 활성 번들이 다르기 때문(AND-CONSOLE-11).
 
 ### AND-CONSOLE-05 콘텐츠 등급 (IARC)
 - 근거: 설문 미완료 시 게시 불가. **UGC·채팅·친구 → "사용자 상호작용/정보 공유" = 예**. 허위 답변은 정지 사유.
@@ -127,6 +146,7 @@
 ### AND-CONSOLE-07 타깃 연령·아동
 - 근거: 타깃층·콘텐츠 설문(5세 이하 / 6–8 / 9–12 / 13–15 / 16–17 / 18+). 아동 포함 시 **Families 정책**: "Families 자가 인증 광고 SDK만 사용"(프로그램은 "현재 신규 신청 미접수"; AdMob ≥19, Unity Ads, ironSource… 목록; AppLovin 탈퇴), 관심 기반 광고 금지, 아동 전용 앱은 AAID/IMEI 등 전송 금지, AR 안전 경고, 소셜 앱 "온라인 안전 앱 내 안내"; 혼합 연령 → "중립 연령 화면 필수"; 의도치 않게 아동에게 어필하면 "거부 가능"; 검토 "최대 7일 이상". 2026-07-15부터 낯선 사람·익명 채팅 중심 소셜 앱은 아동 타깃 불가.
 - 확인: 스토어 문구("학생", "어린이") ↔ 타깃 연령; 아동 포함 시 광고 SDK가 자가 인증 목록에 있는지.
+- Play 2차 사례: "non-certified ad SDKs"가 Stripe(광고 SDK 아님), Adjust, Amplitude, 아동 태깅 없는 AdMob에서 발생; 해결은 `tagForChildDirectedTreatment` / SDK 제거 / `AD_ID tools:node="remove"`. **중립 연령 화면**은 월/일/년을 자유 입력해야 — 연령대 버튼 3개는 중립이 아님 — 그 전에 아무것도(Play Games 자동 로그인, 분석) AAID를 보내면 안 됨. Families의 "App stability" 리젝은 심사 환경에서 온디맨드 에셋 팩 실패 때문(AND-REVIEW-01).
 
 ### AND-CONSOLE-08 계정 삭제 URL
 - 근거: 계정 생성 앱은 Data safety > "계정 삭제 요청 URL" + 앱 내 삭제. `common.md` ACC-02.
@@ -147,6 +167,13 @@
 - 확인: Play Console > 출시: 모든 활성 트랙의 최신 출시가 수정 빌드(또는 트랙 일시중지/비활성); 앱 번들 탐색기에 문제 권한의 옛 번들 없음.
 - 수정: 수정 빌드를 모든 트랙에 승격하거나 트랙 비활성화; 재제출; 권한이 사라졌어도 필요한 선언 양식은 제출.
 - 사례: [커뮤니티](../../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video)
+- 한국 사례: VC 6을 고친 뒤에도 **공개 테스트** 트랙의 VC 3이 지적됨 — 그 트랙에 수정 번들로 릴리즈를 만들어 옛 번들을 비활성화; 테스트 트랙 번들은 삭제 불가, 덮어쓰기만 가능.
+
+### AND-CONSOLE-12 정부 정보 앱
+- 근거: 혼동을 야기하는 주장 리젝 "Your app doesn't provide a clear source of government information or its description lacks an easy-to-see disclaimer stating that the app doesn't represent a government entity" / "Identify a clear source of government information"; 고지문만으로는 거의 통과 못 함 — 정부 앱 선언 + 서면 승인, 앱 내 소개/고지 페이지, 설명의 완전한 출처 URL(심사관이 그대로 복사)이 있어야 통과
+- 적용: 정부/공공 콘텐츠를 재게시·임베드하는 앱(한국 사례는 AND-META-04)
+- 확인: 정부 앱 선언 답변; 제휴 주장 시 승인 서한; 등록정보 **와** 앱 내 고지; 모든 출처 URL 완전·접속 가능; 허가 없는 정부 사이트 임베드 없음.
+- 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ---
 
@@ -162,6 +189,12 @@
 ### AND-META-03 개발자 정보 공개
 - 근거: 이메일 필수; 조직은 D-U-N-S + 주소·전화 공개(2024~); 개인은 이름·이메일 공개; 유료/IAP 시 주소 공개.
 
+### AND-META-04 공공정보 앱의 출처 표기·비제휴 고지
+- 근거: Play "혼동을 야기하는 주장" 리젝 "제공된 출처가 불충분함": 정부/공공정보 앱은 모든 출처에 동작하는 공식 URL을 달고 정부 제휴를 암시하면 안 됨("공식", "정부 제공", "국가 인증")
+- 적용: 정부·의료·법률·금융 정보를 재게시하는 앱
+- 확인: 각 콘텐츠에 공식 출처 링크; 등록정보와 앱 내에 "본 앱은 정부 기관을 대표하거나 정부와 제휴한 서비스가 아닙니다" 류 고지.
+- 사례: [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
+
 ---
 
 ## 테스트·계정
@@ -170,13 +203,16 @@
 - 근거: "2023-11-13 이후 생성된 **개인** 계정은 프로덕션 접근 신청 전 **12명 이상 테스터가 14일 연속 옵트인**한 비공개 테스트 필수"; "테스터가 옵트아웃 후 다시 옵트인하면 14일은 연속이어야". 신청 설문.
 - 확인: 계정 생성일·유형. 해당되면 최소 2주 일정.
 - 사례 교훈: "테스터가 참여하지 않았다"며 프로덕션 접근 거부 — 옵트인만 하고 앱을 열지 않은 12개 계정은 실패; 테스터에게 자유 탐색을 맡기고, 신청 문항마다 ≥3줄의 실질적 답변(크래시 없음 명시, 구체적 피드백, 개선 계획).
+- 한국 사례(2024~2026): 12명 이상 옵트인을 **끝까지** 유지(30명 이상 모집; 품앗이/유료 테스터는 이탈), 실제 사용 세션, 테스트 중 2~3회 업데이트, 설문 항목마다 상세 답변; 멈춰 있던 신청이 비공개 트랙 업데이트 다음 날 승인된 사례.
 
 ### AND-ACCOUNT-01 계정 인증
 - 근거: 신분증이 결제 프로필과 일치; 조직은 D-U-N-S; 개발자 정보 공개. 미완료 시 게시 불가.
+- 한국 사례: 주민등록등본(정부24)이 가장 잘 통과하지만 결제 프로필 주소가 문서와 글자 단위로 일치해야(지번 vs 도로명); 주민번호 뒷자리 마스킹; 주소 없는 명세서는 실패.
 
 ### AND-ACCOUNT-02 앱 등록(2026) & 조직 요건
 - 근거: Play Console **앱 등록 2026-09-30까지** — 미등록 앱은 "Google Play에서 전 세계 삭제"; 금융·건강·VPN·정부 앱은 "조직으로 등록 필수"(D-U-N-S). 개발자 정보(법적 이름/주소/이메일/전화) 공개; 수익화 계정은 전체 주소 공개.
 - 확인: 게시된 모든 앱 등록; 계정 유형이 앱 카테고리와 일치.
+- Play 2차 사례: "Some types of apps can only be distributed by organizations"(Play Console 요구사항 정책)가 헬스케어·"돈 벌기"/리워드 앱에서 D-U-N-S로 조직 전환한 뒤에도 발생 — 콘솔이 변경을 인식하려면 지원 티켓 필요; 2016년부터 개인 계정으로 배포한 회사는 새 조직 계정 + 앱 이전 전까지 전 앱 삭제.
 
 ### AND-QUALITY-01 기술 품질 기준
 - 근거: Play 기술 품질 요건 — 사용자 체감 크래시율 ≤ 1.09%, ANR ≤ 0.47%(초과 시 노출·경고); 네이티브 코드 64비트 + 16KB; 2027-02부터 ≥25% 코드 최적화(R8)와 메모리 제한; Zero-Tap Sign-In 2027-04(발표). 정지는 스트라이크로 누적(집행 정책).
@@ -188,6 +224,18 @@
 - 신호: `wakelock`
 - 수정: `WakeLock` 대신 액티비티 `FLAG_KEEP_SCREEN_ON`; 플래그되면 **재업로드 금지** — VirusTotal 보고서·소스 발췌·기능 영상으로 이의 제기, AV 벤더의 오탐 해제 먼저.
 - 사례: [커뮤니티](../../rejections/community-cases.md#closed-testing-malware-false-positives-verification-target-api-16-kb)
+
+### AND-ENFORCE-01 리젝 누적·정지·계정 연관
+- 근거: "Violation of Enforcement Process policy… Suspension can occur as the result of egregious or multiple policy violations, as well as repeated app rejections or removals… you can submit an updated, policy compliant app using a new package name and a new app name"; 정지된 앱은 업데이트 불가; 정지 후 거의 같은 패키지/앱 이름으로 재제출하면 심사 회피로 간주(「危険性の高いパターンまたは不正使用のパターンが検出された」); 종료된 계정과 연결된 사용자를 콘솔에 초대하면 계정 전체 정지("prior violation of associated, previously terminated account")
+- 적용: 모든 개발자
+- 확인/규칙: 같은 빌드가 **두 번** 거절되면 멈추고 내부 트랙에서 자가 테스트 + 이의 제기(재업로드 금지); 정지 후 같은/유사 패키지 재업로드 금지; 콘솔에 초대하는 사용자 검증; 정확한 변경 내용을 적은 이의 제기문 보관.
+- 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+
+### AND-REVIEW-01 심사 환경은 Play 스토어가 아니다
+- 근거: 심사관은 **Play 서명** 빌드를 설치(사전 출시 보고서와 다른 키 → Google/Firebase 로그인, App Check, 일부 라이브러리 실패); Play Asset Delivery 온디맨드 팩은 `AppNotOwned` / `AppUnavailable` / `InternalError`; 네트워크가 꺼져 있을 수 있음; 실시간/스트리밍 의존 화면은 비어 있음; 다른 릴리즈의 옛 자격 증명이 사용됨
+- 적용: 모든 제출
+- 확인: 업로드 키와 앱 서명 키 SHA-1/256을 모든 곳(Firebase, Google Cloud OAuth, 카카오/네이버 키해시)에 등록; 첫 세션 에셋 팩은 설치 시 포함; 명시적 오프라인/빈 상태 메시지; 제출 전 내부 트랙 빌드를 직접 설치; Sign-in details를 빌드와 같은 제출에서 갱신.
+- 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 
 ---
 

@@ -94,6 +94,10 @@ In B, if the project path is known also run A focused on the affected items.
 | Play Photo & Video / FGS / any permission | AND-PERM-13 merged manifest, AND-CONSOLE-11 old builds in other tracks, AND-CONSOLE-06 declaration via Console UI |
 | Apple 4.3 spam / 4.3(b) saturated category | CONTENT-07, META-02, META-05 (note the differentiator in review notes) |
 | Apple 2.5.1 leftover framework | IOS-ENT-04 (Xcode capability **and** App ID) |
+| Apple 2.1 "cannot log in / data not loading" (Korean apps) | CONTENT-09 IPv6, CONTENT-12 release parity, CONTENT-13 locale, ACC-05 Kakao 2-step, IOS-IPAD-02 PASS on iPad |
+| Play Sign-in details / closed testing (Korea) | ACC-05, AND-CONSOLE-03, AND-TEST-01, AND-ACCOUNT-01 (등본 address match) |
+| Play Deceptive Behavior / Misleading Claims / icon-title mismatch | META-02, META-06, AND-META-01, AND-CONSOLE-12 (government info), CONTENT-10 |
+| Play Families | AND-CONSOLE-07 (neutral age screen, certified ad SDKs), ADS-02, PRIV-02, AND-REVIEW-01 |
 
 ## C. Submission info
 
@@ -135,6 +139,13 @@ In B, if the project path is known also run A focused on the affected items.
 | `record.activity` > 0 | CONTENT-08 |
 | permission-injecting libraries in dependencies | AND-PERM-13 (merged-manifest audit) |
 | leftover entitlements / framework refs (`perm.health`, `track.att`, `perm.screentime` without a feature) | IOS-ENT-04 |
+| `carrier.auth` > 0 (PASS / 본인인증) | IOS-IPAD-02 |
+| `dyn.dns` > 0 (DuckDNS, ngrok, iptime…) | CONTENT-09, CONTENT-12 |
+| `auth.kakao` / `auth.naver` > 0 | ACC-05 (reviewer login playbook) + IOS-LOGIN-01 |
+| `CFBundleDevelopmentRegion = $(DEVELOPMENT_LANGUAGE)` | CONTENT-13 |
+| `CFBundleDisplayName` ≠ store name | META-06 |
+| `sec.aws` / `sec.webview` / `sec.webauth` > 0 | AND-SEC-01 (Play security scanner: leaked credentials, intent hijacking, WebView XSS, WebView OAuth) |
+| any Play resubmission after a rejection | AND-ENFORCE-01 (stop after the 2nd rejection), AND-CONSOLE-11 (old builds), AND-REVIEW-01 (Play-signed build, asset packs, offline) |
 
 ## Learning rules (keeping the KB alive)
 
