@@ -66,6 +66,7 @@
 
 ### IOS-UI-03 외부 링크·앱 유도 (3.1.1(a) / 2.3.10)
 - 확인: 미국 스토어프론트 외에서는 "웹에서 더 싸게 구독" 링크·버튼·문구 없음(3.1.1(a): 미국만 엔타이틀먼트 없이 허용; EU/일본/한국은 프로그램 — IOS-IAP-02). 다른 앱 설치 유도 최소; 다운로드·리뷰 강요 금지(3.2.2(x)).
+- Apple 3차 사례(로그인 전용 셸/리더 앱 7건): 가입·가격·마케팅 경로를 네이티브 UA에 대해 **서버 측**에서 차단(JS로 UI만 숨기면 부족); 로그인/개인정보/약관/계정 삭제는 유지; CTA 없이 "플랜은 example.com에서 관리"; 노트엔 3.1.3(b) 대신 3.1.3(f)(무료 독립 앱) 인용; 앱을 "멀티플랫폼"으로 설명 금지. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -157,6 +158,11 @@
 ### IOS-META-05 버전·빌드 번호
 - 확인: 재제출 시 `CFBundleVersion` 증가. `MARKETING_VERSION`은 스토어 버전과 일치.
 
+### IOS-BIN-01 바이너리 신선도와 SDK 서명 (ITMS-90111 / 91017 / 91061 / 91065)
+- 근거: **베타 macOS/Xcode**로 만든 아카이브(`BuildMachineOSBuild`가 `26A5xxx` 등 → ITMS-90111), 로컬 재빌드로 벤더 서명을 잃은 Apple 서명 SDK 목록의 XCFramework(ITMS-91065; Capacitor 8.4.1은 90111 ↔ 91065 딜레마), 프라이버시 매니페스트 없는 SDK(ITMS-91061), `BrowserEngineKit`을 weak-link한 MAUI(ITMS-91017), i386 슬라이스
+- 확인: GA macOS + GA Xcode에서만 아카이브; 목록 SDK(Flutter `App.framework`, Capacitor, Cordova, Flet, PrivySDK, LiqPay…)의 벤더 서명 유지; i386 없음; 모든 프레임워크에 `codesign -dv`.
+- 사례: [Apple 3차](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+
 ### IOS-META-06 연령 등급 설문 (2025~2026 체계)
 - 근거: 등급 4+/9+/13+/16+/18+와 새 문항(앱 내 제어: 자녀 보호·연령 확인; 기능: 무제한 웹 접근, UGC, 소셜 미디어, 메시지·채팅, 광고; 의료/웰니스; 폭력; 확률형: 도박, 모의 도박, 콘테스트, 루트박스). 2026-01-31까지 응답 필수; **2026-09부터 제출 시 소셜미디어 문항 필수**; "Social Media" 기능은 최소 13+(iOS 27 Time Allowances); 루트박스 → 브라질 18+; 한국 비속어/성인 주제 → 2026-10부터 12+. 2.3.6: 정직하게.
 - 확인: ASC 설문이 UGC/메시지/소셜 기능과 웹 탐색을 반영; 결과 등급이 마케팅과 일치(Kids 카테고리 외 "for kids" 문구 금지 — 5.1.4(b)).
@@ -173,6 +179,11 @@
 - 적용: EU에 배포하는 모든 앱
 - 확인: 트레이더 상태 선언(수익화하면 트레이더) + 연락처 검증.
 - 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### IOS-META-09 Apple 상표·출처 표기 (5.2.5)
+- 근거: 13건, 거의 2026: "Mac", "iOS", "Apple Watch", "Sidecar", "Inkwell" 등 Apple 상표 목록의 이름이 앱 이름·부제·키워드·기기 표시 `CFBundleName`에 있음; Apple 앱을 닮은 아이콘; 모든 표면에 Apple Weather 마크 + 법적 링크 없는 WeatherKit 데이터. 설명의 서술적 "for Mac/macOS"는 허용. 메타데이터만 고친 경우 같은 빌드 재제출.
+- 확인: 이름/부제/키워드/`CFBundleName`을 https://www.apple.com/legal/intellectual-property/trademark/appleTMlist.html 과 대조; WeatherKit 출처 표기.
+- 사례: [Apple 3차](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -198,6 +209,18 @@
 - 신호: entitlements 목록, `perm.health`, `track.att`, `perm.screentime`
 - 수정: Xcode **와** App ID 양쪽에서 capability 제거; SDK/모듈 제거; plist 키 삭제.
 - 사례: [커뮤니티 — 2.5.1](../../rejections/community-cases.md#251--231-software-requirements-leftover-capabilities-hidden-features)
+
+### IOS-ENT-05 macOS / Catalyst 샌드박스 엔타이틀먼트는 바이너리별로 스캔됨 (2.4.5(i))
+- 근거: 2026 Mac App Store 리젝 7건(1건은 Board 유지): `ENABLE_INCOMING_NETWORK_CONNECTIONS`, `ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER`, `ENABLE_RESOURCE_ACCESS_CAMERA` 같은 빌드 설정이 `.entitlements` 파일에 없는 키를 주입; 모든 키는 보이는 기능이나 심사 노트의 사유와 대응해야; 접근성은 자동화에 사용 불가; 실행 시 권한 다이얼로그 금지
+- 적용: Mac App Store / Catalyst 타깃
+- 확인: **서명된** 아카이브의 모든 번들에 `codesign -d --entitlements :- <app>`; 기능 없는 키 제거; 나머지는 노트에 사유.
+- 사례: [Apple 3차](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+
+### IOS-ENT-06 익스텐션·플러그인을 통해 링크된 프레임워크
+- 근거: `FamilyControls` / `ManagedSettings`를 import한 파일을 컴파일하는 위젯/익스텐션은 엔타이틀먼트 없이는 바이너리별 스캔에 실패; 플러그인이 링크한 HealthKit / NEVPNManager / TrueDepth(`ARFaceTracking*`) 심볼은 미사용이어도 2.5.1; 2026 비공개 심볼 적발: `buttonPressed:`(LiveKit), `_fork/_execve`(mpv), `CGSSetWindowBackgroundBlurRadius`, `_lzma_*`, Flutter 3.35 `PGHostedWindow`/`__SwiftValue`
+- 적용: 플러그인이 많은 앱, 모든 익스텐션 타깃
+- 확인: 빌드된 모든 바이너리에 `nm -u` / `strings`로 해당 심볼 검색; Screen Time 코드를 익스텐션 밖으로 옮기거나 엔타이틀먼트 추가; 미사용 프레임워크를 링크하는 플러그인 제거.
+- 사례: [Apple 3차](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 

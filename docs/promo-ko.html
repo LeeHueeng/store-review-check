@@ -1,0 +1,70 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1600px;height:900px;overflow:hidden}
+body{font-family:"Apple SD Gothic Neo","Pretendard","Noto Sans KR",-apple-system,sans-serif;color:#fff;
+ background:radial-gradient(1200px 700px at 85% 15%,#3b3fbd 0%,rgba(59,63,189,0) 60%),
+            radial-gradient(900px 600px at 10% 90%,#0ea5a4 0%,rgba(14,165,164,0) 55%),
+            linear-gradient(135deg,#0b1020 0%,#141a35 60%,#0b1020 100%);position:relative}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at center,#000 40%,transparent 80%)}
+.wrap{position:relative;display:grid;grid-template-columns:1fr 620px;gap:48px;padding:72px 84px 60px;height:100%}
+.brand{display:flex;align-items:center;gap:14px;font-size:22px;font-weight:700;letter-spacing:-.01em;color:#c7d2fe}
+.brand .dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#f87171,#fb923c);box-shadow:0 0 18px #fb923c}
+h1{font-size:74px;line-height:1.14;font-weight:800;letter-spacing:-.035em;margin:34px 0 18px}
+h1 b{background:linear-gradient(90deg,#fbbf24,#f472b6);-webkit-background-clip:text;color:transparent}
+.sub{font-size:26px;color:#c7d2fe;font-weight:500;letter-spacing:-.01em;margin-bottom:38px}
+.stats{display:flex;gap:16px;margin-bottom:34px}
+.stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px 22px;min-width:160px;backdrop-filter:blur(6px)}
+.stat .n{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1}.stat .l{font-size:15px;color:#a5b4fc;margin-top:8px;font-weight:600}
+ul{list-style:none;display:grid;gap:12px;font-size:22px;font-weight:500;color:#e5e7eb}
+ul li{display:flex;align-items:center;gap:12px}ul li::before{content:"";width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#34d399,#22d3ee);flex:none}
+.foot{position:absolute;left:84px;bottom:52px;display:flex;align-items:center;gap:22px;font-size:20px;color:#cbd5e1}
+.foot code{font-family:ui-monospace,Menlo,monospace;background:rgba(255,255,255,.08);padding:6px 12px;border-radius:8px;color:#fff;font-size:19px}
+.badge{font-size:15px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.2);color:#e0e7ff}
+.card{background:#ffffff;color:#1a1d21;border-radius:22px;padding:26px 28px;box-shadow:0 40px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08);transform:rotate(-1.2deg);align-self:center}
+.card h3{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}.card .meta{font-size:13px;color:#6b7280;margin-bottom:16px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.tile{border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px}.tile .n{font-size:30px;font-weight:800;line-height:1}.tile .l{font-size:12px;font-weight:700;margin-top:4px}
+.tile.f .n{color:#dc2626}.tile.w .n{color:#ea580c}.tile.u .n{color:#6b7280}.tile.p .n{color:#16a34a}
+.rec{background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;color:#991b1b;margin-bottom:14px}
+.row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid #eef0f3;font-size:14px}
+.row code{font-family:ui-monospace,Menlo,monospace;background:#eef2f7;border-radius:5px;padding:2px 6px;font-size:12px;white-space:nowrap}
+.pill{font-size:11px;font-weight:800;color:#fff;border-radius:999px;padding:2px 8px;white-space:nowrap}.pill.f{background:#dc2626}.pill.w{background:#ea580c}
+.row .t{font-weight:600;line-height:1.35}.row .g{color:#6b7280;font-size:12px;font-weight:500}
+.flags{position:absolute;right:84px;top:64px;display:flex;gap:10px}
+</style></head><body><div class="grid"></div>
+<div class="flags"><span class="badge">🇰🇷 한국어</span><span class="badge">🇺🇸 EN</span><span class="badge">🇯🇵 日本語</span><span class="badge">🇨🇳 中文</span></div>
+<div class="wrap">
+ <div>
+  <div class="brand"><span class="dot"></span>store-review-check · Claude Code / Codex 스킬</div>
+  <h1>앱 심사 리젝,<br><b>제출 전에</b> 잡는다</h1>
+  <div class="sub">App Store · Google Play 심사 사전 체크 + 리젝 관리</div>
+  <div class="stats">
+   <div class="stat"><div class="n">150+</div><div class="l">체크 항목 · 공식 규정 대조</div></div>
+   <div class="stat"><div class="n">1,100+</div><div class="l">실제 리젝 사례 (한·영·일·중)</div></div>
+   <div class="stat"><div class="n">4</div><div class="l">개 언어 · 한·영·일·중</div></div>
+  </div>
+  <ul>
+   <li>프로젝트 스캔 → UGC·Sign in with Apple·계정 삭제·권한·IAP·targetSdk 판정</li>
+   <li>리젝 메일 붙여넣기 → 원인 분석 · 수정 계획 · 증빙 녹화 순서 · 영어 답신</li>
+   <li>HTML 리포트 또는 채팅 · 모든 질문은 선택지 · 사례에서 스스로 학습</li>
+  </ul>
+ </div>
+ <div class="card">
+  <h3>심사 사전 점검 리포트</h3>
+  <div class="meta">Focus Together · iOS + Android · 2026-08-28</div>
+  <div class="tiles">
+   <div class="tile f"><div class="n">9</div><div class="l">🔴 FAIL</div></div>
+   <div class="tile w"><div class="n">3</div><div class="l">🟠 WARN</div></div>
+   <div class="tile u"><div class="n">1</div><div class="l">⚪ UNKNOWN</div></div>
+   <div class="tile p"><div class="n">1</div><div class="l">🟢 PASS</div></div>
+  </div>
+  <div class="rec">⚠️ 재발 위험 — 2026-08-27 iOS 1.2 UGC 리젝과 같은 패턴</div>
+  <div class="row"><span class="pill f">FAIL</span><div><div class="t"><code>UGC-03</code> 신고 기능 없음</div><div class="g">Apple 1.2 / Play UGC · lib/chat/room.dart</div></div></div>
+  <div class="row"><span class="pill f">FAIL</span><div><div class="t"><code>IOS-LOGIN-01</code> 구글·카카오만 있고 Sign in with Apple 없음</div><div class="g">Apple 4.8 · lib/auth/login_screen.dart:52</div></div></div>
+  <div class="row"><span class="pill f">FAIL</span><div><div class="t"><code>ACC-03</code> 2단계 인증 없이 로그인되는 심사용 계정 없음</div><div class="g">Apple 2.1 / Play Sign-in details</div></div></div>
+  <div class="row"><span class="pill w">WARN</span><div><div class="t"><code>IOS-BG-01</code> 타이머 유지용 무음 오디오</div><div class="g">Apple 2.5.4 · 로컬 알림으로 대체</div></div></div>
+ </div>
+</div>
+<div class="foot"><code>git clone github.com/LeeHueeng/store-review-check ~/.claude/skills/store-review-check</code><span>MIT</span></div>
+</body></html>

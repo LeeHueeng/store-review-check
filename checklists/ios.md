@@ -67,6 +67,7 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 
 ### IOS-UI-03 External links & app steering (3.1.1(a) / 2.3.10)
 - Verify: outside the US storefront, no "subscribe cheaper on the web" links, buttons or copy (3.1.1(a): only the United States storefront may include them without an entitlement; EU/Japan/Korea via their programs — IOS-IAP-02). Minimal prompting to install other apps; never force downloads/reviews (3.2.2(x)).
+- Apple 3rd-pass cases (login-only shells / reader apps, 7 cases): block registration, pricing and marketing routes **server-side** for the native user-agent (hiding UI in JS is not enough); keep login/privacy/terms/delete-account; say "plans are managed at example.com" without a CTA; cite 3.1.3(f) (free stand-alone) rather than 3.1.3(b) in notes; never describe the app as "multiplatform". [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -158,6 +159,11 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 ### IOS-META-05 Version & build numbers
 - Verify: bump `CFBundleVersion` (build) on resubmission. `MARKETING_VERSION` matches the store version.
 
+### IOS-BIN-01 Binary freshness and SDK signatures (ITMS-90111 / 91017 / 91061 / 91065)
+- Basis: uploads rejected for archives built on **beta macOS/Xcode** (`BuildMachineOSBuild` like `26A5xxx` → ITMS-90111), embedded XCFrameworks on Apple's signed-SDK list that lost their vendor signature after a local rebuild (ITMS-91065; Capacitor 8.4.1 hit a 90111 ↔ 91065 catch-22), SDKs without a privacy manifest (ITMS-91061), MAUI weak-linking `BrowserEngineKit` (ITMS-91017), i386 slices
+- Verify: archive on GA macOS + GA Xcode only; keep vendor signatures on listed SDKs (Flutter `App.framework`, Capacitor, Cordova, Flet, PrivySDK, LiqPay…); no i386; run `codesign -dv` on every framework.
+- Cases: [Apple 3rd pass](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+
 ### IOS-META-06 Age rating questionnaire (2025–2026 system)
 - Basis: tiers 4+/9+/13+/16+/18+ with new questions (in-app controls incl. parental controls & age assurance; capabilities: unrestricted web access, UGC, social media, messaging & chat, advertising; medical/wellness; violence; chance-based: gambling, simulated gambling, contests, loot boxes). Responses were required by 2026-01-31; **social-media questions required for submissions from 2026-09**; the "Social Media" capability implies minimum 13+ (iOS 27 Time Allowances); loot boxes → 18+ in Brazil; Korea profanity/mature themes → 12+ from 2026-10. 2.3.6: answer honestly.
 - Verify: the questionnaire in ASC reflects UGC/messaging/social features and any web browsing; the resulting tier matches marketing (no "for kids" wording outside the Kids category — 5.1.4(b)).
@@ -174,6 +180,11 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 - Applies: any app distributed in the EU
 - Verify: trader status declared (trader = you monetize) and contact details verified.
 - Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### IOS-META-09 Apple trademarks and attribution (5.2.5)
+- Basis: 13 cases, almost all 2026: "Mac", "iOS", "Apple Watch", "Sidecar", "Inkwell" — any name on Apple's trademark list — in the app name, subtitle, keywords or on-device `CFBundleName`; icons resembling Apple apps; WeatherKit data without the Apple Weather mark + legal link on every surface. Descriptive "for Mac/macOS" in the description is tolerated. Metadata-only fixes resubmit the same build.
+- Verify: names/subtitle/keywords/`CFBundleName` against https://www.apple.com/legal/intellectual-property/trademark/appleTMlist.html; WeatherKit attribution.
+- Cases: [Apple 3rd pass](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -199,6 +210,18 @@ Written as of 2026-08-28 against the guidelines last updated 2026-06-08 (https:/
 - Signals: entitlements list, `perm.health`, `track.att`, `perm.screentime`
 - Fix: remove the capability in Xcode **and** on the App ID; drop the SDK/module; strip the plist keys.
 - Cases: [community — 2.5.1](../rejections/community-cases.md#251--231-software-requirements-leftover-capabilities-hidden-features)
+
+### IOS-ENT-05 macOS / Catalyst sandbox entitlements are scanned per binary (2.4.5(i))
+- Basis: seven 2026 Mac App Store rejections (one upheld by the Board): build settings such as `ENABLE_INCOMING_NETWORK_CONNECTIONS`, `ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER`, `ENABLE_RESOURCE_ACCESS_CAMERA` inject entitlement keys that never appear in the `.entitlements` file; every key must map to a visible feature or a Review-Notes justification; Accessibility may not be used for automation; permission dialogs must not fire at launch
+- Applies: Mac App Store / Catalyst targets
+- Verify: `codesign -d --entitlements :- <app>` on the **signed** archive for every bundle; remove keys without a feature; justify the rest in notes.
+- Cases: [Apple 3rd pass](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
+
+### IOS-ENT-06 Frameworks linked through extensions and plugins
+- Basis: a widget/extension that compiles a file importing `FamilyControls` / `ManagedSettings` fails the per-binary scan unless it carries the entitlement; HealthKit / NEVPNManager / TrueDepth (`ARFaceTracking*`) symbols linked by a plugin trigger 2.5.1 even if unused; private-symbol hits seen in 2026: `buttonPressed:` (LiveKit), `_fork/_execve` (mpv), `CGSSetWindowBackgroundBlurRadius`, `_lzma_*`, Flutter 3.35 `PGHostedWindow`/`__SwiftValue`
+- Applies: any plugin-heavy app, all extension targets
+- Verify: `nm -u` / `strings` on every built binary for those symbols; move Screen Time code out of extensions or add the entitlement; drop plugins that link unused frameworks.
+- Cases: [Apple 3rd pass](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 

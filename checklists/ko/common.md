@@ -65,6 +65,7 @@
 - 신호: `ugc.chat`, `ugc.anonymous`, 카테고리
 - 수정: 가입 시 중립 연령 화면; 아동 안전 기준 페이지 게시(약관의 한 절이어도 됨); Play Console App content > 아동 안전 기준; Apple: Age Suitability URL, 지역 법규 해당 시 Declared Age Range API(LAW-01).
 - 증빙: 기준 페이지 URL; 콘솔 스크린샷.
+- Apple 3차 Kids 규칙: Kids 카테고리 빌드는 `ASIdentifierManager`나 ATT를 *참조*조차 하면 안 됨 — Branch, Firebase Analytics(GoogleAppMeasurement), React Native 코어가 지적됨; Apple은 토글 끄기가 아니라 코드 제거를 요구; 보호자 게이트는 모든 외부 링크·구매(공유 시트 포함) 앞에서 비활성화 불가여야. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -100,6 +101,7 @@
 - 사례: [2026-08-27 iOS 1.2 UGC](../../rejections/2026-08-27-ios-1.2-ugc-jomhae.md) — "Please provide a pre-populated demo account (Google or Kakao)"; [커뮤니티 사례](../../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
 - 한국 사례: 데모 계정은 새 기기에서 반복 로그인 가능해야 — 오래된 푸시 토큰/기기 바인딩, 일회용 휴대폰 인증 금지, 고정 OTP; GitHub/Google 데모는 2FA 끔 **그리고** 새 기기 확인 없음; Play는 한글 ID·관리자 계정·자격 증명 대신 영상을 거부; QR/하드웨어 게이트 앱은 장기 코드 제공. 막힌 건은 App Review와 한국어 전화 통화로 해결된 사례. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - 일본 사례: 데모 Google 계정의 "본인 확인"은 코드 없이 2FA를 켜고 답신에 **백업 코드**를 적어 해결. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Apple 3차 사례: 백엔드가 깨어 있어야 — 무료 티어 백엔드(Supabase는 7일 유휴 시 일시중지)와 만료된 심사용 API 키가 2.1(a) "로그인 오류"를 만듦; keep-alive와 예산 상한이 있는 심사 기간용 키 추가. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### ACC-04 소셜 로그인 콘솔 설정
 - 근거: 가이드라인은 아니지만 심사 중 로그인 실패 → 2.1 리젝
@@ -174,6 +176,7 @@
 - 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), [한국어 사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Apple 2차 사례: App Privacy "Used to Track You" 라벨, `NSUserTrackingUsageDescription`, 번들된 SDK 프라이버시 매니페스트(Meta, TikTok, 광고 SDK)가 실제 ATT 요청 여부와 모두 일치해야 — "App Privacy information… indicates tracking… but the app never shows an ATT prompt" 및 그 반대("the app still does not use App Tracking Transparency"). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 - 한/일 3차 사례(iPadOS 26, 독립 앱 4개): 자체 "이미 물어봄" 플래그를 저장하지 말 것(Keychain은 재설치에도 남음 — 시스템 `notDetermined` 사용), 윈도우 활성 후 첫 화면 안에서 요청, 깊은 트리거 뒤에 가두지 말 것; 답신에 ~20초 새 설치 녹화 첨부. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- Apple 3차 세부: `requestTrackingAuthorization`은 앱이 비활성이거나 **다른 시스템 시트(Game Center 로그인 등)가 위에 있으면** 조용히 `notDetermined`로 끝남; 활성 후·광고 초기화 전에 요청, 실제 답이 나올 때까지 재시도; iPadOS 26 심사 기기는 개발 폰보다 느림. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### AI-01 AI 기능 (제3자 AI 공유, AI 생성 콘텐츠)
 - 근거: Apple 5.1.2(i) (2025-11) "제3자 AI를 포함한 제3자와 개인정보를 공유하는 곳을 명확히 고지하고 사전에 명시적 허가" / Play **AI 생성 콘텐츠**: "AI로 콘텐츠를 생성하는 앱은 앱을 나가지 않고 불쾌한 콘텐츠를 신고할 수 있는 앱 내 신고 기능 포함"; Play 사용자 데이터 요건은 "제3자 AI 통합에도 적용"(2026-07)
@@ -183,6 +186,7 @@
 - 수정: 첫 사용 전 동의 화면; AI 응답에 "이 응답 신고"; 방침과 Data safety(공유 데이터)에 AI 제공자 기재.
 - Apple 2차 사례(2025-11 규칙): 각 AI 제공자를 명시한 동의 단계가 **첫 AI 호출 전**에 있어야; "Note that only including this information in the app's Terms of Service or Privacy Policy is not sufficient"; 목적 문구에 오디오/텍스트가 기기를 떠난다고 명시. [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 - 한/일 3차 사례: 동의 게이트는 첫 AI 호출 전에 수신자를 **법인명**(예: Anthropic, OpenAI)으로 나열해야; 방침 한 줄만으로는 두 번 거절. [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- Apple 3차 규칙: 데이터 흐름마다 **한 회사**를 명시 — 제공자 목록("OpenAI, Anthropic or xAI")은 실패; 전송 데이터 열거; 첫 전송 전 동의; 제공자 변경 시 재동의; Apple의 2.1 질문 세트에 제3자 AI 항목이 포함됨. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -200,6 +204,7 @@
 - 확인: 푸시·카메라·위치 거부 시 앱이 막히거나 무한 프롬프트 없음.
 - 수정: 기능만 비활성 + 설정 이동 안내.
 - 위치 특히: Apple 5.1.5는 "위치 서비스가 꺼지면 동작하지 않는" 앱, 설정으로 몰아가는 앱을 거절 — 대체 콘텐츠/수동 입력 제공. [사례](../../rejections/community-cases.md#kids-13-ip-521-regulated-entities-511ix-business-model-322-location-515-objectionable-11)
+- Apple 3차 사례: 심사용 iPad엔 Face ID/Touch ID가 등록돼 있지 않음 — `.biometryCurrentSet`의 `SecItemAdd`는 `errSecAuthFailed (-25293)` 반환; `LAContext.canEvaluatePolicy` 확인 후 폴백. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### PERM-03 안 쓰는 권한 선언 금지
 - 근거: Play 권한 정책 / Apple 심사관 질문("왜 필요한가")
@@ -214,6 +219,7 @@
 - 신호: `perm.*`
 - 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 - 한/일 3차 규칙: CTA는 중립("다음" / "続ける"); 커스텀 프롬프트의 **취소** 버튼 자체가 위반(시스템 프롬프트를 회피 가능); 시스템 프롬프트 **전에** 설정으로 보내는 것도 위반("권한 요청을 표시하기 전에 사용자를 설정 앱으로 리디렉션"). [사례](../../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- Apple 3차 메커닉스: 중립 버튼 하나("Continue"/"Next" — "Allow", "Enable", "Grant Permission" 금지), 취소/나중에/뒤로 없음, 닫을 수 없음, 탭 즉시 시스템 프롬프트; Allow 쪽으로 기울인 이모지/시각 편향도 거절. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -358,6 +364,7 @@
 - 확인: 커스텀 "별 5개 주면 프리미엄" → FAIL. `SKStoreReviewController`/`requestReview`(iOS), In-App Review API(Android)만.
 - 신호: `review.prompt`
 - Apple 2차 문구: "prompts users to rate the app in exchange for in-app currency, points, or other incentives"(3.2.2(x)). [사례](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- Apple 3차 규칙(5.6.3): 온보딩/첫 실행 중 `requestReview` 금지; 앱 내 가짜 후기·별점 금지; 실제 사용에 따라 게이팅. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### CONTENT-07 포화 카테고리 — "simple timers"는 의미 있게 다른 경험 필요
 - 근거: Apple 4.3(b) (2026-06 개정): "dating, flashlight, sound effects, wallpaper, simple timers, and fortune telling… 의미 있게 다르거나 개선된 경험을 제공하지 않으면 신규 제출을 받지 않으며… 업데이트·개선되지 않거나 고객을 끌지 못하면 삭제할 수 있음"; 4.3(a) 같은 앱의 복수 Bundle ID 금지; 4.2 "특별히 유용·독특·앱답지 않으면" / Play **기능·콘텐츠·UX**: "기능과 콘텐츠가 제한적인 앱 불허"
@@ -380,6 +387,7 @@
 - 수정: 호스트명 사용; API 호스트 AAAA/NAT64 호환.
 - 한국 사례: 무료 동적 DNS(DuckDNS, iptime)와 IPv4 전용 EC2는 Apple의 IPv6 전용 심사망에서 접속 불가 → 2.1 "로그인 불가/데이터 로드 안 됨" 5연속. 실제 도메인 + AAAA/NAT64 호환 호스팅. [사례](../../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - 일본/중국 사례: 심사 트래픽은 미국(Apple)·마닐라 등(Play)에서 옴 — WAF 지역 차단과 "运维禁用了海外IP"가 "로그인 불가/네트워크 오류" 리젝을 만듦; 심사 기간에 해당 지역과 IPv6 개방. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Apple 3차 사례: 2016년식 IPv6 리젝 원문("…could not be loaded when reviewed on an IPv6 network")이 여전히 등장; Meteor/Reachability/SAP SDK 사례; 아일랜드 이동통신망 지역 차단이 2.3.1 "동작이 다름" 의심을 만듦. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### CONTENT-10 숨은·휴면 기능 금지; OTA 코드 푸시 신고
 - 근거: Apple 2.3.1(a) "숨은·휴면·문서화되지 않은 기능 금지"; 2.5.2 기능을 바꾸는 코드 금지; Play 기만 행위 "숨은·휴면·문서화되지 않은 기능 금지"
@@ -425,6 +433,7 @@
 ### META-01 스크린샷은 실제 화면
 - 근거: Apple 2.3.3 — 사용 중 화면, 스플래시·로그인·타이틀 불가; 프레임·문구 허용 / Play 메타데이터 — 앱을 정확히 반영
 - 확인: 필수 규격(iPhone 6.9", iPad 13")과 내용. `store-screenshots` 스킬로 만든 이미지면 화면 부분이 실제 앱인지.
+- Apple 3차 사례: 스크린샷의 "$4.99", "free", "すべて無料", "All of it free"는 2.3.7 가격 언급; 기기 프레임은 스크린샷엔 허용되지만 앱 미리보기 영상엔 **불가**(2.3.4); 미리보기엔 오디오 트랙 필요(무음 가능). [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### META-02 설명·키워드·이름
 - 근거: Apple 2.3.7 "앱 이름 30자 제한"; 메타데이터에 상표·인기 앱 이름·가격 금지; 2.3.2 설명/스크린샷에 IAP 고지; 2.3.8 메타데이터 4+ 적합; 2.3.12 중요 변경은 What's New에 / Play **메타데이터**: 제목 ≤ 30자; "이모지·이모티콘·반복 특수문자" 금지; 제목/아이콘/개발자명에 성과·순위·가격·홍보 문구 금지("App of the year", "#1", "Best of Play", "10% off", "free for limited time only", "Editor's choice", "New"); 브랜드 외 대문자 남용 금지; "출처 없는 사용자 후기" 금지; **기만 행위**: 제목/설명/아이콘/스크린샷의 허위·오도 주장 금지
@@ -438,6 +447,7 @@
 - 신호: `ugc.*`, `webview`
 - 사례: META-03 태그 커뮤니티 사례 참고
 - 한국 사례: 웹뷰로 YouTube/외부 웹을 로드하면 등급이 12+로 상향("무제한 웹 접근") — 외부 브라우저로 열기.
+- Apple 3차 사례(2025-09 → 2026): "Parental Controls", "Age Assurance", "In-App Controls", "Advertising", "User-Generated Content" 답변은 바이너리와 대조됨 — 구현 안 된 보호자 제어는 None으로; Kids 카테고리 없이 아동 타깃 이름("…4Kids") → 2.3.8. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### META-04 URL 동작
 - 확인: 지원·마케팅·개인정보 URL 200 + 내용. 노션은 "웹에 게시" 켜짐.
@@ -458,6 +468,7 @@
 - 근거: 절차 자체로 며칠을 잃은 사례들: Resolution Center 답신은 심사를 재시작하지 **않음**("However, in order for us to proceed with the review of your app, please resubmit the app for review in App Store Connect") — Apple이 버그 수정 패스를 명시적으로 제안한 경우 제외; 반대로 4.3/2.1 대화 중 심사관 답변 전에 재제출하면 스레드가 끊김; 거절된 버전 문자열은 재사용 불가(1.7.0 → 1.7.1); IAP "심사 제출"은 별도 초안 생성; Play: 재제출마다 한 이슈를 완전히 해결하지 않으면 "Repeated app rejections"로 정지
 - 확인: 답신 후 Apple이 새 빌드/메타데이터를 요구하면 "심사에 재제출" 누르기; 심사관이 질문했으면 답변을 기다리기; 빌드/버전 올리기; ASC 제출 초안에 앱 + IAP가 함께 있는지 확인.
 - 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Apple 3차 에스컬레이션 사다리(4.3(a), 2.4.5): Resolution Center에 답하고 *기다리기* — 심사관 답변 전 재제출은 스레드를 끊고 스팸 플래그를 강화; 통화 요청("I'd like to talk"); Meet with Apple(화/목, 일본어 가능)이 이의 제기 팀에 닿을 수 있음; Board 이의 제기는 대화 없이도 유지될 수 있음; 형제 앱과 차별점을 노트에 먼저 명시. [사례](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -504,6 +515,13 @@
 - 적용: 암호화폐 지갑/거래소, 트레이딩, 대출, 보험
 - 확인: 스토어프론트 목록 vs 라이선스; 증빙 첨부; 조직 계정(ACC-06).
 - 사례: [Apple 2차](../../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### LAW-03 제3자 미디어·카탈로그의 권리 증빙 (5.2.3)
+- 근거: 9건 — 다운로드를 제거할 때까지 3번 거절된 Jellyfin 클라이언트, TMDB 카탈로그 "documentary evidence", PeerTube 클라이언트 4개, react-native-youtube-iframe, 라디오 스트림: 제3자 오디오/비디오를 스트리밍·다운로드·색인하는 앱은 심사 *전에* App Review Information에 권리/라이선스 증빙 첨부; YouTube API ToS만으로는 거절; 제3자 미디어 오프라인 다운로드는 해결 불가 — 제거하고 메타데이터에서 "다운로드/오프라인" 삭제
+- 적용: 미디어 플레이어, 라디오/팟캐스트 통합, YouTube 임베드, 카탈로그 앱
+- 확인: 증빙 첨부; 제3자 다운로드 기능 없음; 메타데이터에 "다운로드" 없음.
+- 신호: `media.thirdparty`
+- 사례: [Apple 3차](../../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 

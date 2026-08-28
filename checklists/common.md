@@ -70,6 +70,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `ugc.chat`, `ugc.anonymous`, category
 - Fix: neutral age screen at sign-up; publish a child-safety standards page (can be a section of the terms); Play Console App content > Child safety standards; Apple: Age Suitability URL, Declared Age Range API where regional laws apply (see LAW-01).
 - Evidence: URL of the standards page; console screenshot.
+- Apple 3rd-pass Kids rule: Kids Category builds must not *reference* `ASIdentifierManager` or ATT — Branch, Firebase Analytics (GoogleAppMeasurement) and React Native core are flagged; Apple wants the code removed, not toggled off; the parental gate must be non-disableable before every outbound link and purchase (share sheet included). [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -106,6 +107,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - [community cases](../rejections/community-cases.md#21-app-completeness--information-needed-demo-account-crashes-hidden-gates)
 - Korean cases: the demo account must be loginable repeatedly on new devices — no stale push-token/device binding, no single-use phone verification, fixed OTP; GitHub/Google demo logins need 2FA off **and** no new-device challenge; Play refuses Hangul IDs, admin accounts and demo videos in place of credentials; QR/hardware-gated apps must supply long-lived codes. A Korean-language phone call with App Review resolved one stuck case. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Japanese case: Google's "Verify it's you" on a demo Google account was solved without code by enabling 2FA and listing **backup codes** in the reply. [case](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Apple 3rd-pass cases: the backend must be awake — free-tier backends (Supabase pauses after 7 idle days) and expired review API keys produce 2.1(a) "error during login"; add a keep-alive and a review-period key with a budget cap. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### ACC-04 Social-login console configuration
 - Basis: not a guideline, but a broken login during review becomes a 2.1 rejection
@@ -180,6 +182,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28), [Korean sources](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Apple 2nd-pass cases: the App Privacy "Used to Track You" label, `NSUserTrackingUsageDescription` and bundled SDK privacy manifests (Meta, TikTok, ad SDKs) must all agree with whether ATT is actually requested — "App Privacy information… indicates tracking… but the app never shows an ATT prompt" and the reverse ("the app still does not use App Tracking Transparency"). [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 - Korean/Japanese 3rd-pass cases (iPadOS 26, 4 independent apps): never persist your own "already asked" flag (Keychain survives reinstall — use the system `notDetermined`), request after the window is active and within the first screen, never gate behind a deep trigger; attach a ~20-second fresh-install recording to the reply. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- Apple 3rd-pass detail: `requestTrackingAuthorization` resolves silently as `notDetermined` when the app isn't active **or another system sheet (Game Center login…) is on top**; request after active, before ads init, retry until a real answer; iPadOS 26 review devices are slower than dev phones. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### AI-01 AI features (third-party AI sharing, AI-generated content)
 - Basis: Apple 5.1.2(i) (2025-11) "You must clearly disclose where personal data will be shared with third parties, including with third-party AI, and obtain explicit permission before doing so" / Play **AI-Generated Content**: "Apps that generate content using AI must contain in-app user reporting or flagging features that allow users to report or flag offensive content to developers without needing to exit the app"; Play User Data requirements "apply to third-party AI integrations" (2026-07)
@@ -189,6 +192,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: consent screen before first AI use; "Report this response" on AI output; list the AI provider in the privacy policy and Data safety (shared data).
 - Apple 2nd-pass cases (2025-11 rule): a consent step naming each AI provider must appear **before the first AI call**; "Note that only including this information in the app's Terms of Service or Privacy Policy is not sufficient"; purpose strings must say audio/text leaves the device. [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 - Korean/Japanese 3rd-pass cases: the consent gate must list each recipient by **legal entity** (e.g. Anthropic, OpenAI) before the first AI call; a privacy-policy line alone was rejected twice. [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- Apple 3rd-pass rule: name **one** company per data flow — a provider list ("OpenAI, Anthropic or xAI") fails; enumerate the data sent; consent before the first send; re-consent when the provider changes; Apple's 2.1 question set now includes third-party-AI items. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -206,6 +210,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: denying push/camera/location doesn't block the app or loop prompts.
 - Fix: disable only the feature + link to Settings.
 - Location specifically: Apple 5.1.5 rejects apps that are "not functional when Location Services are disabled" or that push users to Settings — provide fallback content / manual entry. [cases](../rejections/community-cases.md#kids-13-ip-521-regulated-entities-511ix-business-model-322-location-515-objectionable-11)
+- Apple 3rd-pass case: review iPads have no Face ID/Touch ID enrolled — `SecItemAdd` with `.biometryCurrentSet` returns `errSecAuthFailed (-25293)`; check `LAContext.canEvaluatePolicy` and fall back. [case](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### PERM-03 No unused permissions
 - Basis: Play permissions policy / Apple reviewers ask "why do you need this?"
@@ -220,6 +225,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `perm.*`
 - Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
 - Korean/Japanese 3rd-pass rules: the CTA must be neutral ("다음" / "続ける"); a **Cancel** button on the custom prompt is itself a violation (it lets users avoid the system prompt); redirecting to Settings **before** the system prompt is a violation ("권한 요청을 표시하기 전에 사용자를 설정 앱으로 리디렉션"). [cases](../rejections/community-cases.md#korean-and-japanese-sources--3rd-pass-2026-08-28-github-issues-okky-brunch-damoang-teratail-hatena-toss-mini-app)
+- Apple 3rd-pass mechanics: one neutral button ("Continue"/"Next" — never "Allow", "Enable", "Grant Permission"), no Cancel/Not Now/Back, non-dismissible, and the tap must immediately trigger the system prompt; emoji or visual bias toward Allow is rejected. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -364,6 +370,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: custom "rate 5 stars for premium" → FAIL. Only `SKStoreReviewController` / `requestReview` (iOS) and the In-App Review API (Android).
 - Signals: `review.prompt`
 - Apple 2nd-pass wording: "prompts users to rate the app in exchange for in-app currency, points, or other incentives" (3.2.2(x)). [cases](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+- Apple 3rd-pass rule (5.6.3): no `requestReview` during onboarding/first launch; no fabricated testimonials or star ratings in-app; gate on real engagement. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### CONTENT-07 Saturated categories — "simple timers" need a meaningfully different experience
 - Basis: Apple 4.3(b) (2026-06 wording): "Certain kinds of apps, such as dating, flashlight, sound effects, wallpaper, simple timers, and fortune telling, are well established on the App Store and we will not accept new submissions unless they offer a meaningfully different or improved experience. We may remove these apps from the App Store going forward if they are not updated, improved, or do not attract customers"; 4.3(a) no multiple Bundle IDs of the same app; 4.2 "not particularly useful, unique, or 'app-like'" / Play **Functionality, Content, and User Experience**: "We do not allow apps that only have limited functionality and content"
@@ -386,6 +393,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: use hostnames; ensure the API host has AAAA/NAT64 compatibility.
 - Korean cases: free dynamic-DNS domains (DuckDNS, iptime) and IPv4-only EC2 instances are unreachable from Apple's IPv6-only review network → 2.1 "cannot login / data not loading" ×5. Use a real domain with AAAA or NAT64-compatible hosting. [cases](../rejections/community-cases.md#cases-from-korean-language-sources-2nd-pass-2026-08-28)
 - Japanese/Chinese cases: reviewer traffic comes from the US (Apple) and e.g. Manila (Play) — WAF geo-blocks and "运维禁用了海外IP" produce "cannot log in / network error" rejections; open those regions and IPv6 for the review window. [cases](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Apple 3rd-pass cases: verbatim 2016-era IPv6 rejection text still appears ("…could not be loaded when reviewed on an IPv6 network"); Meteor/Reachability/SAP SDK cases; an Irish mobile-network geoblock produced a 2.3.1 "behaves differently" suspicion. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### CONTENT-10 No hidden or dormant features; declare OTA code push
 - Basis: Apple 2.3.1(a) "Don't include any hidden, dormant, or undocumented features in your app"; 2.5.2 no code that changes features; Play Deceptive Behavior "don't include any hidden, dormant, or undocumented features"
@@ -431,6 +439,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 ### META-01 Screenshots show the app in use
 - Basis: Apple 2.3.3 — screenshots show the app in use, not splash/login/title art; device frames and captions allowed / Play Metadata policy — accurately reflect the app
 - Verify: required sizes (iPhone 6.9", iPad 13") and content. If made with the `store-screenshots` skill, the framed screen must be the real app.
+- Apple 3rd-pass cases: "$4.99", "free", "すべて無料", "All of it free" in screenshots are 2.3.7 price references; device frames are allowed in screenshots but **not** in App Preview videos (2.3.4); previews need an audio track (silent is fine). [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### META-02 Description, keywords, name
 - Basis: Apple 2.3.7 "App names must be limited to 30 characters"; no trademarked terms, popular app names or pricing in metadata; 2.3.2 IAP disclosure in description/screenshots; 2.3.8 metadata suitable for 4+; 2.3.12 meaningful "What's New" for significant changes / Play **Metadata**: title ≤ 30 chars; no "emojis, emoticons, or repeated special characters"; no store-performance, ranking, price or promotional text in title/icon/developer name ("App of the year", "#1", "Best of Play", "10% off", "free for limited time only", "Editor's choice", "New"); no all caps unless brand; no "unattributed or anonymous user testimonials"; **Deceptive Behavior**: no false or misleading claims in title/description/icon/screenshots
@@ -444,6 +453,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `ugc.*`, `webview`
 - Cases: see community cases tagged META-03
 - Korean case: a WebView loading YouTube/open web content raised the rating to 12+ ("unrestricted web access") — open such links externally instead.
+- Apple 3rd-pass cases (2025-09 → 2026): "Parental Controls", "Age Assurance", "In-App Controls", "Advertising" and "User-Generated Content" answers are verified against the binary — unimplemented parental controls → answer None; kids-targeted naming ("…4Kids") without the Kids Category → 2.3.8. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ### META-04 URLs work
 - Verify: support, marketing and privacy URLs return 200 with content. Notion pages: "publish to web" on.
@@ -464,6 +474,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Basis: cases lost days to the process itself: a Resolution Center reply does **not** restart review ("However, in order for us to proceed with the review of your app, please resubmit the app for review in App Store Connect") unless Apple explicitly offers a bug-fix pass; conversely, resubmitting during a 4.3 / 2.1 dialogue before the reviewer answers kills the thread; a rejected version string can't be reused (1.7.0 → 1.7.1); IAP "Submit for review" creates a separate draft; Play: one issue fully fixed per resubmission or "Repeated app rejections" suspends the app
 - Verify: after replying, press "Resubmit for review" when Apple asks for a new build/metadata; wait for the reviewer's reply when they asked a question; bump build/version; check the ASC submission draft lists app + IAPs together.
 - Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Apple 3rd-pass escalation ladder (4.3(a), 2.4.5): reply in Resolution Center and *wait* — resubmitting before the reviewer answers ends the thread and strengthens the spam flag; ask for a call ("I'd like to talk"); Meet with Apple (Tue/Thu, Japanese available) can reach the appeal team; Board appeals can be upheld without engagement; name your sibling apps and the differentiation up front in notes. [cases](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 
@@ -510,6 +521,13 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Applies: crypto wallets/exchanges, trading, lending, insurance
 - Verify: storefront list vs licences; evidence attached; organization account (ACC-06).
 - Cases: [Apple 2nd pass](../rejections/community-cases.md#apple--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-github-issuesprs-hn-zennvelog)
+
+### LAW-03 Rights evidence for third-party media and catalogs (5.2.3)
+- Basis: 9 cases — a Jellyfin client rejected 3× until downloads were removed, TMDB catalog "documentary evidence", PeerTube clients ×4, react-native-youtube-iframe, radio streams: any app that streams, downloads or indexes third-party audio/video needs rights/licence evidence attached in App Review Information *before* review; the YouTube API ToS alone is rejected; offline download of third-party media is unfixable — remove it and scrub "download/offline" from metadata
+- Applies: media players, radio/podcast aggregators, YouTube embeds, catalog apps
+- Verify: evidence attached; no third-party download feature; metadata free of "download".
+- Signals: `media.thirdparty`
+- Cases: [Apple 3rd pass](../rejections/community-cases.md#apple--3rd-pass-2026-08-28-thin-areas--ipv6-523-media-rights-525-apple-trademarks-mac-entitlement-scans-widgetswatchos-age-assurance-ai-disclosure-reader-apps-frameworks)
 
 ---
 

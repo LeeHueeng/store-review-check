@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/report-sample.png" width="860" alt="store-review-check HTML 리포트">
+  <img src="docs/promo-ko.png" width="900" alt="store-review-check — 앱 심사 리젝, 제출 전에 잡는다">
 </p>
 
 <h1 align="center">store-review-check</h1>
@@ -41,6 +41,8 @@ Claude Code, Codex CLI, 그리고 SKILL.md를 읽는 모든 에이전트용 <a h
 | **사전 점검** | `심사 체크해줘` / `/store-review-check ~/dev/app` | 스캔 → 기능 프로필 → 체크리스트 전 항목 🔴 FAIL / 🟠 WARN / ⚪ UNKNOWN / 🟢 PASS 판정 + `파일:라인` 근거 + 수정 방법 + 증빙 → **HTML 리포트(브라우저) 또는 채팅** → 콘솔 체크리스트 → 심사 노트 초안 |
 | **리젝 처리** | 리젝 메일 붙여넣기 | 파싱 → 케이스 저장 → 체크리스트 매핑 → **동반 리젝 예측**(예: 구글/카카오 로그인만 → Sign in with Apple 4.8) → 수정 계획 → 증빙 녹화 순서 → 영어 답신 → 심사 노트 |
 | **심사 제출 정보** | `심사 노트 써줘` | App Store Connect *App Review Information* 노트와 Play Console *앱 액세스* 문구: 데모 계정, 인증 우회, 신고·차단·약관 위치 |
+
+<p align="center"><img src="docs/report-sample.png" width="860" alt="HTML 리포트 예시"></p>
 
 스킬이 물어보는 건 전부 **선택지**입니다(필요하면 다중 선택): 플랫폼, 범위, HTML/채팅, 다음 작업. 주관식 질문으로 왔다 갔다 하지 않습니다.
 

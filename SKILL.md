@@ -161,6 +161,10 @@ In B, if the project path is known also run A focused on the affected items.
 | `form.factor` > 0 (Auto / Wear / TV / XR opt-in or library-merged services) | AND-FORM-01 |
 | `plist.default.purpose` > 0 | IOS-PLIST-05 (plugin default purpose strings) |
 | `toss.miniapp` > 0 | KR-05 (Toss mini-app review) |
+| `media.thirdparty` > 0 | LAW-03 (5.2.3 rights evidence) |
+| `mac.entitlements` > 0 | IOS-ENT-05 (Mac sandbox entitlement scan) |
+| app name contains an Apple trademark (Mac, iOS, Apple Watch…) | IOS-META-09 |
+| plugin-heavy app / extension targets | IOS-ENT-06 (frameworks linked via plugins/extensions), IOS-BIN-01 (SDK signatures, beta toolchain) |
 | production login can't be completed by a foreign reviewer (Kakao KR phone, SIWA + SMS) | ACC-07 documented reviewer path (never hidden behaviour) |
 
 ## Learning rules (keeping the KB alive)
