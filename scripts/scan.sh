@@ -7,7 +7,7 @@
 # 호환:  macOS 기본 bash 3.2 / BSD grep, Linux GNU grep 모두 동작.
 
 set -u
-VERSION="1.4.0"
+VERSION="1.5.0"
 ROOT="${1:-.}"
 ROOT="$(cd "$ROOT" 2>/dev/null && pwd)" || { echo "경로 없음: ${1:-.}" >&2; exit 1; }
 
@@ -313,6 +313,7 @@ sig donation        '(ko-fi\.com|buymeacoffee|github\.com/sponsors|patreon\.com|
 sig applepay        '(PKPaymentButton|PKPaymentAuthorization|ApplePayButton|apple_pay|applePay|isApplePaySupported)'
 sig icloud.sync     '(NSUbiquitousKeyValueStore|CKContainer|CloudKit|iCloud ?(sync|동기화|同期)|NSPersistentCloudKitContainer)'
 sig emulator        '(emulator|エミュレータ|에뮬레이터|romPath|\.rom\b|mini ?game ?platform|H5 ?游戏)'
+sig form.factor     '(CarAppService|androidx\.car\.app|android\.hardware\.type\.automotive|WearableListenerService|android\.hardware\.type\.watch|LEANBACK_LAUNCHER|android\.software\.leanback|WatchKit|WKExtension|xr\.|visionos)'
 sig sec.webview     '(Intent\.parseUri|parseUri\(|shouldOverrideUrlLoading|addJavascriptInterface|setJavaScriptEnabled\(true\)|setAllowFileAccess\(true\))'
 sig sec.webauth     '(WebView.*(oauth|login|authorize)|(oauth|authorize).*WebView|webview_flutter.*(oauth|login))'
 
@@ -407,6 +408,7 @@ if [ "$(cnt price.hardcoded)" -gt 0 ]; then flag "하드코딩된 가격/무료�
 if [ "$(cnt donation)" -gt 0 ]; then flag "후원/도네이션 링크 신호 → common.md PAY-01 (Apple: 'donations… must use In-App Purchase' — 연결된 웹사이트의 링크도 검사)"; HINTS=1; fi
 if [ "$(cnt applepay)" -gt 0 ]; then flag "Apple Pay 신호 → ios.md IOS-IAP-03 (4.9: 다른 결제 버튼과 동등하게 노출; PassKit만 링크하고 미사용이면 IOS-ENT-04)"; HINTS=1; fi
 if [ "$(cnt icloud.sync)" -gt 0 ] && [ "$(cnt pay.iap)" -gt 0 ]; then flag "iCloud 동기화 + IAP 신호 → ios.md IOS-IAP-04 (4.10: iCloud 동기화 등 내장 기능을 유료화 금지)"; HINTS=1; fi
+if [ "$(cnt form.factor)" -gt 0 ]; then flag "Auto/Wear/TV/XR 폼팩터 신호 → android.md AND-FORM-01 (별도 품질 심사; 라이브러리가 병합한 CarAppService는 tools:node=remove) / iOS watchOS·visionOS 심사 기기 확인"; HINTS=1; fi
 if [ "$(cnt emulator)" -gt 0 ]; then flag "에뮬레이터/미니게임 플랫폼 신호 → common.md CONTENT-14 (Apple 4.7: 레트로 콘솔·비주목적 HTML5만 허용)"; HINTS=1; fi
 if [ "$(cnt sec.aws)" -gt 0 ]; then flag "AWS 자격 증명 패턴(AKIA…/secret key) 신호 → android.md AND-SEC-01 (Play 'Leaked AWS credentials' 리젝; 사전 서명 URL/백엔드로 이동)"; HINTS=1; fi
 if [ "$(cnt sec.webview)" -gt 0 ]; then flag "WebView intent/JS 인터페이스 신호 → android.md AND-SEC-01 ('intent scheme hijacking', 'cross-app scripting' — loadUrl 전 URL 검증, intent:// 파싱 금지)"; HINTS=1; fi

@@ -154,6 +154,7 @@
 - 확인: 광고/분석용 위치? 연락처 업로드? 백그라운드 수집? → Google 형식의 앱 내 고지: **"[앱]은(는) ['기능']을 위해 [데이터 유형]을 수집/전송/동기화/저장합니다, [시나리오]."**
 - 신호: `perm.*`, `ads.sdk`
 - 수정: 권한 요청 직전 명시적 수락 버튼이 있는 다이얼로그; 광범위 권한 대신 피커(Photo Picker, 연락처 피커, 공유 시트).
+- Play 3차 문구 — "Requests for in-app user consent and runtime permission are not immediately preceded by an in-app disclosure"; "토글 버튼은 명시적 동의 기준을 충족하지 못함… 두 개의 버튼으로 동의 옵션을 명확히 표시". [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### PRIV-05 ATT 프롬프트는 새 심사 기기에서 도달 가능해야
 - 근거: 2026 리젝 "We were unable to locate the App Tracking Transparency permission request when reviewed on iOS/iPadOS" — ATT 호출은 있었지만 발동하지 않은 앱들: 앱이 활성 상태가 되기 전 요청(`undetermined`가 조용히 반환되고 재시도 없음), 마운트되지 않은 배너에 묶임, 광고 재고에 의존(AdMob은 미출시 앱에 광고를 주지 않음), 깊은 진행도(게임오버 6회)에 의존, 권한 체인의 4번째, 설치 24시간 뒤
@@ -251,6 +252,7 @@
 - 신호: `price.hardcoded`
 - 수정: 스토어 상품 데이터를 단일 소스로; IPA/AAB 문자열에서 고정 가격 검색.
 - 사례: [일본어 사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Play 3차 사례 — 체험 단계가 설정되지 않은 "Try for Free" 버튼이 구독 경고가 아니라 **멀웨어 "Billing Fraud"**(앱 정지, 계정 종료)로 처리됨. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ---
 
@@ -266,6 +268,7 @@
 - 수정: 전면 광고를 자연스러운 구간으로; 닫기/건너뛰기; 광고 신고 메뉴(AdMob 신고 또는 mailto).
 - 사례 교훈: 버튼 클릭 시 뜨는 광고 코드는 전면 광고를 제거한 뒤에도 "정상 사용 방해"로 거절됨. [사례](../../rejections/community-cases.md#ads-subscriptions-payments)
 - Play 2차 사례: 설정/다운로드/연결 해제 탭 시 광고, 액티비티 시작 시 광고, 포그라운드 복귀마다 앱 오픈 광고, "뒤로 가기 버튼으로 트리거되는 광고", "백그라운드 전환 시 맥락 없는 광고 액티비티"로 거절; Families 앱은 보상형 영상도 "5초 내 닫기 불가", 내비게이션 바 뒤에 숨은 닫기 버튼으로 거절. 실제 원인은 AdMob 정책 센터에 있는 경우가 많음. 규칙: 사용자가 기대하는 곳에만(버튼에 명시), 이동/종료/백그라운드엔 절대 금지. [사례](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+- Play 3차 사례 — 미디에이션 광고 **소재는 개발자 책임**: Unity Ads/AdMob 미디에이션으로 나간 APK 다운로드 광고가 기기·네트워크 남용 정지로 이어짐(2026-08) — AdMob 광고 검토 센터로 차단, 알 수 없는 미디에이션 소스 비활성, 증거 보관; 키즈 타깃 앱의 홍보 배너는 광고 SDK 없이도 Families 광고로 간주; PE 규칙: 원격 설정 킬스위치는 경고 후엔 괜찮지만 심사 통과용은 불가. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### ADS-03 테스트 광고 유닛 제거
 - 근거: 릴리즈에 테스트 유닛(`ca-app-pub-3940256099942544/...`) → 수익 0 + AdMob 정책; 개발 중 실광고 클릭 → 위반.

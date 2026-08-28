@@ -160,6 +160,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Verify: location used for ads/analytics? contacts uploaded? background collection? → an in-app disclosure screen in Google's format: **"[This app] collects/transmits/syncs/stores [type of data] to enable ['feature'], [scenario]."**
 - Signals: `perm.*`, `ads.sdk`
 - Fix: a dialog immediately before the permission request with an explicit Accept action; prefer pickers (Photo Picker, contact picker, share sheet) over broad permissions.
+- Play 3rd-pass wording — "Requests for in-app user consent and runtime permission are not immediately preceded by an in-app disclosure"; "A toggle button will not meet the threshold for explicit consent… Apps must have two buttons clearly displaying consent options". [cases](../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### PRIV-05 ATT prompt must be reachable on a fresh review device
 - Basis: 2026 rejections "We were unable to locate the App Tracking Transparency permission request when reviewed on iOS/iPadOS" for apps whose ATT call existed but never fired: requested before the app was active (`undetermined` returned silently, never retried), tied to an ad banner that never mounted, gated on ad inventory (AdMob serves nothing to unpublished apps) or on deep progress (6 game-overs), shown 4th in a permission chain, or 24 h after install
@@ -257,6 +258,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Signals: `price.hardcoded`
 - Fix: single source of truth from the store product; scan the IPA/AAB strings for fixed prices.
 - Cases: [Japanese sources](../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Play 3rd-pass case — a "Try for Free" button without a configured trial phase was treated as **Malware "Billing Fraud"** (app suspended, account terminated), not a subscriptions warning. [case](../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ---
 
@@ -272,6 +274,7 @@ Grades are defined in SKILL.md. Written as of 2026-08-28 against the App Store R
 - Fix: move interstitials to natural breaks; add close/skip; add an ad-report menu (AdMob "report ad" or a mailto).
 - From cases: ads triggered on button clicks were rejected as "interferes with the normal use of the application" even after interstitials were removed. [case](../rejections/community-cases.md#ads-subscriptions-payments)
 - Play 2nd-pass cases: rejections for ads on Settings/Download/Disconnect taps, on activity start, App Open ads on every foreground, "ads triggered by the back button", "out of context activities with ads… if the app is sent to the background"; Families apps additionally get "can't be closed after 5 seconds" for rewarded videos and close buttons hidden behind the navigation bar. Often the real reason sits in the AdMob policy center. Rule: ads only where the user expects them (label the button), never on navigation/exit/background. [cases](../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
+- Play 3rd-pass cases — mediated ad **creatives are your liability**: APK-download ads served through Unity Ads / AdMob mediation produced Device and Network Abuse suspensions (2026-08) — use the AdMob Ad Review Center, disable unknown mediation sources, keep evidence; promotional banners in a kids-audience app count as ads under Families even without an ad SDK; PE rule: remote-config kill switches are fine after a warning but not to pass review. [cases](../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### ADS-03 Remove test ad units
 - Basis: leaving test units (`ca-app-pub-3940256099942544/...`) in release → zero revenue + AdMob policy; clicking live ads during development → violation.

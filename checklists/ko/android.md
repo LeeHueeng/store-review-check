@@ -25,6 +25,12 @@
 - 확인: `android:exported` 명시(API 31+, 인텐트 필터 컴포넌트), `usesCleartextTraffic="true"` 제거 또는 network_security_config로 도메인 한정, `allowBackup` 의도 확인.
 - 신호: Manifest 섹션
 
+### AND-FORM-01 Android Auto / Wear OS / TV 폼팩터 심사
+- 근거: 폼팩터 옵트인(또는 라이브러리가 병합한 `CarAppService`)은 **별도 품질 심사**를 시작하며 고유한 리젝이 있음: "Auto App Quality Guidelines: the content of your application is not able to load", "Parking and Charging Functionality — 운전 관련 카테고리에서 의미 있는 기능 없음", "Missing ongoing activity", "non-standalone Wear app can't connect", "App doesn't mention Wear OS in store listing", TV "vertical letterboxing"
+- 적용: 매니페스트나 콘솔에서 Auto/Wear/TV/XR을 옵트인한 모든 앱 — 라이브러리의 유령 서비스(CarPlay/Media3 래퍼) 포함
+- 확인: 의도치 않은 `CarAppService`/Wear 항목은 `tools:node="remove"`; 의도했다면 폼팩터 품질 가이드(Wear 진행 중 활동, Auto 카테고리 기능, TV 가로/린백) 충족 + 해당 폼팩터의 등록정보/스크린샷 완비.
+- 사례: [Play 3차](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
+
 ---
 
 ## 권한 (Play 권한 정책 + 선언 양식)
@@ -33,6 +39,7 @@
 - 근거: "SMS/Call Log 권한을 요청하려면 기본 SMS·전화·어시스턴트 핸들러로 등록돼 있어야"; OTP → SMS Retriever API / User Consent API. **2027-01-27**부터 READ_CALL_LOG는 "전화 통화를 통한 계정 인증" 용도 불허(Digital Credentials API / SMS Retriever 사용).
 - 신호: 자동 힌트
 - 수정: 제거; SMS Retriever로 전환.
+- Play 3차 사례 — SMS "기기 간 동기화" 용도는 **미러링**이지 다른 번호/이메일로 전달이 아님(불일치로 거절); SMS/통화기록 핵심 기능 증빙은 업데이트마다 재검증("couldn't find evidence that the app offers the declared core functionality"). [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### AND-PERM-02 QUERY_ALL_PACKAGES
 - 근거: "핵심 사용자 기능이 설치 앱 전체 가시성을 요구할 때만"(런처, 보안, 앱 관리); 그 외 `<queries>`로 특정 패키지만; Play Console 선언 양식 필수.
@@ -129,6 +136,7 @@
 - 근거: Play Console > 정책 및 프로그램 > App content > **Sign-in details**("안내 최대 5세트"; OTP/MFA는 "기타 안내"). 요건: "항상 접근 가능, 재사용 가능, 사용자 위치와 무관하게 유효… 2단계 인증/OTP가 필요하면 이를 우회하는 재사용 가능 자격 증명… 영어로 제공… 비밀번호 만료 시 심사 불가로 거부 가능". 유료 콘텐츠도 접근 안내. 거부는 "Broken Functionality"/확인 불가로 나타남.
 - 확인: `templates/review-notes.md` Android 부분; 소셜 로그인만 → 이메일 리뷰어 계정(ACC-03); 해외 IP에서 자격 증명 테스트.
 - 한국 사례: Play는 자격 증명 대신 데모 영상을 **받지 않음**; QR/하드웨어 게이트 앱은 장기 코드 제공; 한글 ID·관리자 계정 거부; 카카오/네이버/구글만 있는 로그인 불인정 — ID/PW 로그인 추가(ACC-05).
+- Play 3차 사례 — Google은 **출시 후에도** 같은 Sign-in details로 재테스트: 출시 후 비활성화한 데모 계정이 몇 주 뒤 위반 통지; 페이월 전용 앱은 구독된 테스트 Google 계정 또는 딥링크/라이선스 테스트 우회 필요("Paywall restriction… Update your app login credentials in the app access declaration"); OTP 앱은 고정 번호 + 항상 유효한 코드; 하드웨어 종속 앱은 리뷰 모드 또는 공개 영상/가이드 링크. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### AND-CONSOLE-04 광고 ID·광고 포함
 - 근거: `AD_ID` 권한 선언(targetSdk 33+, 광고 SDK가 병합) + Data safety 광고 ID + "광고 포함" 선언. 광고 ID 안 쓰면 `tools:node="remove"` 후 "아니오".
@@ -156,11 +164,13 @@
 - 근거: **건강 앱 선언**: "Play에 게시된 앱이 있는 모든 개발자는 비공개/공개 테스트·프로덕션 트랙 포함 건강 앱 선언 완료 필수"(2024-08-31 이후). **금융 기능 선언**: 모든 앱 필수("금융 기능 없음" 옵션); 2025-10-30부터 "완료 전까지 앱 업데이트 불가". **뉴스·잡지** 자가 선언(미준수 시 삭제, 2026-05-27 재고지). **정부 앱** 선언(2023-01-31~). 그 외 COVID-19, 블록체인(금융 기능 양식), VPN.
 - 확인: App content 페이지에 모든 선언 완료. "정신 건강" 문구를 쓰는 집중 타이머는 건강 앱 가능(건강 콘텐츠·서비스 정책).
 - 사례 교훈: Health Connect·금융 선언은 **전체 스토어 설명**으로 판단 — 데이터 유형별 필요 이유 기재; 대출/SIP 계산기가 "금융 기능 없음"으로 거절됨; 정책 URL은 공개 유지.
+- Play 3차 사례 — 건강 앱 선언: 부수적 건강 기능(데이팅 앱의 HIV 상태 필드, 호흡 운동, 피부 관리 트래커, 동물병원 포털)은 **"기타"**로 선언하거나 제거, 아니면 "Inaccurate Health Apps Declaration"; Health Connect "Minimum Scope" 리젝은 권한 그룹 전체를 나열 — 스토어 설명에 데이터 유형별 기능을 명시한 단락 추가, Apple/타 플랫폼 문구 제거, 심사되는 설명은 심사 대상 릴리즈에 첨부된 것; 개인 대출 앱: 설명의 제휴 은행명/URL이 금융 기능 선언과 일치해야 하고 대출 정책은 저장소 권한 금지. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### AND-CONSOLE-10 Child Safety Standards 자가 인증
 - 근거: 소셜·데이팅(2025-01-22~)과 익명/랜덤 채팅(2026-07-15~) 앱은 "아동 성적 학대·착취(CSAE)에 대한 공개 기준" 전 세계 접근 가능 URL, "앱 내 사용자 피드백 수단", CSAM 처리, 아동 안전법 준수, "아동 안전 담당자" + 게시 전 Play Console 자가 인증. 데이팅/랜덤/익명 채팅/도박 앱은 Play Console 도구로 미성년자 차단(연령 제한 콘텐츠 정책).
 - 적용: 소셜/데이팅 카테고리, 낯선 사람과 채팅, 익명 채팅(common UGC-07)
 - 확인: CSAE 기준 페이지 URL; 담당자; Play Console App content > 아동 안전 기준 완료.
+- Play 3차 사례 — "The published standards are invalid" 3요소: 아동 안전 기준 URL은 (a) 로그인/JS 없이 200, (b) CSAE/아동 안전 문구 포함, (c) 등록정보의 앱 **또는** 개발자 이름 정확히 포함; 소셜 앱은 담당자·앱 내 신고 경로·CSAM 처리 문구도 필요; 재제출·이의 제기마다 재검증 — 기준 페이지가 조용히 사라져 "Repeated app rejections" 정지된 사례. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### AND-CONSOLE-11 재제출 전 모든 트랙의 옛 빌드 비활성화
 - 근거: 리젝이 **옛 버전 코드**를 반복 지적(예: "Remove the use of … permission from all version codes within the submission") — 내부/비공개/공개 트랙에 문제 권한·targetSdk·크래시가 있는 빌드가 남아 있기 때문.
@@ -169,6 +179,7 @@
 - 수정: 수정 빌드를 모든 트랙에 승격하거나 트랙 비활성화; 재제출; 권한이 사라졌어도 필요한 선언 양식은 제출.
 - 사례: [커뮤니티](../../rejections/community-cases.md#photo-and-video-permissions-read_media_images--video)
 - 한국 사례: VC 6을 고친 뒤에도 **공개 테스트** 트랙의 VC 3이 지적됨 — 그 트랙에 수정 번들로 릴리즈를 만들어 옛 번들을 비활성화; 테스트 트랙 번들은 삭제 불가, 덮어쓰기만 가능.
+- Play 3차 사례 — **일시중지로는 부족**: 일시중지된 테스트 트랙과 100% 미만 프로덕션 출시의 번들도 심사관이 보는 대상(증상: 몇 달 전 스크린샷, 사용 안 된 리뷰어 자격 증명, 제거된 화면 인용); 트랙을 완전히 교체하거나 비활성화; 옛 번들 재스캔으로 이의 제기가 수락된 앱이 다시 정지된 사례; "콘솔에서 무엇이든 바꾸면 심사 타이머가 리셋". [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### AND-CONSOLE-12 정부 정보 앱
 - 근거: 혼동을 야기하는 주장 리젝 "Your app doesn't provide a clear source of government information or its description lacks an easy-to-see disclaimer stating that the app doesn't represent a government entity" / "Identify a clear source of government information"; 고지문만으로는 거의 통과 못 함 — 정부 앱 선언 + 서면 승인, 앱 내 소개/고지 페이지, 설명의 완전한 출처 URL(심사관이 그대로 복사)이 있어야 통과
@@ -215,6 +226,7 @@
 - 근거: Play Console **앱 등록 2026-09-30까지** — 미등록 앱은 "Google Play에서 전 세계 삭제"; 금융·건강·VPN·정부 앱은 "조직으로 등록 필수"(D-U-N-S). 개발자 정보(법적 이름/주소/이메일/전화) 공개; 수익화 계정은 전체 주소 공개.
 - 확인: 게시된 모든 앱 등록; 계정 유형이 앱 카테고리와 일치.
 - Play 2차 사례: "Some types of apps can only be distributed by organizations"(Play Console 요구사항 정책)가 헬스케어·"돈 벌기"/리워드 앱에서 D-U-N-S로 조직 전환한 뒤에도 발생 — 콘솔이 변경을 인식하려면 지원 티켓 필요; 2016년부터 개인 계정으로 배포한 회사는 새 조직 계정 + 앱 이전 전까지 전 앱 삭제.
+- Play 3차 사례 — 조직 요건은 선언뿐 아니라 등록정보의 **용도 키워드**("invoices, costs", "accounts, bank, savings", 클리닉 연락, 유료 멤버십 광고판, 코인이 있는 긱 앱)로도 발동; 개인 계정에서 만든 등록정보는 전환 후에도 개인 상태 유지 — 조직 계정에서 게시 취소 후 재생성. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### AND-QUALITY-01 기술 품질 기준
 - 근거: Play 기술 품질 요건 — 사용자 체감 크래시율 ≤ 1.09%, ANR ≤ 0.47%(초과 시 노출·경고); 네이티브 코드 64비트 + 16KB; 2027-02부터 ≥25% 코드 최적화(R8)와 메모리 제한; Zero-Tap Sign-In 2027-04(발표). 정지는 스트라이크로 누적(집행 정책).
@@ -233,6 +245,7 @@
 - 확인/규칙: 같은 빌드가 **두 번** 거절되면 멈추고 내부 트랙에서 자가 테스트 + 이의 제기(재업로드 금지); 정지 후 같은/유사 패키지 재업로드 금지; 콘솔에 초대하는 사용자 검증; 정확한 변경 내용을 적은 이의 제기문 보관.
 - 사례: [Play 2차](../../rejections/community-cases.md#google-play--additional-cases-2nd-pass-2026-08-28-stack-exchange-api-play-community-github-issues-hn)
 - 일본 사례: *경미한* 메타데이터 리젝이 이어진 뒤 앱 3개가 "アプリ拒否スパム: Repeated app rejections"로 정지; 미출시 MVP로 회사 계정 종료; 정지 중 구독 자동 취소. 재제출마다 한 이슈를 완전히 해결하고 방치 앱은 삭제. [사례](../../rejections/community-cases.md#cases-from-japanese-and-chinese-sources-2nd-pass-2026-08-28)
+- Play 3차 사례 — 카운터는 실재: 한 앱에서 ~30~60일 내 3~4회 리젝이면 각각 경미하고 고쳤어도 Enforcement Process 정지; 정지 후 App access 선언 수정 불가, 단 한 번의 이의 제기는 *원래* 리젝 기준으로 판단; 2026 연관 벡터: 외주/에이전시 콘솔 접근, 공유 기기·빌려준 노트북, 가정 네트워크, D-U-N-S 동기화 지연, 자기 계정 간 앱 이전; 180일 규칙이 새 증거 제출을 막음. [사례](../../rejections/community-cases.md#google-play--3rd-pass-2026-08-28-thin-areas--child-safety-declarations-health-connect-form-factors-enforcement)
 
 ### AND-REVIEW-01 심사 환경은 Play 스토어가 아니다
 - 근거: 심사관은 **Play 서명** 빌드를 설치(사전 출시 보고서와 다른 키 → Google/Firebase 로그인, App Check, 일부 라이브러리 실패); Play Asset Delivery 온디맨드 팩은 `AppNotOwned` / `AppUnavailable` / `InternalError`; 네트워크가 꺼져 있을 수 있음; 실시간/스트리밍 의존 화면은 비어 있음; 다른 릴리즈의 옛 자격 증명이 사용됨
